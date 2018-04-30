@@ -3,10 +3,10 @@
 ## 1. Install CI Dashboard Server
 Ensure you have followed the documentation **How To Setup Continuous Integration Dashboard Server** and successfully installed Node.js and Node Package Manager (NPM) along with the many specified third-party libraries.
 
-## 2. Open the Command Line Interface (CLI)
+## 2. Open the Command Line Interface (CLI) In Root Directory of Project
 The CLI could be Linux bash or Windows Command Prompt, use which ever gives you access to the commands **npm** and **node**.
 
-## 3. Run command **npm test**
+## 3. Run command: **npm test**
 This will run the test command specified in the **package.json** file in root directory. It should have these lines in it:
 
 ```
