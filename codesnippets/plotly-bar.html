@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <title>Plotly Snippet: Bar Chart</title>
+
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-1.36.1.min.js"></script>
+
+  </head>
+  <body>
+
+    <div id="bar_chart" style="width:50%;height:50%;border-width:5px;border-style:solid">
+      <!-- Plotly chart drawn here -->
+    </div>
+
+    <script>
+      var data =
+      [{
+        x: ['giraffes', 'orangutans', 'monkeys'],
+        y: [20, 14, 23],
+        type: 'bar'
+      }];
+
+      Plotly.newPlot('bar_chart', data);
+    </script>
+
+  </body>
+</html>

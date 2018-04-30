@@ -33,6 +33,7 @@ console.log();
 console.log("IsEquals(null, undefined): " + IsEquals(null, undefined));
 console.log("IsEquals(false, 0): " + IsEquals(false, 0));
 console.log("IsEquals(true, 1): " + IsEquals(true, 1));
+console.log("IsEquals('1', 1): " + IsEquals('1', 1));
 
 console.log();
 console.log();
@@ -42,3 +43,4 @@ console.log();
 console.log("IsIdentical(null, undefined): " + IsIdentical(null, undefined));
 console.log("IsIdentical(false, 0): " + IsIdentical(false, 0));
 console.log("IsIdentical(true, 1): " + IsIdentical(true, 1));
+console.log("IsIdentical('1', 1): " + IsIdentical('1', 1));
