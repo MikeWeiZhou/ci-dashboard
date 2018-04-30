@@ -1,0 +1,33 @@
+{
+  "name": "kpi-dashboard",
+  "version": "1.0.0",
+  "description": "Key Performance Indicators Dashboard for ***REMOVED*** Inc.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://MikeZhou@bitbucket.org/tsungyulee/kpi-dashboard.git"
+  },
+  "keywords": [
+    "continuous",
+    "integration",
+    "ci",
+    "key",
+    "performance",
+    "indicator",
+    "indicators",
+    "kpi",
+    "dashboard"
+  ],
+  "author": "Johnny Lee, Elisa Chu, Tony So, Mike Zhou",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/tsungyulee/kpi-dashboard#readme",
+  "dependencies": {
+    "mocha": "^5.1.1"
+  }
+}
