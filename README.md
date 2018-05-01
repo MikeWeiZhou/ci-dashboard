@@ -7,8 +7,8 @@ BCIT ISSP 2018 spring project - ***REMOVED*** CI Dashboard
 ### dist
 Distribution. Typescript-compiled Javascript files.
 
-### lib
-Development library. Typescript source files.
+### src
+Development. Typescript source files.
 
 ### docs
 Holds all the documentation and how-to's.

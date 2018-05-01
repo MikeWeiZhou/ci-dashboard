@@ -4,7 +4,7 @@
 Ensure you have followed the documentation **How To Setup Continuous Integration Dashboard Server** and successfully installed Node.js and Node Package Manager (NPM) along with rebuilding the required node modules.
 
 ## 2. Compile into JavaScript and Run Server
-This will compile the TypeScript (in *lib* directory) into JavaScript (to *dist* directory) and runs the webserver.js in the *dist* directory.
+This will compile the TypeScript (in *src* directory) into JavaScript (to *dist* directory) and runs the webserver.js in the *dist* directory.
 
 * Open command prompt and change directory to root of this project
 * To compile TypeScript into JavaScript, run command: **npm run compile**
@@ -15,7 +15,7 @@ npm run **cnr** and **compile** command is specified in the **package.json** fil
 
 ```
 "scripts": {
-    "compile": "tsc -p lib --outDir dist",
+    "compile": "tsc -p src --outDir dist",
     "cnr": "npm run compile && npm start"
 },
 ```
