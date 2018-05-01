@@ -13,7 +13,7 @@ from https://nodejs.org/
 
 #### List of required server node modules:
 
-<!-- * **mocha** (unit testing framework) -->
+* **express** (web framework/routing)
 
 ### 3. Run CI Dashboard Server
 
