@@ -8,9 +8,7 @@
   },
   "scripts": {
     "test": "mocha",
-    "start": "node dist/webserver.js",
-    "compile": "tsc -p src --outDir dist",
-    "cnr": "npm run compile && npm start"
+    "start": "node dist/server.js"
   },
   "repository": {
     "type": "git",
@@ -31,10 +29,9 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/tsungyulee/kpi-dashboard#readme",
   "dependencies": {
-    "@types/express": "^4.11.1",
     "body-parser": "^1.18.2",
+    "csv-parse": "^2.2.0",
     "express": "^4.16.3",
-    "mocha": "^5.1.1",
-    "typescript": "^2.8.3"
+    "mocha": "^5.1.1"
   }
 }

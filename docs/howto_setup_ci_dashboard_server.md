@@ -18,8 +18,8 @@ This will run the start command specified in the **package.json** file in root d
 
 ```
 "scripts": {
-    "start": "node dist/webserver.js"
+    "start": "node dist/server.js"
 },
 ```
 
-Which will run the script **dist/webserver.js** in Node.js.
+Which will run the script **dist/server.js** in Node.js.
