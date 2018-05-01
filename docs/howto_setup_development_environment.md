@@ -1,7 +1,7 @@
 # How To Setup Development Environment
 
 ## 1. Install CI Dashboard Server
-Ensure you have followed the documentation **How To Setup Continuous Integration Dashboard Server** and successfully installed Node.js and Node Package Manager (NPM) along with rebuilding the required node modules.
+Ensure you have followed the documentation **How To Setup Continuous Integration Dashboard Server** and successfully installed Node.js and Node Package Manager (NPM) along with installing the required node modules.
 
 ## 2. Compile into JavaScript and Run Server
 This will compile the TypeScript (in *src* directory) into JavaScript (to *dist* directory) and runs the webserver.js in the *dist* directory.

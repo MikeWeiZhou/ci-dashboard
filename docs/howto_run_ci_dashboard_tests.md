@@ -1,7 +1,7 @@
 # How To Run Continuous Integration Dashboard Tests
 
 ## 1. Install CI Dashboard Server and Setup Development Environment
-Ensure you have followed the documentation **How To Setup Continuous Integration Dashboard Server** as well as **How To Setup Development Environment** and successfully installed Node.js and Node Package Manager (NPM) along with rebuilding the required node modules.
+Ensure you have followed the documentation **How To Setup Continuous Integration Dashboard Server** as well as **How To Setup Development Environment** and successfully installed Node.js and Node Package Manager (NPM) along with installing the required node modules.
 
 ## 2. Run Tests
 

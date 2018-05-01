@@ -1,17 +1,15 @@
 # How To Setup Continuous Integration Dashboard Server
 
-## On a Windows 10 Machine
-
-### 1. Download and Install Node.js v8.11.1 (latest stable long-term-release as of writing)
+## 1. Download and Install Node.js v8.11.1 (latest stable long-term-release as of writing)
 from https://nodejs.org/
 
-### 2. Rebuild Node Modules
-This is useful when you install a new version of node, and must recompile all your C++ addons with the new binary.
+## 2. Install Required Node Modules
+This will install all dependencies listed in **package.json** file
 
 * Open command prompt and change directory to root of this project
-* Run command: **npm rebuild**
+* Run command: **npm install**
 
-### 3. Run CI Dashboard Server
+## 3. Run CI Dashboard Server
 
 * Open command prompt and change directory to root of this project
 * Run command: **npm start**
