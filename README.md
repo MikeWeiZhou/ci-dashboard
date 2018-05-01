@@ -16,9 +16,6 @@ Holds all the documentation and how-to's.
 ### test
 Unit tests.
 
-### node_modules
-Installed local node modules.
-
 ### webapp
 Plotly.js experimentation.
 
