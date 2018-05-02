@@ -15,6 +15,7 @@ export class InsuranceDataTransformer implements IDataTransformer
      * Returns only the Policy ID and Site Deductable of each insurance record.
      * @param {any} o original JSON insurance record
      * @returns {any} a transformed JSON insurance record
+     * @override
      */
     Transform(o: any): any
     {

@@ -2,14 +2,14 @@
 import * as csv from "csv-parse"
 import * as fs from "fs"
 
-import { IDataReader } from "./IDataReader"
+import { IDataCollector } from "./IDataCollector"
 
 /**
- * CsvDataReader.
+ * CsvDataCollector.
  * 
  * Returns a stream to the CSV file.
  */
-export class CsvDataReader implements IDataReader
+export class CsvDataCollector implements IDataCollector
 {
     private _filepath: string;
 
@@ -24,6 +24,7 @@ export class CsvDataReader implements IDataReader
 
     /**
      * Initialize the data source.
+     * @override
      */
     Initialize(): void
     {
@@ -32,6 +33,7 @@ export class CsvDataReader implements IDataReader
     /**
      * Returns a stream of the csv file.
      * @returns {any} stream to the csv file
+     * @override
      */
     GetStream(): any
     {
@@ -41,6 +43,7 @@ export class CsvDataReader implements IDataReader
 
     /**
      * Cleanup/dispose any open resources.
+     * @override
      */
     Cleanup(): void
     {

@@ -27,11 +27,14 @@ export class TransformStream extends Transform
      * Transforms a JSON object using an DataTransformer.
      * @param {any} jsonObj a JSON object from the stream
      * @param {string} encoding not used
-     * @param {Function} callback optional callback when stream is finished
+     * @param {Function} callback callback when finished transforming jsonObj
      */
     _transform(jsonObj: any, encoding: string, callback: Function): void
     {
         this.push(this._dataTransformer.Transform(jsonObj));
+
+        // callback signals successful transformation of jsonObj
+        // pass a parameter with any object to signal an error
         callback();
     }
 }
