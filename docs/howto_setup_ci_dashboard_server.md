@@ -18,8 +18,8 @@ This will run the start command specified in the **package.json** file in root d
 
 ```
 "scripts": {
-    "start": "node src/server.js"
+    "start": "node compiled/server.js"
 },
 ```
 
-Which will run the script **src/server.js** in Node.js.
+Which will run the script **compiled/server.js** in Node.js.

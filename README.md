@@ -4,8 +4,11 @@ BCIT ISSP 2018 spring project - ***REMOVED*** CI Dashboard
 
 ## Directory Structure
 
-### src
-JavaScript source files.
+### compiled
+Javascript files. Compiled from Typescript.
+
+### source
+Typescript source files.
 
 ### docs
 Holds all the documentation and how-to's.
