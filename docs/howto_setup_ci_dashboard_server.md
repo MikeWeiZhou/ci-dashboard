@@ -4,10 +4,19 @@
 from https://nodejs.org/
 
 ## 2. Install Required Node Modules
-This will install all dependencies listed in **package.json** file
+This will install all dependencies listed in **package.json** file and compile the Typescript source.
 
 * Open command prompt and change directory to root of this project
-* Run command: **npm install**
+* Run command: **npm run setup**
+
+**npm run setup** command is specified in the **package.json** file in root directory. It should have these lines in it:
+
+```
+  "scripts": {
+    "compile": "tsc -p source --outDir compiled",
+    "setup": "npm install && npm run compile",
+  },
+```
 
 ## 3. Run CI Dashboard Server
 

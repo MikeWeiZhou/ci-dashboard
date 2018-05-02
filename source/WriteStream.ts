@@ -1,4 +1,5 @@
 import { Writable } from "stream"
+
 import { IStorageWriter } from "./storagewriters/IStorageWriter";
 
 /**
@@ -28,13 +29,14 @@ export class WriteStream extends Writable
      * @param {any} jsonObj a JSON object from the stream
      * @param {string} encoding not used
      * @param {Function} callback callback when finished writing jsonObj
+     * @override
      */
     _write(jsonObj: any, encoding: string, callback: Function): void
     {
         this._storageWriter.Write("insurance", jsonObj);
 
         // callback signals successful writing of jsonObj
-        // pass a parameter with any object to signal an error
+        // pass a parameter with any object to signal with an error msg
         callback();
     }
 }

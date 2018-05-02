@@ -1,4 +1,5 @@
 import * as mysql from "mysql"
+
 import { IStorageWriter } from "./IStorageWriter"
 
 /**
@@ -122,5 +123,6 @@ export class MySqlStorageWriter implements IStorageWriter
      */
     Cleanup(): void
     {
+        this._connection.end();
     }
 }
