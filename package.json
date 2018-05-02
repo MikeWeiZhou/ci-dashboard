@@ -7,10 +7,10 @@
     "doc": "docs"
   },
   "scripts": {
+    "setup": "npm install && npm run compile",
     "start": "node compiled/TestReadInsurance.js",
     "compile": "tsc -p source --outDir compiled",
     "cnr": "npm run compile && npm start",
-    "setup": "npm install && npm run compile",
     "test": "mocha compiled/unittests/tests.js",
     "compiletests": "tsc -p source/unittests --outDir compiled/unittests",
     "cnrt": "npm run compiletests && npm test"

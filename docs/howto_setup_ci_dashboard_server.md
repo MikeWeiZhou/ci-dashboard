@@ -3,7 +3,7 @@
 ## 1. Download and Install Node.js v8.11.1 (latest stable long-term-release as of writing)
 from https://nodejs.org/
 
-## 2. Install Required Node Modules
+## 2. Install Required Node Modules and Compile Typescript Source
 This will install all dependencies listed in **package.json** file and compile the Typescript source.
 
 * Open command prompt and change directory to root of this project
