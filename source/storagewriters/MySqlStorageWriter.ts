@@ -1,4 +1,5 @@
 import * as mysql from "mysql"
+
 import { IStorageWriter } from "./IStorageWriter"
 
 /**
@@ -87,7 +88,7 @@ export class MySqlStorageWriter implements IStorageWriter
 
         for (var i: number = 0; i < keys.length; ++i)
         {
-            sql += "'" + record[keys[i]] + "', ";
+            sql += "'" + record[keys[i]] + "', "; // can access through associative array LOL
         }
         sql = sql.slice(0, -2);
         sql += ")";
@@ -122,5 +123,6 @@ export class MySqlStorageWriter implements IStorageWriter
      */
     Cleanup(): void
     {
+        this._connection.end();
     }
 }

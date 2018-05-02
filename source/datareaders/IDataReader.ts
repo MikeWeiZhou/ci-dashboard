@@ -1,3 +1,5 @@
+import { Writable } from "stream"
+
 /**
  * IDataReader.
  * 
@@ -11,10 +13,10 @@ export interface IDataReader
     Initialize(): void;
 
     /**
-     * Returns a stream of the data.
-     * @returns {any} any stream that can be piped: e.g. fs.ReadStream, fs.WriteStream
+     * Returns a Writable stream of the data.
+     * @returns {Writable} Writable stream of data
      */
-    GetStream(): any;
+    GetStream(): Writable;
 
     /**
      * Cleanup/dispose any open resources.
