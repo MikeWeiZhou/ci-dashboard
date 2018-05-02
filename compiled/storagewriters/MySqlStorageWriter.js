@@ -1,8 +1,8 @@
 "use strict";
 exports.__esModule = true;
 var mysql = require("mysql");
-var MySqlDataWriter = (function () {
-    function MySqlDataWriter(host, db, user, pass) {
+var MySqlStorageWriter = (function () {
+    function MySqlStorageWriter(host, db, user, pass) {
         this._connection = mysql.createConnection({
             host: host,
             database: db,
@@ -10,7 +10,7 @@ var MySqlDataWriter = (function () {
             password: pass
         });
     }
-    MySqlDataWriter.prototype.Initialize = function () {
+    MySqlStorageWriter.prototype.Initialize = function () {
         this._connection.connect(function (error) {
             if (error) {
                 console.log("MySQL connection error:");
@@ -20,7 +20,7 @@ var MySqlDataWriter = (function () {
             console.log("Connected to MySQL database!");
         });
     };
-    MySqlDataWriter.prototype.Write = function (table, record) {
+    MySqlStorageWriter.prototype.Write = function (table, record) {
         var keys = Object.keys(record);
         var sql = "INSERT INTO " + table + " (";
         for (var i = 0; i < keys.length; ++i) {
@@ -35,7 +35,7 @@ var MySqlDataWriter = (function () {
         sql += ")";
         this.RawQuery(sql);
     };
-    MySqlDataWriter.prototype.RawQuery = function (sql) {
+    MySqlStorageWriter.prototype.RawQuery = function (sql) {
         this._connection.query(sql, function (error, result) {
             if (error) {
                 console.log("MySQL raw query error: " + sql);
@@ -45,8 +45,8 @@ var MySqlDataWriter = (function () {
             console.log("Raw query successfully executed: " + sql);
         });
     };
-    MySqlDataWriter.prototype.Cleanup = function () {
+    MySqlStorageWriter.prototype.Cleanup = function () {
     };
-    return MySqlDataWriter;
+    return MySqlStorageWriter;
 }());
-exports.MySqlDataWriter = MySqlDataWriter;
+exports.MySqlStorageWriter = MySqlStorageWriter;

@@ -1,12 +1,12 @@
 /**
- * IDataWriter.
+ * IStorageWriter.
  * 
- * Allows writing data to a source.
+ * Allows writing data to a storage.
  */
-export interface IDataWriter
+export interface IStorageWriter
 {
     /**
-     * Initialize the data source.
+     * Initialize the storage.
      */
     Initialize(): void;
 
@@ -23,7 +23,7 @@ export interface IDataWriter
     // WriteData(): void;
 
     /**
-     * Write record to data source.
+     * Write record to storage.
      * @param {string} table name
      * @param {any} record in JSON format, MUST BE FLAT (one-leveled)
      */

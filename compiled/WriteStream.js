@@ -17,11 +17,11 @@ var WriteStream = (function (_super) {
         var _this = _super.call(this, {
             objectMode: true
         }) || this;
-        _this._dataWriter = dataWriter;
+        _this._storageWriter = dataWriter;
         return _this;
     }
     WriteStream.prototype._write = function (jsonObj, encoding, callback) {
-        this._dataWriter.Write("insurance", jsonObj);
+        this._storageWriter.Write("insurance", jsonObj);
         callback();
     };
     return WriteStream;

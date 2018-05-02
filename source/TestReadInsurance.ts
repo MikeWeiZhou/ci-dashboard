@@ -1,19 +1,19 @@
-import { IDataCollector } from "./datacollectors/IDataCollector"
+import { IDataReader } from "./datareaders/IDataReader"
 import { IDataTransformer } from "./datatransformers/IDataTransformer"
 
-import { CsvDataCollector } from "./datacollectors/CsvDataCollector"
+import { CsvDataReader } from "./datareaders/CsvDataReader"
 import { InsuranceDataTransformer } from "./datatransformers/InsuranceDataTransformer"
 
 import { TransformStream } from "./TransformStream"
 import * as csv from "csv-parse"
 import * as fs from "fs"
 
-import { MySqlDataWriter } from "./datawriters/MySqlDataWriter";
+import { MySqlStorageWriter } from "./storagewriters/MySqlStorageWriter";
 import { WriteStream } from "./WriteStream";
 
-const dataCollector: IDataCollector = new CsvDataCollector("./data/FL_insurance_sample.csv");
+const dataCollector: IDataReader = new CsvDataReader("./data/FL_insurance_sample.csv");
 const dataTransformer: IDataTransformer = new InsuranceDataTransformer();
-const dataWriter: MySqlDataWriter = new MySqlDataWriter("localhost", "cidashboard", "root", "");
+const dataWriter: MySqlStorageWriter = new MySqlStorageWriter("localhost", "cidashboard", "root", "");
 
 var count: number = 0;
 
@@ -32,6 +32,7 @@ dataCollector.GetStream()
     });
 
 dataCollector.Cleanup();
+dataWriter.Cleanup();
 
 
 

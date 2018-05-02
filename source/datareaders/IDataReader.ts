@@ -1,9 +1,9 @@
 /**
- * IDataCollector.
+ * IDataReader.
  * 
  * Returns a stream to the data source.
  */
-export interface IDataCollector
+export interface IDataReader
 {
     /**
      * Initialize the data source.

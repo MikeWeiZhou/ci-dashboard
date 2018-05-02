@@ -1,5 +1,5 @@
 import { Writable } from "stream"
-import { IDataWriter } from "./datawriters/IDataWriter";
+import { IStorageWriter } from "./storagewriters/IStorageWriter";
 
 /**
  * WriteStream.
@@ -8,30 +8,30 @@ import { IDataWriter } from "./datawriters/IDataWriter";
  */
 export class WriteStream extends Writable
 {
-    private _dataWriter: IDataWriter;
+    private _storageWriter: IStorageWriter;
 
     /**
      * Constructor.
-     * @param {IDataWriter} dataWriter DataWriter used to transform the JSON object
+     * @param {IStorageWriter} dataWriter DataWriter used to transform the JSON object
      */
-    constructor(dataWriter: IDataWriter)
+    constructor(dataWriter: IStorageWriter)
     {
         super({
             objectMode: true // stream accepts any JS object rather than the default string/buffer
         });
 
-        this._dataWriter = dataWriter;
+        this._storageWriter = dataWriter;
     }
 
     /**
-     * Writes to storage using a DataWriter.
+     * Writes to storage using a StorageWriter.
      * @param {any} jsonObj a JSON object from the stream
      * @param {string} encoding not used
      * @param {Function} callback callback when finished writing jsonObj
      */
     _write(jsonObj: any, encoding: string, callback: Function): void
     {
-        this._dataWriter.Write("insurance", jsonObj);
+        this._storageWriter.Write("insurance", jsonObj);
 
         // callback signals successful writing of jsonObj
         // pass a parameter with any object to signal an error

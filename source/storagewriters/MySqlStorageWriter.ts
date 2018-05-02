@@ -1,12 +1,12 @@
 import * as mysql from "mysql"
-import { IDataWriter } from "./IDataWriter"
+import { IStorageWriter } from "./IStorageWriter"
 
 /**
- * MySqlDataWriter.
+ * MySqlStorageWriter.
  * 
  * Allows writing data to a MySQL database.
  */
-export class MySqlDataWriter implements IDataWriter
+export class MySqlStorageWriter implements IStorageWriter
 {
     private _connection: mysql.Connection;
 
