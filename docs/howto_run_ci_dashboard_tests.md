@@ -3,20 +3,24 @@
 ## 1. Install CI Dashboard Server and Setup Development Environment
 Ensure you have followed the documentation **How To Setup Continuous Integration Dashboard Server** as well as **How To Setup Development Environment** and successfully installed Node.js and Node Package Manager (NPM) along with installing the required node modules.
 
-## 2. Run Tests
+## 2. Modifying and Running Tests
+
+This will compile the TypeScript (in *source/unittests* directory) into JavaScript (to *compiled/unittests* directory) and runs the tests.js in the *compiled/unittests* directory.
 
 * Open command prompt and change directory to root of this project
-* Run command: **npm test**
+* To compile TypeScript into JavaScript, run command: **npm run compiletests**
+* To compile and then run server, run command: **npm run cnrt** (compile-n-run tests)
+* To run tests, run command: **npm test**
 
-This will run the test command specified in the **package.json** file in root directory. It should have these lines in it:
+npm run **compiletests** and **cnrt** command is specified in the **package.json** file in root directory. It should have these lines in it:
 
 ```
 "scripts": {
-    "test": "mocha"
+    "test": "mocha compiled/unittests/tests.js",
+    "compiletests": "tsc -p source/unittests --outDir compiled/unittests",
+    "cnrt": "npm run compiletests && npm test"
 },
 ```
-
-Which will run the Mocha test framework which by default calls the test script in **test/tests.js**.
 
 # About the Mocha Test Framework
 

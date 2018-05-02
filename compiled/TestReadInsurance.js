@@ -5,10 +5,9 @@ var InsuranceDataTransformer_1 = require("./datatransformers/InsuranceDataTransf
 var TransformStream_1 = require("./TransformStream");
 var insuranceReader = new CsvDataReader_1.CsvDataReader("./data/FL_insurance_sample.csv");
 var insuranceTransformer = new InsuranceDataTransformer_1.InsuranceDataTransformer();
-var transformStream = new TransformStream_1.TransformStream(insuranceTransformer);
 var count = 0;
 insuranceReader.GetStream()
-    .pipe(transformStream)
+    .pipe(new TransformStream_1.TransformStream(insuranceTransformer))
     .on('data', function (data) {
     if (count++ <= 1) {
         console.log(count);

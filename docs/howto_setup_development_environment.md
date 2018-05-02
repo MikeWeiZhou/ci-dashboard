@@ -15,7 +15,8 @@ npm run **cnr** and **compile** command is specified in the **package.json** fil
 
 ```
 "scripts": {
+    "start": "node compiled/server.js",
     "compile": "tsc -p source --outDir compiled",
-    "cnr": "npm run compile && npm start"
+    "cnr": "npm run compile && npm start",
 },
 ```

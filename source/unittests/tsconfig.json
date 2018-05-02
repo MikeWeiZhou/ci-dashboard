@@ -11,8 +11,5 @@
     },
     "include": [
         "**/*"
-    ],
-    "exclude": [
-        "unittests"
     ]
 }
