@@ -7,7 +7,7 @@ import { IDataReader } from "./IDataReader"
 /**
  * CsvDataReader.
  * 
- * Reads from a CSV file and calls a callback function on every record.
+ * Returns a stream to the CSV file.
  */
 export class CsvDataReader implements IDataReader
 {

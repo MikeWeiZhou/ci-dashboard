@@ -1,7 +1,7 @@
 /**
  * IDataReader.
  * 
- * Reads from a data source and calls a callback function on every record.
+ * Returns a stream to the data.
  */
 export interface IDataReader
 {
@@ -11,7 +11,7 @@ export interface IDataReader
     Initialize(): void;
 
     /**
-     * Returns a stream of the data source.
+     * Returns a stream of the data.
      * @returns {any} any stream that can be piped: e.g. fs.ReadStream, fs.WriteStream
      */
     GetStream(): any;
