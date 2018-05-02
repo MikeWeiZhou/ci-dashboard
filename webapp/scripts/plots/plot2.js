@@ -13,4 +13,4 @@ var layout2 = {
 	}
 };
 // To display the second layout
-Plotly.newPlot('tester2', data, layout2);
+Plotly.newPlot('tester2', data, layout2,{displayModeBar: false});
