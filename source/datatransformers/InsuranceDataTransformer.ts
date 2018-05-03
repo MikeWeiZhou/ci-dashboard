@@ -1,13 +1,13 @@
-import { IDataTransformer } from "./IDataTransformer"
+import IDataTransformer from "./IDataTransformer"
 
 /**
  * InsuranceDataTransformer.
  * 
  * Returns only the Policy ID and Site Deductable of each insurance record.
  */
-export class InsuranceDataTransformer implements IDataTransformer
+export default class InsuranceDataTransformer implements IDataTransformer
 {
-    constructor()
+    public constructor()
     {
     }
 
@@ -17,7 +17,7 @@ export class InsuranceDataTransformer implements IDataTransformer
      * @returns {any} a transformed JSON insurance record
      * @override
      */
-    Transform(o: any): any
+    public Transform(o: any): any
     {
         return {
             policy_id: o.policyID,

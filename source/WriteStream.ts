@@ -1,13 +1,13 @@
 import { Writable } from "stream"
 
-import { IStorageWriter } from "./storagewriters/IStorageWriter";
+import IStorageWriter from "./storagewriters/IStorageWriter";
 
 /**
  * WriteStream.
  * 
  * Writes JSON objects using a given DataWriter and pushes it down the pipeline.
  */
-export class WriteStream extends Writable
+export default class WriteStream extends Writable
 {
     private _storageWriter: IStorageWriter;
 
@@ -15,7 +15,7 @@ export class WriteStream extends Writable
      * Constructor.
      * @param {IStorageWriter} dataWriter DataWriter used to transform the JSON object
      */
-    constructor(dataWriter: IStorageWriter)
+    public constructor(dataWriter: IStorageWriter)
     {
         super({
             objectMode: true // stream accepts any JS object rather than the default string/buffer
@@ -31,7 +31,7 @@ export class WriteStream extends Writable
      * @param {Function} callback callback when finished writing jsonObj
      * @override
      */
-    _write(jsonObj: any, encoding: string, callback: Function): void
+    public _write(jsonObj: any, encoding: string, callback: Function): void
     {
         this._storageWriter.Write("insurance", jsonObj);
 

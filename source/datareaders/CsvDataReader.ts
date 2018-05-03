@@ -2,14 +2,14 @@ import * as csv from "csv-parse"
 import * as fs from "fs"
 import { Writable } from "stream"
 
-import { IDataReader } from "./IDataReader"
+import IDataReader from "./IDataReader"
 
 /**
  * CsvDataReader.
  * 
  * Returns a stream to the CSV file.
  */
-export class CsvDataReader implements IDataReader
+export default class CsvDataReader implements IDataReader
 {
     private _filepath: string;
 
@@ -17,7 +17,7 @@ export class CsvDataReader implements IDataReader
      * Constructor.
      * @param {string} filepath to CSV to-be read
      */
-    constructor(filepath: string)
+    public constructor(filepath: string)
     {
         this._filepath = filepath;
     }
@@ -26,7 +26,7 @@ export class CsvDataReader implements IDataReader
      * Initialize the data source.
      * @override
      */
-    Initialize(): void
+    public Initialize(): void
     {
     }
 
@@ -35,7 +35,7 @@ export class CsvDataReader implements IDataReader
      * @returns {Writable} Writable stream to the csv file
      * @override
      */
-    GetStream(): Writable
+    public GetStream(): Writable
     {
         return fs.createReadStream(this._filepath)
             .pipe(csv({columns: true}));
@@ -45,7 +45,7 @@ export class CsvDataReader implements IDataReader
      * Cleanup/dispose any open resources.
      * @override
      */
-    Cleanup(): void
+    public Cleanup(): void
     {
     }
 }

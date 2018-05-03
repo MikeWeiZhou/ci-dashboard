@@ -1,17 +1,17 @@
 import * as csv from "csv-parse"
 import * as fs from "fs"
 
-import { IDataReader } from "./datareaders/IDataReader"
-import { CsvDataReader } from "./datareaders/CsvDataReader"
+import IDataReader from "./datareaders/IDataReader"
+import CsvDataReader from "./datareaders/CsvDataReader"
 
-import { IDataTransformer } from "./datatransformers/IDataTransformer"
-import { InsuranceDataTransformer } from "./datatransformers/InsuranceDataTransformer"
+import IDataTransformer from "./datatransformers/IDataTransformer"
+import InsuranceDataTransformer from "./datatransformers/InsuranceDataTransformer"
 
-import { IStorageWriter } from "./storagewriters/IStorageWriter";
-import { MySqlStorageWriter } from "./storagewriters/MySqlStorageWriter";
+import IStorageWriter from "./storagewriters/IStorageWriter";
+import MySqlStorageWriter from "./storagewriters/MySqlStorageWriter";
 
-import { TransformStream } from "./TransformStream"
-import { WriteStream } from "./WriteStream";
+import TransformStream from "./TransformStream"
+import WriteStream from "./WriteStream";
 
 const dataReader: IDataReader = new CsvDataReader("./data/FL_insurance_sample.csv");
 const dataTransformer: IDataTransformer = new InsuranceDataTransformer();
@@ -37,5 +37,5 @@ dataReader.GetStream()
         storageWriter.Cleanup();
     });
 
-
+// storageWriter.RawQuery("DROP TABLE insurance IF EXISTS");
 // storageWriter.RawQuery("CREATE TABLE insurance (policy_id VARCHAR(255), site_deductable VARCHAR(255))");

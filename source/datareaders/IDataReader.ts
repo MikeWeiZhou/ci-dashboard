@@ -5,7 +5,7 @@ import { Writable } from "stream"
  * 
  * Returns a stream to the data source.
  */
-export interface IDataReader
+export default interface IDataReader
 {
     /**
      * Initialize the data source.

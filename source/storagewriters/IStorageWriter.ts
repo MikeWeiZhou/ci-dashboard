@@ -3,7 +3,7 @@
  * 
  * Allows writing data to a storage.
  */
-export interface IStorageWriter
+export default interface IStorageWriter
 {
     /**
      * Initialize the storage.

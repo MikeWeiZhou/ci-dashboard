@@ -1,13 +1,13 @@
 import * as mysql from "mysql"
 
-import { IStorageWriter } from "./IStorageWriter"
+import IStorageWriter from "./IStorageWriter"
 
 /**
  * MySqlStorageWriter.
  * 
  * Allows writing data to a MySQL database.
  */
-export class MySqlStorageWriter implements IStorageWriter
+export default class MySqlStorageWriter implements IStorageWriter
 {
     private _connection: mysql.Connection;
 
@@ -18,7 +18,7 @@ export class MySqlStorageWriter implements IStorageWriter
      * @param {string} user 
      * @param {string} pass 
      */
-    constructor(host: string, db: string, user: string, pass: string)
+    public constructor(host: string, db: string, user: string, pass: string)
     {
         this._connection = mysql.createConnection
         ({
@@ -33,7 +33,7 @@ export class MySqlStorageWriter implements IStorageWriter
      * Connect to database.
      * @override
      */
-    Initialize(): void
+    public Initialize(): void
     {
         this._connection.connect
         (
@@ -56,7 +56,7 @@ export class MySqlStorageWriter implements IStorageWriter
     //  * @param {any} record JSON object of the record, MUST BE FLAT (one-leveled)
     //  * @override
     //  */
-    // AddToBuffer(table: string, record: any): void
+    // public AddToBuffer(table: string, record: any): void
     // {
     // }
 
@@ -64,7 +64,7 @@ export class MySqlStorageWriter implements IStorageWriter
     //  * Writes all buffered data to source.
     //  * @override
     //  */
-    // WriteData(): void
+    // public WriteData(): void
     // {
     // }
 
@@ -74,7 +74,7 @@ export class MySqlStorageWriter implements IStorageWriter
      * @param {any} record in JSON format, MUST BE FLAT (one-leveled)
      * @override
      */
-    Write(table: string, record: any): void
+    public Write(table: string, record: any): void
     {
         const keys: string[] = Object.keys(record);
         var sql = `INSERT INTO ${table} (`;
@@ -100,7 +100,7 @@ export class MySqlStorageWriter implements IStorageWriter
      * Run a raw SQL query on MySQL.
      * @param {string} sql query
      */
-    RawQuery(sql: string): void
+    public RawQuery(sql: string): void
     {
         this._connection.query
         (sql,
@@ -121,7 +121,7 @@ export class MySqlStorageWriter implements IStorageWriter
      * Cleanup/dispose any open resources.
      * @override
      */
-    Cleanup(): void
+    public Cleanup(): void
     {
         this._connection.end();
     }

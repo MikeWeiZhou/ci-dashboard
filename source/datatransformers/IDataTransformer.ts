@@ -3,7 +3,7 @@
  * 
  * Returns a transformed and sanitized JSON object.
  */
-export interface IDataTransformer
+export default interface IDataTransformer
 {
     /**
      * Returns a transformed and sanitized JSON object.
