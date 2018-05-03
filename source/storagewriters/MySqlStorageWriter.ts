@@ -35,19 +35,16 @@ export default class MySqlStorageWriter implements IStorageWriter
      */
     public Initialize(): void
     {
-        this._connection.connect
-        (
-            function(error: mysql.MysqlError)
+        this._connection.connect((error: mysql.MysqlError) =>
+        {
+            if (error)
             {
-                if (error)
-                {
-                    console.log("MySQL connection error:");
-                    console.log(error);
-                    throw error;
-                }
-                console.log("Connected to MySQL database!");
+                console.log("MySQL connection error:");
+                console.log(error);
+                throw error;
             }
-        );
+            console.log("Connected to MySQL database!");
+        });
     }
 
     // /**
@@ -102,19 +99,16 @@ export default class MySqlStorageWriter implements IStorageWriter
      */
     public RawQuery(sql: string): void
     {
-        this._connection.query
-        (sql,
-            function (error: mysql.MysqlError, result: any)
+        this._connection.query(sql, (error: mysql.MysqlError, result: any) =>
+        {
+            if (error)
             {
-                if (error)
-                {
-                    console.log("MySQL raw query error: " + sql);
-                    console.log(error);
-                    throw error;
-                }
-                console.log("Raw query successfully executed: " + sql);
+                console.log("MySQL raw query error: " + sql);
+                console.log(error);
+                throw error;
             }
-        );
+            // console.log("Raw query successfully executed: " + sql);
+        });
     }
 
     /**

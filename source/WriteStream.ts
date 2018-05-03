@@ -33,7 +33,7 @@ export default class WriteStream extends Writable
      */
     public _write(jsonObj: any, encoding: string, callback: Function): void
     {
-        this._storageWriter.Write("insurance", jsonObj);
+        this._storageWriter.Write("qa_builds_and_runs_from_bamboo", jsonObj);
 
         // callback signals successful writing of jsonObj
         // pass a parameter with any object to signal with an error msg
