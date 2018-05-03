@@ -42,10 +42,10 @@ export default class CsvDataReader implements IDataReader
     }
 
     /**
-     * Cleanup/dispose any open resources.
+     * Dispose any open resources.
      * @override
      */
-    public Cleanup(): void
+    public Dispose(): void
     {
     }
 }

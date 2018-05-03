@@ -17,10 +17,8 @@ export default class TransformStream extends Transform
      */
     public constructor(dataTransformer: IDataTransformer)
     {
-        super({
-            objectMode: true // stream accepts any JS object rather than the default string/buffer
-        });
-
+        // objectMode: stream accepts any JS object rather than the default string/buffer
+        super({objectMode: true});
         this._dataTransformer = dataTransformer;
     }
 
@@ -35,8 +33,9 @@ export default class TransformStream extends Transform
     {
         this.push(this._dataTransformer.Transform(jsonObj));
 
-        // callback signals successful transformation of jsonObj
-        // pass a parameter with any object to signal with an error msg
+        // callback signals successful writing of jsonObj,
+        // ommit callback() to signal error,
+        // or pass a parameter with any object/message to signal with an error
         callback();
     }
 }

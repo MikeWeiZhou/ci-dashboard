@@ -39,17 +39,17 @@ export default class JsonDataReader implements IDataReader
      * @returns {Writable} Writable stream to the csv file
      * @override
      */
-    public GetStream(): Writable
+    public GetStream(): any
     {
         return fs.createReadStream(this._filepath)
             .pipe(json.parse(this._jsonParsePath));
     }
 
     /**
-     * Cleanup/dispose any open resources.
+     * Dispose any open resources.
      * @override
      */
-    public Cleanup(): void
+    public Dispose(): void
     {
     }
 }

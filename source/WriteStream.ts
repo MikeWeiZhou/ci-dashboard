@@ -1,27 +1,24 @@
 import { Writable } from "stream"
-
-import IStorageWriter from "./storagewriters/IStorageWriter";
+import IStorage from "./storages/IStorage";
 
 /**
  * WriteStream.
  * 
- * Writes JSON objects using a given DataWriter and pushes it down the pipeline.
+ * Writes JSON objects using a given Storage medium and pushes it down the pipeline.
  */
 export default class WriteStream extends Writable
 {
-    private _storageWriter: IStorageWriter;
+    private _storage: IStorage;
 
     /**
      * Constructor.
-     * @param {IStorageWriter} dataWriter DataWriter used to transform the JSON object
+     * @param {IStorage} storage used to transform the JSON object
      */
-    public constructor(dataWriter: IStorageWriter)
+    public constructor(storage: IStorage)
     {
-        super({
-            objectMode: true // stream accepts any JS object rather than the default string/buffer
-        });
-
-        this._storageWriter = dataWriter;
+        // objectMode: stream accepts any JS object rather than the default string/buffer
+        super({objectMode: true});
+        this._storage = storage;
     }
 
     /**
@@ -33,10 +30,11 @@ export default class WriteStream extends Writable
      */
     public _write(jsonObj: any, encoding: string, callback: Function): void
     {
-        this._storageWriter.Write("qa_builds_and_runs_from_bamboo", jsonObj);
+        this._storage.Write("qa_builds_and_runs_from_bamboo", jsonObj);
 
-        // callback signals successful writing of jsonObj
-        // pass a parameter with any object to signal with an error msg
+        // callback signals successful writing of jsonObj,
+        // ommit callback() to signal error,
+        // or pass a parameter with any object/message to signal with an error
         callback();
     }
 }

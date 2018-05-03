@@ -16,10 +16,10 @@ export default interface IDataReader
      * Returns a Writable stream of the data.
      * @returns {Writable} Writable stream of data
      */
-    GetStream(): Writable;
+    GetStream(): any;
 
     /**
-     * Cleanup/dispose any open resources.
+     * Dispose any open resources.
      */
-    Cleanup(): void;
+    Dispose(): void;
 }

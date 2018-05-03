@@ -1,5 +1,5 @@
 import IKpi from "./IKpi"
-import MySqlStorageReader from "../storagereaders/MySqlStorageReader"
+import MySqlStorage from "../storages/MySqlStorage"
 
 /**
  * IKpi.
@@ -11,9 +11,9 @@ export default class QaOverallBuildSuccessKpi implements IKpi
      */
     async GetPlotlyState(): Promise<any>
     {
-        var reader: MySqlStorageReader = new MySqlStorageReader("localhost", "cidashboard", "root", "");
+        var storage: MySqlStorage = new MySqlStorage("localhost", "cidashboard", "root", "");
         var sql: string = "SELECT * FROM qa_builds_and_runs_from_bamboo";
-        var results: any = await reader.QueryOrNull(sql);
+        var results: any = await storage.QueryOrNull(sql);
 
         if (results == null)
         {
@@ -47,6 +47,10 @@ export default class QaOverallBuildSuccessKpi implements IKpi
 
         console.log("success: " + successCount + " || fail: " + failCount);
         console.log(state);
+        console.log("values:");
+        console.log([successCount, failCount]);
+        console.log("labels:");
+        console.log(["Success", "Fail"]);
 
         return state;
     }
