@@ -5,11 +5,12 @@
   "scripts": {
     "setup": "npm install && cd react-demo && npm install && cd .. && npm run compile",
     "start": "npm run --prefix react-demo start",
+    "/-----------------------------------------------------------------------------": "",
     "compile": "tsc -p source --outDir compiled",
     "cnr": "npm run compile && npm start",
-    "test": "mocha compiled/unittests/tests.js",
-    "compiletests": "tsc -p source/unittests --outDir compiled/unittests",
-    "cnrt": "npm run compiletests && npm test",
+    "//----------------------------------------------------------------------------": "",
+    "test": "tsc -p source/unittests --outDir compiled/unittests && mocha compiled/unittests/tests.js",
+    "///---------------------------------------------------------------------------": "",
     "testpipeline": "node compiled/test_pipeline_json_to_db.js"
   },
   "author": "Johnny Lee, Elisa Chu, Tony So, Mike Zhou",
