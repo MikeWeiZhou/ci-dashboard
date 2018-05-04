@@ -25,7 +25,7 @@ Run these commands to (1) install required Node.js dependencies and (2) compile 
 Install the latest stable release - v8.0.11 as of writing
 
 ### For Debian-based linux distribution:
-Run these commands to install using package manager. Install with default settings unless specified and note down the username and password used for the mysql setup.
+Run these commands to install using package manager. Install with default settings when prompted.
 
 * sudo apt-get update
 * sudo apt-get install mysql-server
@@ -74,11 +74,13 @@ Run this command to start service:
 * Update database credentials in property *config.db*
 
 
-## 7. Run Node.js
-Run these commands to start Node.js server. Same commands in both Windows and Linux.
+## 7. Run Server
+Run these commands to start the server. Same commands in both Windows and Linux.
 
 * cd *[directory to root of this project]*
 * npm run start
+
+Currently, the command above will also automatically launch the webapp after starting.
 
 
 ## 8. Open the web application
