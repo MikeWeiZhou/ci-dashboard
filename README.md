@@ -12,6 +12,7 @@ These areas are just a working prototype.
 
 ## How to setup and run latest development version of CI Dashboard
 
+* Clone git repository on the **prototype** branch, our latest working prototype
 * Install and setup required software as described in *docs/howto_setup_and_run_dashboard.md*
 * ^ ignore Step 7. Run Node.js and Step 8. Open the web application
 
