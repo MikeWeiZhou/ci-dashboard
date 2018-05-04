@@ -4,10 +4,11 @@
   "version": "1.0.0",
   "scripts": {
     "setup": "npm install && npm run compile",
-    "start": "node compiled/TestQaBuildsAndRunsFromBamboo.js",
+    "start": "node compiled/server.js",
     "compile": "tsc -p source --outDir compiled",
     "cnr": "npm run compile && npm start",
     "test": "mocha compiled/unittests/tests.js",
+    "testpipeline": "node compiled/test_pipeline_json_to_db.js",
     "compiletests": "tsc -p source/unittests --outDir compiled/unittests",
     "cnrt": "npm run compiletests && npm test"
   },

@@ -48,7 +48,6 @@ export default class MySqlStorage implements IStorage
                 {
                     throw error;
                 }
-                console.log("Connected to MySQL DB.");
                 resolve();
             });
         });
@@ -129,7 +128,6 @@ export default class MySqlStorage implements IStorage
      */
     public Dispose(): void
     {
-        console.log("Disposing MySQL Connection.");
         this._connection.end();
     }
 }
