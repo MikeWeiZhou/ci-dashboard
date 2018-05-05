@@ -22,7 +22,7 @@ export class CsvDataReader implements IDataReader
     }
 
     /**
-     * Initialize the data source.
+     * Not used.
      * @override
      */
     public Initialize(): void
@@ -41,7 +41,7 @@ export class CsvDataReader implements IDataReader
     }
 
     /**
-     * Dispose any open resources.
+     * Not used.
      * @override
      */
     public Dispose(): void

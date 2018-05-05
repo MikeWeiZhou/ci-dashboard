@@ -26,10 +26,10 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
         var toString: string = moment(to).format("YYYY-MM-DD HH:mm:ss");
         return `
             SELECT COUNT(*) AS 'COUNT',
-                   IS_SUCCESS
+                   IS_DEFAULT
             FROM ${this._tablename}
             WHERE BUILD_COMPLETED_DATE BETWEEN '${fromString}' AND '${toString}'
-            GROUP BY IS_SUCCESS
+            GROUP BY IS_DEFAULT
         `;
     }
 

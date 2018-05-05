@@ -50,12 +50,14 @@ async function CreateTable()
         (`
             CREATE TABLE ${config.db.tablenames.qa_builds_and_runs_from_bamboo}
             (
-                MINUTES_TOTAL_QUEUE_AND_BUILD   INT,
-                BUILD_COMPLETED_DATE            DATETIME,
-                PLATFORM                        CHAR(3),
-                PRODUCT                         CHAR(2),
-                IS_MASTER                       TINYINT(1),
-                IS_SUCCESS                      TINYINT(1)
+                MINUTES_TOTAL_QUEUE_AND_BUILD   INT             NOT NULL,
+                BUILD_COMPLETED_DATE            DATETIME        NOT NULL,
+                CYCLE                           CHAR(6)         NOT NULL,
+                PLATFORM                        CHAR(3)         NOT NULL,
+                PRODUCT                         CHAR(2)         NOT NULL,
+                IS_DEFAULT                      TINYINT(1)      NOT NULL,
+                IS_SUCCESS                      TINYINT(1)      NOT NULL,
+                BRANCH_ID                       INT
             )
         `);
         resolve();
