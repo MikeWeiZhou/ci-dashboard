@@ -13,10 +13,6 @@ import QaBuildsAndRunsFromBambooDataTransformer from "./datatransformers/QaBuild
 import IStorage from "./storages/IStorage"
 import MySqlStorage from "./storages/MySqlStorage"
 
-// import IKpi from "./kpis/IKpi"
-// import QaOverallBuildSuccessKpi from "./kpis/QaOverallBuildSuccessKpi"
-// import QaBuildSuccessPerPlatform from "./kpis/QaBuildSuccessPerPlatform"
-
 import TransformStream from "./TransformStream"
 import WriteStream from "./WriteStream"
 
@@ -35,7 +31,6 @@ async function RunThroughPipeline()
 
     await CreateTable();
     await ReadTransformAndSaveData();
-    // await ReadStorageAndConvertToKpi();
 
     storage.Dispose();
 }
@@ -77,16 +72,3 @@ async function ReadTransformAndSaveData()
             });
     });
 }
-
-// async function ReadStorageAndConvertToKpi(): Promise<any>
-// {
-//     return new Promise((resolve, reject) =>
-//     {
-//         console.log("Reading and converting storage data to KPI...");
-//         // const kpi: IKpi = new QaOverallBuildSuccessKpi();
-//         const kpi: IKpi = new QaBuildSuccessPerPlatform();
-//         kpi.GetPlotlyState();
-//         console.log("Finished reading and converting storage data to KPI.");
-//         resolve();
-//     });
-// }

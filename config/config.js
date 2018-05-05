@@ -8,4 +8,9 @@ config.db =
     password: "password"
 };
 
+config.db.tablenames =
+{
+    qa_builds_and_runs_from_bamboo: "qa_builds_and_runs_from_bamboo"
+};
+
 module.exports = config;
