@@ -1,13 +1,12 @@
 import { Transform } from "stream"
-
-import IDataTransformer from "./datatransformers/IDataTransformer";
+import { IDataTransformer } from "./datatransformers/IDataTransformer";
 
 /**
  * TransformStream.
  * 
  * Transforms JSON objects using a given DataTransformer and pushes it down the pipeline.
  */
-export default class TransformStream extends Transform
+export class TransformStream extends Transform
 {
     private _dataTransformer: IDataTransformer;
 
@@ -24,12 +23,12 @@ export default class TransformStream extends Transform
 
     /**
      * Transforms a JSON object using an DataTransformer.
-     * @param {any} jsonObj a JSON object from the stream
+     * @param {object} jsonObj a JSON object from the stream
      * @param {string} encoding not used
      * @param {Function} callback callback when finished transforming jsonObj
      * @override
      */
-    public _transform(jsonObj: any, encoding: string, callback: Function): void
+    public _transform(jsonObj: object, encoding: string, callback: Function): void
     {
         this.push(this._dataTransformer.Transform(jsonObj));
 

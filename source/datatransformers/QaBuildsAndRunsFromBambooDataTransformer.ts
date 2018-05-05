@@ -1,23 +1,26 @@
-import IDataTransformer from "./IDataTransformer"
+import { IDataTransformer } from "./IDataTransformer"
+const config = require("../../config/config");
 
 /**
  * QaBuildsAndRunsFromBambooDataTransformer.
  * 
  * Returns only the wanted properties from original JSON.
  */
-export default class QaBuildsAndRunsFromBambooDataTransformer implements IDataTransformer
+export class QaBuildsAndRunsFromBambooDataTransformer implements IDataTransformer
 {
-    public constructor()
-    {
-    }
+    /** Table name for data set. */
+    public readonly TableName: string = config.db.tablenames.qa_builds_and_runs_from_bamboo;
+
+    /** Table keys/fields for data set. */
+    readonly TableKeys: Array<string> = ["MINUTES_TOTAL_QUEUE_AND_BUILD", "BUILD_COMPLETED_DATE", "PLATFORM", "PRODUCT", "IS_MASTER", "IS_SUCCESS"];
 
     /**
      * Returns only the wanted properties from original JSON.
      * @param {any} o original JSON record
-     * @returns {any} a transformed JSON record
+     * @returns {Array<any>} a transformed JSON record
      * @override
      */
-    public Transform(o: any): any
+    public Transform(o: any): Array<any>
     {
         // BUILD_KEY is aaaaaaLATbbb-ccX64[d]
         //              012345678901234567
@@ -26,13 +29,13 @@ export default class QaBuildsAndRunsFromBambooDataTransformer implements IDataTr
         //           cc = product: FX, MX, DX, IX
         //            d = branch id (if omitted, then master, otherwise unique number identifying branch)
 
-        return {
-            MINUTES_TOTAL_QUEUE_AND_BUILD:  o.MINUTES_TOTAL_QUEUE_AND_BUILD,
-            BUILD_COMPLETED_DATE:           o.BUILD_COMPLETED_DATE,
-            PLATFORM:                       o.BUILD_KEY.substring(9, 12),       // bbb
-            PRODUCT:                        o.BUILD_KEY.substring(13, 15),      // cc
-            IS_MASTER:                      (o.BUILD_KEY.length == 18) ? 0 : 1, // [d]
-            IS_SUCCESS:                     (o.BUILD_STATE == "Failed") ? 0 : 1
-        };
+        var values: Array<any> = [];
+        values.push(o.MINUTES_TOTAL_QUEUE_AND_BUILD);       // MINUTES_TOTAL_QUEUE_AND_BUILD
+        values.push(o.BUILD_COMPLETED_DATE);                // BUILD_COMPLETED_DATE
+        values.push(o.BUILD_KEY.substring(9, 12));          // PLATFORM bbb
+        values.push(o.BUILD_KEY.substring(13, 15));         // PRODUCT cc
+        values.push((o.BUILD_KEY.length == 18) ? 0 : 1);    // IS_MASTER [d]
+        values.push((o.BUILD_STATE == "Failed") ? 0 : 1);   // IS_SUCCESS
+        return values;
     }
 }

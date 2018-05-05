@@ -22,13 +22,14 @@ export interface IStorage
     QueryResultsOrNull(sql: string): Promise<any>;
 
     /**
-     * Write a single JSON object to table in storage.
+     * Write one or more entries to specified table in database.
      * @async
-     * @param {string} table name
-     * @param {any} jsonObject data to be written to table, must be flat (one-level)
+     * @param {string} tablename
+     * @param {Array<any>} keys field names of the table
+     * @param {Array<any>} data to be inserted
      * @returns {Promise<boolean>} true if write successful, false otherwise
      */
-    WriteSingle(table: string, jsonObject: any): Promise<boolean>;
+    Write(tablename: string, keys: Array<any>, data: Array<any>): Promise<boolean>;
 
     /**
      * Dispose any open resources.

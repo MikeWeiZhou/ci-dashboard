@@ -1,7 +1,6 @@
 import * as mysql from "mysql"
 import { IStorage } from "./IStorage"
 import { Log } from "../Log"
-import { SIGVTALRM } from "constants";
 
 /**
  * MysqlStorage.
@@ -10,6 +9,11 @@ import { SIGVTALRM } from "constants";
  */
 export class MysqlStorage implements IStorage
 {
+    /** Node.js MySQL connector requires insert statements with separate values parameter
+     * be wrapped with this many array layers.
+     */
+    private readonly _REQUIRED_VALUES_ARRAY_LAYER_COUNT = 3;
+
     private _connection: mysql.Connection;
 
     /**
@@ -60,22 +64,22 @@ export class MysqlStorage implements IStorage
      * Query MySQL returning results as JSON array or null if no results or error.
      * @async
      * @param {string} sql query to run
-     * @param {Array<any>} [values] values for insert queries
+     * @param {Array<any>} [data] for insert queries only
      * @returns {Promise<any>} results as JSON array or null if no results or error
      * @override
      */
-    public async QueryResultsOrNull(sql: string, values?: Array<any>): Promise<any>
+    public async QueryResultsOrNull(sql: string, data?: Array<any>): Promise<any>
     {
         var _this: MysqlStorage = this;
         return new Promise((resolve: Function, reject: Function) =>
         {
-            _this._connection.query(sql, values, (error: mysql.MysqlError, results: Array<object>) =>
+            _this._connection.query(sql, data, (error: mysql.MysqlError, results: Array<object>) =>
             {
                 if (error)
                 {
                     // Log error message and return null
                     // Assumption: Majority of time it's because of invalid query
-                    Log(__filename, error, `SQL Query: ${sql}\n\nValues: ${values}`);
+                    Log(__filename, error, `SQL Query: ${sql}\n\nData: ${data}`);
                     resolve(null);
                 }
                 else if (results.length == 0)
@@ -91,35 +95,22 @@ export class MysqlStorage implements IStorage
     }
 
     /**
-     * Write a single JSON object to table in MySQL.
+     * Write one or more entries to specified table in database.
      * @async
      * @param {string} tablename
-     * @param {object} jsonObject data to be written to table, must be flat (one-level)
-     * @returns {Promise<boolean>} true if successful, false otherwise
+     * @param {Array<any>} keys field names of the table
+     * @param {Array<any>} data to be inserted
+     * @returns {Promise<boolean>} true if write successful, false otherwise
      * @override
      */
-    public async WriteSingle(tablename: string, jsonObject: object): Promise<boolean>
+    public async Write(tablename: string, keys: Array<any>, data: Array<any>): Promise<boolean>
     {
-        var keys: string[] = Object.keys(jsonObject);
         var insertQuery: string = this.getInsertQuery(tablename, keys);
-        var insertValues: Array<any> = [[this.getInsertValues(jsonObject, keys)]];
-
-        return (await this.QueryResultsOrNull(insertQuery, insertValues) == null)
+        var insertData: Array<any> = this.wrapInsertDataArray(data);
+        return (await this.QueryResultsOrNull(insertQuery, insertData) == null)
             ? false
             : true;
     }
-
-    /**
-     * Write multiple JSON objects to table in MySQL.
-     * @async
-     * @param {string} table name
-     * @param {Array<object>} jsonArray data to be written to table, must be flat (one-level)
-     * @returns {Promise<boolean>} true if successful, false otherwise
-     * @override
-     */
-    // public async WriteMultiple(table: string, jsonArray: Array<object>): Promise<boolean>
-    // {
-    // }
 
     /**
      * Dispose any open resources.
@@ -130,6 +121,11 @@ export class MysqlStorage implements IStorage
         this._connection.end();
     }
 
+    /**
+     * Return an insert query for prepared statements.
+     * @param {string} tablename
+     * @param {string[]} keys in table
+     */
     private getInsertQuery(tablename: string, keys: string[]): string
     {
         // e.g. INSERT INTO Test (name,email,n) VALUES ?
@@ -143,13 +139,24 @@ export class MysqlStorage implements IStorage
         return query;
     }
 
-    private getInsertValues(jsonObject: object, keys: string[]): Array<any>
+    /**
+     * Wraps insert data with a set number of arrays.
+     * Required for MySQL connector query() function.
+     * @param Array<any> data to be wrapped
+     */
+    private wrapInsertDataArray(data: Array<any>): Array<any>
     {
-        var values: Array<any> = [];
-        for (let i: number = 0; i < keys.length; ++i)
+        var arrayLayersCount: number = 1;
+        var traverse: Array<any> = data;
+        while (Array.isArray(traverse[0]))
         {
-            values.push(jsonObject[keys[i]]);
+            traverse = traverse[0];
+            ++arrayLayersCount;
         }
-        return values;
+        while (++arrayLayersCount <= this._REQUIRED_VALUES_ARRAY_LAYER_COUNT)
+        {
+            data = [data];
+        }
+        return data;
     }
 }

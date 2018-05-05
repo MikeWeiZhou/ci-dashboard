@@ -6,22 +6,17 @@
 
 import IDataReader from "./datareaders/IDataReader"
 import JsonDataReader from "./datareaders/JsonDataReader"
-
-import IDataTransformer from "./datatransformers/IDataTransformer"
-import QaBuildsAndRunsFromBambooDataTransformer from "./datatransformers/QaBuildsAndRunsFromBambooDataTransformer"
-
+import { IDataTransformer } from "./datatransformers/IDataTransformer"
+import { QaBuildsAndRunsFromBambooDataTransformer } from "./datatransformers/QaBuildsAndRunsFromBambooDataTransformer"
 import { IStorage } from "./storages/IStorage"
 import { MysqlStorage } from "./storages/MysqlStorage"
-
-import TransformStream from "./TransformStream"
-import WriteStream from "./WriteStream"
-
+import { TransformStream } from "./TransformStream"
+import { WriteStream } from "./WriteStream"
 const config = require("../config/config")
 
 const storage: IStorage = new MysqlStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
 
 RunThroughPipeline();
-
 async function RunThroughPipeline()
 {
     console.log("Running pipeline from datareader -> datatransformer -> storage.");
@@ -60,12 +55,18 @@ async function ReadTransformAndSaveData()
 {
     return new Promise((resolve, reject) =>
     {
+        var count: number = 0;
         const dataReader: IDataReader = new JsonDataReader("./data/qa_builds_and_runs_from_bamboo.json", "*");
         const dataTransformer: IDataTransformer = new QaBuildsAndRunsFromBambooDataTransformer();
         dataReader.Initialize();
         dataReader.GetStream()
             .pipe(new TransformStream(dataTransformer))
-            .pipe(new WriteStream(storage))
+            .pipe(new WriteStream(storage, dataTransformer))
+            .on('data', (data: any) => {
+                if (count++ == 0) {
+                    console.log(data);
+                }
+            })
             .on('finish', () => {
                 dataReader.Dispose();
                 resolve();

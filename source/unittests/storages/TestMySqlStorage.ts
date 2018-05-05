@@ -78,15 +78,17 @@ describe("storages/MysqlStorage", () =>
     {
         it("Write new entry to table succeeds with valid object", async () =>
         {
-            var validJson: object = {NAME: "Jennifer", AGE: "6"};
-            var isSuccess: boolean = await storage.WriteSingle("dummy_test_table", validJson);
+            var keys: Array<any> = ["NAME", "AGE"];
+            var data: Array<any> = ["Jennifer", 6];
+            var isSuccess: boolean = await storage.Write("dummy_test_table", keys, data);
             assert.equal(isSuccess, true);
         }),
 
         it("Single new entry to table fails with invalid object", async () =>
         {
-            var invalidJson: object = {NAME: "Jennifer", NON_EXISTENT_FIELD: "6"};
-            var isSuccess: boolean = await storage.WriteSingle("dummy_test_table", invalidJson);
+            var keys: Array<any> = ["NAME", "NON_EXISTENT_FIELD"];
+            var data: Array<any> = ["Jennifer", 6];
+            var isSuccess: boolean = await storage.Write("dummy_test_table", keys, data);
             assert.equal(isSuccess, false);
         });
     });

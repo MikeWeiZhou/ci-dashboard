@@ -8,13 +8,11 @@ import { MysqlStorage } from "./storages/MysqlStorage"
 import { IKpiState } from "./kpimappers/IKpiState";
 import { KpiMapper } from "./kpimappers/KpiMapper"
 import { QaOverallBuildSuccessKpiMapper } from "./kpimappers/QaOverallBuildSuccessKpiMapper"
-
 const config = require("../config/config")
 
 var storage: MysqlStorage = new MysqlStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
 
 RunThroughPipeline();
-
 async function RunThroughPipeline()
 {
     console.log("Running pipeline from database -> kpi mapper...");
