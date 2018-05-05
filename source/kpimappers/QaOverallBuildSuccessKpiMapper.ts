@@ -18,6 +18,7 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
      * @param {Date} from date
      * @param {Date} to date
      * @returns {string} SQL query string
+     * @override
      */
     protected GetQueryString(from: Date, to: Date): string
     {
@@ -36,6 +37,7 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
      * Returns a KpiState given an array or single JSON object containing required data.
      * @param {object} jsonArray JSON results containing required data
      * @returns {IKpiState} IKpiState object
+     * @override
      */
     protected MapToKpiState(jsonArray: object): IKpiState
     {

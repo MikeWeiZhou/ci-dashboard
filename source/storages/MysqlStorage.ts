@@ -113,7 +113,7 @@ export class MysqlStorage implements IStorage
     }
 
     /**
-     * Dispose any open resources.
+     * End connection.
      * @override
      */
     public Dispose(): void
@@ -142,7 +142,7 @@ export class MysqlStorage implements IStorage
     /**
      * Wraps insert data with a set number of arrays.
      * Required for MySQL connector query() function.
-     * @param Array<any> data to be wrapped
+     * @param {Array<any>} data to be wrapped
      */
     private wrapInsertDataArray(data: Array<any>): Array<any>
     {

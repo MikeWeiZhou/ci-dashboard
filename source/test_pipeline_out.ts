@@ -16,18 +16,21 @@ RunThroughPipeline();
 async function RunThroughPipeline()
 {
     console.log("Running pipeline from database -> kpi mapper...");
+    console.log("If completed successfully, no errors would be thrown and Node.js will exit after completion.");
 
+    console.log("Connecting to MySQL database...");
     await storage.Initialize();
-    await ReadStorageAndConvertToKpi();
+
+    console.log("Reading from database and converting to KPI");
+    var kpi: IKpiState|null = await ReadStorageAndConvertToKpi();
+    console.log("KPI received:");
+    console.log(kpi);
 
     storage.Dispose();
 }
 
-async function ReadStorageAndConvertToKpi()
+async function ReadStorageAndConvertToKpi(): Promise<IKpiState|null>
 {
     var kpi: KpiMapper = new QaOverallBuildSuccessKpiMapper(storage);
-    var kpistate: IKpiState|null = await kpi.GetKpiStateOrNull(new Date("2018-01-25"), new Date("2018-10-25"));
-    console.log("\nKPI State mapped:");
-    console.log(kpistate);
-    console.log("\nFinished successfully.");
+    return await kpi.GetKpiStateOrNull(new Date("2018-01-25"), new Date("2018-10-25"));
 }

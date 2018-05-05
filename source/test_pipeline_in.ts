@@ -6,6 +6,7 @@
 
 import { IDataReader } from "./datareaders/IDataReader"
 import { JsonDataReader } from "./datareaders/JsonDataReader"
+import { PythonShellJsonDataReader } from "./datareaders/PythonShellJsonDataReader"
 import { IDataTransformer } from "./datatransformers/IDataTransformer"
 import { QaBuildsAndRunsFromBambooDataTransformer } from "./datatransformers/QaBuildsAndRunsFromBambooDataTransformer"
 import { IStorage } from "./storages/IStorage"
@@ -22,10 +23,20 @@ async function RunThroughPipeline()
     console.log("Running pipeline from datareader -> datatransformer -> storage.");
     console.log("If completed successfully, no errors would be thrown and Node.js will exit after completion.");
 
+    const dataReaderFromJsonFile: IDataReader = new JsonDataReader("./data/qa_builds_and_runs_from_bamboo.json", "*");
+    const dataReaderFromPythonScript: IDataReader = new PythonShellJsonDataReader("./data/test_print_json.py", "*");
+
+    console.log("Connecting to MySQL database...");
     await storage.Initialize();
 
+    console.log("Deleting and recreating table...");
     await CreateTable();
-    await ReadTransformAndSaveData();
+
+    console.log("Getting data from python script and saving to database");
+    await ReadTransformAndSaveData(dataReaderFromPythonScript);
+
+    console.log("Getting data from JSON file and saving to database");
+    await ReadTransformAndSaveData(dataReaderFromJsonFile);
 
     storage.Dispose();
 }
@@ -34,10 +45,10 @@ async function CreateTable()
 {
     return new Promise(async (resolve, reject) =>
     {
-        await storage.QueryResultsOrNull("DROP TABLE IF EXISTS qa_builds_and_runs_from_bamboo");
+        await storage.QueryResultsOrNull(`DROP TABLE IF EXISTS ${config.db.tablenames.qa_builds_and_runs_from_bamboo}`);
         await storage.QueryResultsOrNull
         (`
-            CREATE TABLE qa_builds_and_runs_from_bamboo
+            CREATE TABLE ${config.db.tablenames.qa_builds_and_runs_from_bamboo}
             (
                 MINUTES_TOTAL_QUEUE_AND_BUILD   INT,
                 BUILD_COMPLETED_DATE            DATETIME,
@@ -51,22 +62,15 @@ async function CreateTable()
     });
 }
 
-async function ReadTransformAndSaveData()
+async function ReadTransformAndSaveData(dataReader: IDataReader)
 {
     return new Promise((resolve, reject) =>
     {
-        var count: number = 0;
-        const dataReader: IDataReader = new JsonDataReader("./data/qa_builds_and_runs_from_bamboo.json", "*");
         const dataTransformer: IDataTransformer = new QaBuildsAndRunsFromBambooDataTransformer();
         dataReader.Initialize();
         dataReader.GetStream()
             .pipe(new TransformStream(dataTransformer))
             .pipe(new WriteStream(storage, dataTransformer))
-            .on('data', (data: any) => {
-                if (count++ == 0) {
-                    console.log(data);
-                }
-            })
             .on('finish', () => {
                 dataReader.Dispose();
                 resolve();

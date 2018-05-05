@@ -1,7 +1,6 @@
 import * as csv from "csv-parse"
 import * as fs from "fs"
-import { Writable } from "stream"
-
+import { Stream } from "stream"
 import { IDataReader } from "./IDataReader"
 
 /**
@@ -31,11 +30,11 @@ export class CsvDataReader implements IDataReader
     }
 
     /**
-     * Returns a Writable stream of the csv file.
-     * @returns {Writable} Writable stream to the csv file
+     * Returns a stream to the CSV file.
+     * @returns {Stream} stream to the CSV file
      * @override
      */
-    public GetStream(): Writable
+    public GetStream(): Stream
     {
         return fs.createReadStream(this._filepath)
             .pipe(csv({columns: true}));

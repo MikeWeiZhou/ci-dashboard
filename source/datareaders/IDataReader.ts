@@ -1,4 +1,4 @@
-import { Writable } from "stream"
+import { Stream } from "stream"
 
 /**
  * IDataReader.
@@ -13,10 +13,10 @@ export interface IDataReader
     Initialize(): void;
 
     /**
-     * Returns a Writable stream of the data.
-     * @returns {Writable} Writable stream of data
+     * Returns a stream to the data.
+     * @returns {Stream} stream of data
      */
-    GetStream(): any;
+    GetStream(): Stream;
 
     /**
      * Dispose any open resources.

@@ -1,5 +1,5 @@
 import * as fs from "fs"
-import { Writable } from "stream"
+import { Stream } from "stream"
 import { IDataReader } from "./IDataReader"
 const json = require("JSONStream");
 
@@ -25,7 +25,7 @@ export class JsonDataReader implements IDataReader
     }
 
     /**
-     * Initialize the data source.
+     * Not used.
      * @override
      */
     public Initialize(): void
@@ -33,18 +33,18 @@ export class JsonDataReader implements IDataReader
     }
 
     /**
-     * Returns a Writable stream of the csv file.
-     * @returns {Writable} Writable stream to the csv file
+     * Returns a Stream stream of the JSON file.
+     * @returns {Stream} stream to the JSON file
      * @override
      */
-    public GetStream(): any
+    public GetStream(): Stream
     {
         return fs.createReadStream(this._filepath)
             .pipe(json.parse(this._jsonParsePath));
     }
 
     /**
-     * Dispose any open resources.
+     * Not used.
      * @override
      */
     public Dispose(): void

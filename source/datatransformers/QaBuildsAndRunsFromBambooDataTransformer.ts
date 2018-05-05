@@ -8,11 +8,18 @@ const config = require("../../config/config");
  */
 export class QaBuildsAndRunsFromBambooDataTransformer implements IDataTransformer
 {
-    /** Table name for data set. */
+    /**
+     * Table name for data set.
+     * @override
+     */
     public readonly TableName: string = config.db.tablenames.qa_builds_and_runs_from_bamboo;
 
-    /** Table keys/fields for data set. Order must match data array returned from Transform(). */
-    readonly TableKeys: Array<string> = ["MINUTES_TOTAL_QUEUE_AND_BUILD", "BUILD_COMPLETED_DATE", "PLATFORM", "PRODUCT", "IS_MASTER", "IS_SUCCESS"];
+    /**
+     * Table keys/fields for data set.
+     * Order must match data array returned from Transform().
+     * @override
+     */
+    public readonly TableKeys: Array<string> = ["MINUTES_TOTAL_QUEUE_AND_BUILD", "BUILD_COMPLETED_DATE", "PLATFORM", "PRODUCT", "IS_MASTER", "IS_SUCCESS"];
 
     /**
      * Returns a data array. Order must match TableKeys.
