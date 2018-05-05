@@ -11,13 +11,13 @@ export class QaBuildsAndRunsFromBambooDataTransformer implements IDataTransforme
     /** Table name for data set. */
     public readonly TableName: string = config.db.tablenames.qa_builds_and_runs_from_bamboo;
 
-    /** Table keys/fields for data set. */
+    /** Table keys/fields for data set. Order must match data array returned from Transform(). */
     readonly TableKeys: Array<string> = ["MINUTES_TOTAL_QUEUE_AND_BUILD", "BUILD_COMPLETED_DATE", "PLATFORM", "PRODUCT", "IS_MASTER", "IS_SUCCESS"];
 
     /**
-     * Returns only the wanted properties from original JSON.
-     * @param {any} o original JSON record
-     * @returns {Array<any>} a transformed JSON record
+     * Returns a data array. Order must match TableKeys.
+     * @param {any} o original JSON object
+     * @returns {Array<any>} data array
      * @override
      */
     public Transform(o: any): Array<any>
