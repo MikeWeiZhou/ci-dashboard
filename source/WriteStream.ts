@@ -1,5 +1,5 @@
 import { Writable } from "stream"
-import IStorage from "./storages/IStorage";
+import { IStorage } from "./storages/IStorage";
 
 /**
  * WriteStream.
@@ -30,7 +30,7 @@ export default class WriteStream extends Writable
      */
     public _write(jsonObj: any, encoding: string, callback: Function): void
     {
-        this._storage.Write("qa_builds_and_runs_from_bamboo", jsonObj);
+        this._storage.WriteSingle("qa_builds_and_runs_from_bamboo", jsonObj);
 
         // callback signals successful writing of jsonObj,
         // ommit callback() to signal error,

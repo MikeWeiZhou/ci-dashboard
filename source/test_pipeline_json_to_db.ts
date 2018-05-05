@@ -10,15 +10,15 @@ import JsonDataReader from "./datareaders/JsonDataReader"
 import IDataTransformer from "./datatransformers/IDataTransformer"
 import QaBuildsAndRunsFromBambooDataTransformer from "./datatransformers/QaBuildsAndRunsFromBambooDataTransformer"
 
-import IStorage from "./storages/IStorage"
-import MySqlStorage from "./storages/MySqlStorage"
+import { IStorage } from "./storages/IStorage"
+import { MysqlStorage } from "./storages/MysqlStorage"
 
 import TransformStream from "./TransformStream"
 import WriteStream from "./WriteStream"
 
 const config = require("../config/config")
 
-const storage: IStorage = new MySqlStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
+const storage: IStorage = new MysqlStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
 
 RunThroughPipeline();
 
@@ -39,8 +39,8 @@ async function CreateTable()
 {
     return new Promise(async (resolve, reject) =>
     {
-        await storage.QueryOrNull("DROP TABLE IF EXISTS qa_builds_and_runs_from_bamboo");
-        await storage.QueryOrNull
+        await storage.QueryResultsOrNull("DROP TABLE IF EXISTS qa_builds_and_runs_from_bamboo");
+        await storage.QueryResultsOrNull
         (`
             CREATE TABLE qa_builds_and_runs_from_bamboo
             (

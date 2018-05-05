@@ -1,4 +1,4 @@
-import IStorage from "../storages/MySqlStorage"
+import { IStorage } from "../storages/IStorage"
 import { IKpiState } from "./IKpiState"
 
 /**
@@ -29,7 +29,7 @@ export abstract class KpiMapper
     public async GetKpiStateOrNull(from: Date, to: Date): Promise<IKpiState|null>
     {
         var sql: string = this.GetQueryString(from, to);
-        var jsonArrayResults: object = await this._storage.QueryOrNull(sql);
+        var jsonArrayResults: object = await this._storage.QueryResultsOrNull(sql);
         return (jsonArrayResults == null)
             ? null
             : this.MapToKpiState(jsonArrayResults);

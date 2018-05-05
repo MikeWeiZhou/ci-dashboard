@@ -3,6 +3,7 @@
  */
 
 class Beast {}          // object
+var arr = [{},{}];      // object
 function aFunction() {} // function
 var anInt = 5;          // number
 var aFloat = 5.5;       // number
@@ -23,3 +24,4 @@ console.log("typeof string: " + typeof(aString));
 console.log("typeof char: " + typeof(aChar));
 console.log("typeof boolean: " + typeof(aBool));
 console.log("typeof declared, not initialized variable: " + typeof(newVar) + " || value: " + newVar);
+console.log("typeof array: " + typeof(arr));
