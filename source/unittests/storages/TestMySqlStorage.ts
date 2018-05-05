@@ -31,9 +31,9 @@ describe("storages/MysqlStorage", () =>
         await storage.QueryResultsOrNull(createDummyData);
     });
 
-    describe("Initialize", () =>
+    describe(".Initialize", () =>
     {
-        it("Connect with wrong credentials throws ER_ACCESS_DENIED_ERROR", async () =>
+        it("should throw ER_ACCESS_DENIED_ERROR with wrong credentials", async () =>
         {
             await assertextentions.assertThrowsAsync(/ER_ACCESS_DENIED_ERROR/, async () =>
             {
@@ -43,53 +43,89 @@ describe("storages/MysqlStorage", () =>
         });
     });
 
-    describe("QueryResultsOrNull", () =>
+    describe(".QueryResultsOrNull", () =>
     {
-        it("Query with no results returns null", async () =>
+        it("should return null for query with zero results", async () =>
         {
             var noResultsQuery: string = "SELECT * FROM dummy_test_table WHERE NAME = 'non-existent-name'";
             var results: Array<object> = await storage.QueryResultsOrNull(noResultsQuery);
             assert.equal(results, null);
         }),
 
-        it("Query non-existent field returns null", async () =>
+        it("should return null when selecting non-existent field", async () =>
         {
             var nonExistentFieldQuery: string = "SELECT * FROM dummy_test_table WHERE NON_EXISTENT_FIELD = 'non-existent-name'";
             var results: Array<object> = await storage.QueryResultsOrNull(nonExistentFieldQuery);
             assert.equal(results, null);
         }),
 
-        it("Valid query results length matches database", async () =>
-        {
-            var twoResultsQuery: string = "SELECT * FROM dummy_test_table WHERE AGE < 20";
-            var results: Array<object> = await storage.QueryResultsOrNull(twoResultsQuery);
-            assert.equal(results.length, 2);
-        }),
-
-        it("Invalid query returns null", async () =>
+        it("should return null on invalid query", async () =>
         {
             var invalidQuery: string = "once upon a time..";
             var results: Array<object> = await storage.QueryResultsOrNull(invalidQuery);
             assert.equal(results, null);
+        }),
+
+        it("query results length should match the database data", async () =>
+        {
+            var twoResultsQuery: string = "SELECT * FROM dummy_test_table WHERE AGE < 20";
+            var results: Array<object> = await storage.QueryResultsOrNull(twoResultsQuery);
+            assert.equal(results.length, 2);
         });
     });
 
-    describe("Write", () =>
+    describe(".Write", () =>
     {
-        it("Write new entry to table succeeds with valid keys and data", async () =>
+        it("should return true and data saved when writing single valid data set to database", async () =>
         {
             var keys: Array<any> = ["NAME", "AGE"];
             var data: Array<any> = ["Jennifer", 6];
             var isSuccess: boolean = await storage.Write("dummy_test_table", keys, data);
             assert.equal(isSuccess, true);
+
+            var query: string = "SELECT * FROM dummy_test_table WHERE NAME = 'Jennifer' AND AGE = 6";
+            var results: Array<object> = await storage.QueryResultsOrNull(query);
+            assert.equal(results.length, 1);
         }),
 
-        it("Single new entry to table fails with invalid keys", async () =>
+        it("should return true and data saved when writing multiple valid data sets to database", async () =>
         {
-            var keys: Array<any> = ["NAME", "NON_EXISTENT_FIELD"];
-            var data: Array<any> = ["Jennifer", 6];
+            var keys: Array<any> = ["NAME", "AGE"];
+            var data: Array<any> = [["BigTommy", 99], ["BigTommy", 15]];
+            var isSuccess: boolean = await storage.Write("dummy_test_table", keys, data);
+            assert.equal(isSuccess, true);
+
+            var query: string = "SELECT * FROM dummy_test_table WHERE NAME = 'BigTommy' AND AGE = 99";
+            var results: Array<object> = await storage.QueryResultsOrNull(query);
+            assert.equal(results.length, 1);
+
+            query = "SELECT * FROM dummy_test_table WHERE NAME = 'BigTommy' AND AGE = 15";
+            results = await storage.QueryResultsOrNull(query);
+            assert.equal(results.length, 1);
+        }),
+
+        it("should return false and data not saved when writing invalid data/key to database", async () =>
+        {
+            var keys: Array<any> = ["NAME", "AGE"];
+            var data: Array<any> = ["BigBlooper1", "string"];
             var isSuccess: boolean = await storage.Write("dummy_test_table", keys, data);
             assert.equal(isSuccess, false);
+
+            var query: string = "SELECT * FROM dummy_test_table WHERE NAME = 'BigBlooper1'";
+            var results: Array<object> = await storage.QueryResultsOrNull(query);
+            assert.equal(results, null);
+        }),
+
+        it("should return false and data not saved when writing invalid data/key to database", async () =>
+        {
+            var keys: Array<any> = ["NAME", "NON_EXISTENT_FIELD"];
+            var data: Array<any> = ["BigBlooper2", 6];
+            var isSuccess: boolean = await storage.Write("dummy_test_table", keys, data);
+            assert.equal(isSuccess, false);
+
+            var query: string = "SELECT * FROM dummy_test_table WHERE NAME = 'BigBlooper2'";
+            var results: Array<object> = await storage.QueryResultsOrNull(query);
+            assert.equal(results, null);
         });
     });
 
