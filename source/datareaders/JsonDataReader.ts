@@ -1,9 +1,7 @@
-const json = require("JSONStream");
-
 import * as fs from "fs"
 import { Writable } from "stream"
-
 import IDataReader from "./IDataReader"
+const json = require("JSONStream");
 
 /**
  * JsonDataReader.

@@ -76,7 +76,7 @@ describe("storages/MysqlStorage", () =>
 
     describe("Write", () =>
     {
-        it("Write new entry to table succeeds with valid object", async () =>
+        it("Write new entry to table succeeds with valid keys and data", async () =>
         {
             var keys: Array<any> = ["NAME", "AGE"];
             var data: Array<any> = ["Jennifer", 6];
@@ -84,7 +84,7 @@ describe("storages/MysqlStorage", () =>
             assert.equal(isSuccess, true);
         }),
 
-        it("Single new entry to table fails with invalid object", async () =>
+        it("Single new entry to table fails with invalid keys", async () =>
         {
             var keys: Array<any> = ["NAME", "NON_EXISTENT_FIELD"];
             var data: Array<any> = ["Jennifer", 6];
