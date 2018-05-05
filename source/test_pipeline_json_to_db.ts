@@ -4,8 +4,8 @@
  * to saving transformed data into a MySQL database.
  */
 
-import IDataReader from "./datareaders/IDataReader"
-import JsonDataReader from "./datareaders/JsonDataReader"
+import { IDataReader } from "./datareaders/IDataReader"
+import { JsonDataReader } from "./datareaders/JsonDataReader"
 import { IDataTransformer } from "./datatransformers/IDataTransformer"
 import { QaBuildsAndRunsFromBambooDataTransformer } from "./datatransformers/QaBuildsAndRunsFromBambooDataTransformer"
 import { IStorage } from "./storages/IStorage"

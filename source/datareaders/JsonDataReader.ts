@@ -1,6 +1,6 @@
 import * as fs from "fs"
 import { Writable } from "stream"
-import IDataReader from "./IDataReader"
+import { IDataReader } from "./IDataReader"
 const json = require("JSONStream");
 
 /**
@@ -8,7 +8,7 @@ const json = require("JSONStream");
  * 
  * Returns a stream to the JSON file.
  */
-export default class JsonDataReader implements IDataReader
+export class JsonDataReader implements IDataReader
 {
     private _filepath: string;
     private _jsonParsePath: string;
