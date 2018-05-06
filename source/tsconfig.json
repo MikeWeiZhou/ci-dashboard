@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "baseUrl": ".",
         "module": "commonjs",
         "lib": ["es6"],
         "moduleResolution": "node",
@@ -12,7 +13,7 @@
         "noImplicitAny": true,
         "strictNullChecks": true,
         "suppressImplicitAnyIndexErrors": true,
-        // "noUnusedLocals": true
+        "noUnusedLocals": true
     },
     "include": [
         "**/*"
