@@ -75,12 +75,12 @@ export class MysqlStorage implements IStorage
         var _this: MysqlStorage = this;
         return new Promise((resolve: Function, reject: Function) =>
         {
-            _this._connection.query(sql, data, (error: mysql.MysqlError, results: Array<object>|object) =>
+            _this._connection.query(sql, data, (err: mysql.MysqlError, results: Array<object>|object) =>
             {
-                if (error)
+                if (err)
                 {
-                    Log(__filename, error, `SQL Query: ${sql}\n\nData Array: ${data}`);
-                    reject(error);
+                    Log(err, `SQL Query: ${err.sql}\n\nData Array: ${data}`);
+                    reject(err);
                 }
                 else
                 {
