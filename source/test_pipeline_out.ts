@@ -3,7 +3,6 @@
  * then mapping and returning a IKpiState object (contains all required information for Plotly.js)
  */
 
-import { IStorage } from "./storages/IStorage"
 import { MysqlStorage } from "./storages/MysqlStorage"
 import { IKpiState } from "./kpimappers/IKpiState";
 import { KpiMapper } from "./kpimappers/KpiMapper"

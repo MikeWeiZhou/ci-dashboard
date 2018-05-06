@@ -1,6 +1,5 @@
 import * as assert from "assert";
 import * as assertextentions from "../assertextentions"
-import * as mysql from "mysql"
 import { MysqlStorage } from "../../storages/MysqlStorage"
 const config = require("../../../config/config");
 

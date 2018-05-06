@@ -1,7 +1,9 @@
 // import { PythonShell } from "python-shell"
 
 var PythonShell = require("python-shell");
-var testShell = new PythonShell("test.py", {mode: "json"});
+var testShell = new PythonShell("./data/test_print_json.py", {mode: "text"});
+
+testShell.send("one\ntwo");
 
 testShell.stdout.on("data", (data: any) =>
 {
@@ -9,9 +11,9 @@ testShell.stdout.on("data", (data: any) =>
 });
 
 testShell.end(function (err: any, code: any, signal: any) {
-    if (err) throw err;
     console.log('The exit code was: ' + code);
     console.log('The exit signal was: ' + signal);
     console.log('finished');
     console.log('finished');
+    if (err) throw err;
 });

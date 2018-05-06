@@ -24,7 +24,7 @@ async function RunThroughPipeline()
     console.log("If completed successfully, no errors would be thrown and Node.js will exit after completion.");
 
     const dataReaderFromJsonFile: IDataReader = new JsonDataReader("./data/qa_builds_and_runs_from_bamboo.json", "*");
-    const dataReaderFromPythonScript: IDataReader = new PythonShellJsonDataReader("./data/test_print_json.py", "*");
+    const dataReaderFromPythonScript: IDataReader = new PythonShellJsonDataReader("./data/test_print_json.py", "*", new Date("2015-01-10"), new Date("2019-01-10"));
 
     console.log("Connecting to MySQL database...");
     await storage.Initialize();
