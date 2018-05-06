@@ -2,4 +2,4 @@
  * Test Suite for Continuous Integration Dashboard for ***REMOVED***.
  */
 
-require("./storages/TestMySqlStorage");
+require("./storages/TestMySqlDataStorage");

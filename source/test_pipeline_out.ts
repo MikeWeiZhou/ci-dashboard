@@ -3,13 +3,13 @@
  * then mapping and returning a IKpiState object (contains all required information for Plotly.js)
  */
 
-import { MysqlStorage } from "./storages/MysqlStorage"
+import { MysqlDataStorage } from "./datastorages/MysqlDataStorage"
 import { IKpiState } from "./kpimappers/IKpiState";
 import { KpiMapper } from "./kpimappers/KpiMapper"
 import { QaOverallBuildSuccessKpiMapper } from "./kpimappers/QaOverallBuildSuccessKpiMapper"
 const config = require("../config/config")
 
-var storage: MysqlStorage = new MysqlStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
+var storage: MysqlDataStorage = new MysqlDataStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
 
 RunThroughPipeline();
 async function RunThroughPipeline()

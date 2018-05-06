@@ -1,19 +1,22 @@
-// import { PythonShell } from "python-shell"
+// import * as mysql from "mysql"
+import { MysqlDataStorage } from "./datastorages/MysqlDataStorage"
+const config = require("../config/config");
 
-var PythonShell = require("python-shell");
-var testShell = new PythonShell("./data/test_print_json.py", {mode: "text"});
+var storage: MysqlDataStorage = new MysqlDataStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
 
-testShell.send("one\ntwo");
+storage.Query(`
+    CREATE TABLE dummy_test_table
+    (
+        ID   INT          NOT NULL PRIMARY KEY,
+        NAME VARCHAR(255) NOT NULL,
+        AGE  INT          NOT NULL
+    )
+`);
 
-testShell.stdout.on("data", (data: any) =>
-{
-    console.log(data + "\n\n\n");
-});
-
-testShell.end(function (err: any, code: any, signal: any) {
-    console.log('The exit code was: ' + code);
-    console.log('The exit signal was: ' + signal);
-    console.log('finished');
-    console.log('finished');
-    if (err) throw err;
-});
+storage.Query(`
+    INSERT INTO dummy_test_table (NAME, AGE) VALUES
+    ("Mike", 1),
+    ("Tony", 10),
+    ("Johnny", 100),
+    ("Elisa", 1000)
+`);

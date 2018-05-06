@@ -1,13 +1,13 @@
 import * as mysql from "mysql"
-import { IStorage } from "./IStorage"
+import { IDataStorage } from "./IDataStorage"
 import { Log } from "../Log"
 
 /**
- * MysqlStorage.
+ * MysqlDataStorage.
  * 
  * Allows writing data to a MySQL database.
  */
-export class MysqlStorage implements IStorage
+export class MysqlDataStorage implements IDataStorage
 {
     /**
      * Node.js MySQL connector requires insert statements with separate values parameter
@@ -44,7 +44,7 @@ export class MysqlStorage implements IStorage
      */
     public async Initialize(): Promise<any>
     {
-        var _this: MysqlStorage = this;
+        var _this: MysqlDataStorage = this;
         return new Promise((resolve: Function, reject: Function) =>
         {
             _this._connection.connect((error: mysql.MysqlError) =>
@@ -72,7 +72,7 @@ export class MysqlStorage implements IStorage
      */
     public async Query(sql: string, data?: Array<any>): Promise<any>
     {
-        var _this: MysqlStorage = this;
+        var _this: MysqlDataStorage = this;
         return new Promise((resolve: Function, reject: Function) =>
         {
             _this._connection.query(sql, data, (err: mysql.MysqlError, results: Array<object>|object) =>

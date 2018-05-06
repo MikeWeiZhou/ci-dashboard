@@ -1,11 +1,11 @@
 import * as assert from "assert";
 import * as assertextentions from "../assertextentions"
-import { MysqlStorage } from "../../storages/MysqlStorage"
+import { MysqlDataStorage } from "../../datastorages/MysqlDataStorage"
 const config = require("../../../config/config");
 
-var storage: MysqlStorage;
+var storage: MysqlDataStorage;
 
-describe("storages/MysqlStorage", () =>
+describe("storages/MysqlDataStorage", () =>
 {
     before(async () =>
     {
@@ -24,7 +24,7 @@ describe("storages/MysqlStorage", () =>
             ("Johnny", 100),
             ("Elisa", 1000)
         `;
-        storage = new MysqlStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
+        storage = new MysqlDataStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
         await storage.Initialize();
         await storage.Query(createDummyTable);
         await storage.Query(createDummyData);
@@ -36,7 +36,7 @@ describe("storages/MysqlStorage", () =>
         {
             await assertextentions.assertThrowsAsync(/ER_ACCESS_DENIED_ERROR/, async () =>
             {
-                var storage: MysqlStorage = new MysqlStorage(config.db.host, config.db.dbname, "wrong_username", "password");
+                var storage: MysqlDataStorage = new MysqlDataStorage(config.db.host, config.db.dbname, "wrong_username", "password");
                 await storage.Initialize();
             });
         });

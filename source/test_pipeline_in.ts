@@ -9,13 +9,13 @@ import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
 import { PythonShellJsonDataCollector } from "./datacollectors/PythonShellJsonDataCollector"
 import { IDataInterface } from "./datainterfaces/IDataInterface"
 import { QaBuildsAndRunsFromBambooDataInterface } from "./datainterfaces/QaBuildsAndRunsFromBambooDataInterface"
-import { IStorage } from "./storages/IStorage"
-import { MysqlStorage } from "./storages/MysqlStorage"
+import { IDataStorage } from "./datastorages/IDataStorage"
+import { MysqlDataStorage } from "./datastorages/MysqlDataStorage"
 import { TransformStream } from "./datainterfaces/TransformStream"
-import { WriteStream } from "./storages/WriteStream"
+import { WriteStream } from "./datastorages/WriteStream"
 const config = require("../config/config")
 
-const storage: IStorage = new MysqlStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
+const storage: IDataStorage = new MysqlDataStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
 
 RunThroughPipeline();
 async function RunThroughPipeline()

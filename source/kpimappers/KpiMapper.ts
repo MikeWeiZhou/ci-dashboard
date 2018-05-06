@@ -1,5 +1,5 @@
 import * as moment from "moment"
-import { IStorage } from "../storages/IStorage"
+import { IDataStorage } from "../datastorages/IDataStorage"
 import { IKpiState } from "./IKpiState"
 const config = require("../../config/config")
 
@@ -10,15 +10,15 @@ const config = require("../../config/config")
  */
 export abstract class KpiMapper
 {
-    private _storage: IStorage;
+    private _dataStorage: IDataStorage;
 
     /**
      * Constructor.
-     * @param {IStorage} storage 
+     * @param {IDataStorage} dataStorage 
      */
-    public constructor(storage: IStorage)
+    public constructor(dataStorage: IDataStorage)
     {
-        this._storage = storage;
+        this._dataStorage = dataStorage;
     }
 
     /**
@@ -37,7 +37,7 @@ export abstract class KpiMapper
         var jsonArrayResults: Array<any>;
         try
         {
-            jsonArrayResults = await this._storage.Query(sql);
+            jsonArrayResults = await this._dataStorage.Query(sql);
         }
         catch (err)
         {

@@ -1,9 +1,9 @@
 /**
- * IStorage.
+ * IDataStorage.
  * 
  * Allows writing data to a storage medium.
  */
-export interface IStorage
+export interface IDataStorage
 {
     /**
      * Initialize storage medium.
