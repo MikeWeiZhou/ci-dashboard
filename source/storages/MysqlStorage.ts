@@ -62,30 +62,25 @@ export class MysqlStorage implements IStorage
     }
 
     /**
-     * Query MySQL returning results as JSON array or null if no results or error.
+     * Query MySQL returning results as JSON array.
      * @async
      * @param {string} sql query to run
      * @param {Array<any>} [data] for insert queries only
-     * @returns {Promise<any>} results as JSON array or null if no results or error
+     * @returns {Promise<any>} results as JSON array
+     * @throws {Error} Error if errored
      * @override
      */
-    public async QueryResultsOrNull(sql: string, data?: Array<any>): Promise<any>
+    public async Query(sql: string, data?: Array<any>): Promise<any>
     {
         var _this: MysqlStorage = this;
         return new Promise((resolve: Function, reject: Function) =>
         {
-            _this._connection.query(sql, data, (error: mysql.MysqlError, results: Array<object>) =>
+            _this._connection.query(sql, data, (error: mysql.MysqlError, results: Array<object>|object) =>
             {
                 if (error)
                 {
-                    // Log error message and return null
-                    // Assumption: Majority of time it's because of invalid query
-                    Log(__filename, error, `SQL Query: ${sql}\n\nData: ${data}`);
-                    resolve(null);
-                }
-                else if (results.length == 0)
-                {
-                    resolve(null);
+                    Log(__filename, error, `SQL Query: ${sql}\n\nData Array: ${data}`);
+                    reject(error);
                 }
                 else
                 {
@@ -102,15 +97,23 @@ export class MysqlStorage implements IStorage
      * @param {Array<any>} keys field names of the table
      * @param {Array<any>} data to be inserted
      * @returns {Promise<boolean>} true if write successful, false otherwise
+     * @throws {Error} Error if errored
      * @override
      */
     public async Write(tablename: string, keys: Array<any>, data: Array<any>): Promise<boolean>
     {
         var insertQuery: string = this.getInsertQuery(tablename, keys);
         var insertData: Array<any> = this.wrapInsertDataArray(data);
-        return (await this.QueryResultsOrNull(insertQuery, insertData) == null)
-            ? false
-            : true;
+        var results: any;
+        try
+        {
+            results = await this.Query(insertQuery, insertData);
+        }
+        catch (err)
+        {
+            throw err;
+        }
+        return (results.affectedRows > 0);
     }
 
     /**

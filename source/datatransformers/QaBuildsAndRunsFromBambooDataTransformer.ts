@@ -21,7 +21,7 @@ export class QaBuildsAndRunsFromBambooDataTransformer implements IDataTransforme
      */
     public readonly TableKeys: Array<string> = ["MINUTES_TOTAL_QUEUE_AND_BUILD", "BUILD_COMPLETED_DATE", "CYCLE", "PLATFORM", "PRODUCT", "IS_DEFAULT", "IS_SUCCESS", "BRANCH_ID"];
 
-    private readonly _DEFAULT_BRANCH_ID: number = -1;
+    private readonly _NO_BRANCH_ID: number = -1;
 
     /**
      * Returns a data array.
@@ -52,7 +52,7 @@ export class QaBuildsAndRunsFromBambooDataTransformer implements IDataTransforme
         values.push((o.BUILD_STATE == "Failed") ? 0 : 1);   // IS_SUCCESS
         values.push((o.BUILD_KEY.length > 17)               // BRANCH_ID [d]
             ? o.BUILD_KEY.substring(17)
-            : this._DEFAULT_BRANCH_ID
+            : this._NO_BRANCH_ID
             );
         return values;
     }

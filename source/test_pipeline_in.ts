@@ -45,8 +45,8 @@ async function CreateTable()
 {
     return new Promise(async (resolve, reject) =>
     {
-        await storage.QueryResultsOrNull(`DROP TABLE IF EXISTS ${config.db.tablenames.qa_builds_and_runs_from_bamboo}`);
-        await storage.QueryResultsOrNull
+        await storage.Query(`DROP TABLE IF EXISTS ${config.db.tablenames.qa_builds_and_runs_from_bamboo}`);
+        await storage.Query
         (`
             CREATE TABLE ${config.db.tablenames.qa_builds_and_runs_from_bamboo}
             (

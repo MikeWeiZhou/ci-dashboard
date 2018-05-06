@@ -26,8 +26,8 @@ describe("storages/MysqlStorage", () =>
         `;
         storage = new MysqlStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
         await storage.Initialize();
-        await storage.QueryResultsOrNull(createDummyTable);
-        await storage.QueryResultsOrNull(createDummyData);
+        await storage.Query(createDummyTable);
+        await storage.Query(createDummyData);
     });
 
     describe(".Initialize", () =>
@@ -42,33 +42,37 @@ describe("storages/MysqlStorage", () =>
         });
     });
 
-    describe(".QueryResultsOrNull", () =>
+    describe(".Query", () =>
     {
-        it("should return null for query with zero results", async () =>
+        it("should return empty array for select query with zero results", async () =>
         {
             var noResultsQuery: string = "SELECT * FROM dummy_test_table WHERE NAME = 'non-existent-name'";
-            var results: Array<object> = await storage.QueryResultsOrNull(noResultsQuery);
-            assert.equal(results, null);
+            var results: Array<object> = await storage.Query(noResultsQuery);
+            assert.equal(results.length, 0);
         }),
 
-        it("should return null when selecting non-existent field", async () =>
+        it("should throw ER_BAD_FIELD_ERROR non-existent field", async () =>
         {
-            var nonExistentFieldQuery: string = "SELECT * FROM dummy_test_table WHERE NON_EXISTENT_FIELD = 'non-existent-name'";
-            var results: Array<object> = await storage.QueryResultsOrNull(nonExistentFieldQuery);
-            assert.equal(results, null);
+            await assertextentions.assertThrowsAsync(/ER_BAD_FIELD_ERROR/, async () =>
+            {
+                var nonExistentFieldQuery: string = "SELECT * FROM dummy_test_table WHERE NON_EXISTENT_FIELD = 'non-existent-name'";
+                await storage.Query(nonExistentFieldQuery);
+            });
         }),
 
-        it("should return null on invalid query", async () =>
+        it("should throw ER_PARSE_ERROR on invalid query", async () =>
         {
-            var invalidQuery: string = "once upon a time..";
-            var results: Array<object> = await storage.QueryResultsOrNull(invalidQuery);
-            assert.equal(results, null);
+            await assertextentions.assertThrowsAsync(/ER_PARSE_ERROR/, async () =>
+            {
+                var invalidQuery: string = "once upon a time..";
+                await storage.Query(invalidQuery);
+            });
         }),
 
         it("query results length should match the database data", async () =>
         {
             var twoResultsQuery: string = "SELECT * FROM dummy_test_table WHERE AGE < 20";
-            var results: Array<object> = await storage.QueryResultsOrNull(twoResultsQuery);
+            var results: Array<object> = await storage.Query(twoResultsQuery);
             assert.equal(results.length, 2);
         });
     });
@@ -83,7 +87,7 @@ describe("storages/MysqlStorage", () =>
             assert.equal(isSuccess, true);
 
             var query: string = "SELECT * FROM dummy_test_table WHERE NAME = 'Jennifer' AND AGE = 6";
-            var results: Array<object> = await storage.QueryResultsOrNull(query);
+            var results: Array<object> = await storage.Query(query);
             assert.equal(results.length, 1);
         }),
 
@@ -95,42 +99,46 @@ describe("storages/MysqlStorage", () =>
             assert.equal(isSuccess, true);
 
             var query: string = "SELECT * FROM dummy_test_table WHERE NAME = 'BigTommy' AND AGE = 99";
-            var results: Array<object> = await storage.QueryResultsOrNull(query);
+            var results: Array<object> = await storage.Query(query);
             assert.equal(results.length, 1);
 
             query = "SELECT * FROM dummy_test_table WHERE NAME = 'BigTommy' AND AGE = 15";
-            results = await storage.QueryResultsOrNull(query);
+            results = await storage.Query(query);
             assert.equal(results.length, 1);
         }),
 
-        it("should return false and data not saved when writing invalid data/key to database", async () =>
+        it("should throw ER_TRUNCATED_WRONG_VALUE_FOR_FIELD and data not saved when writing invalid data to database", async () =>
         {
-            var keys: Array<any> = ["NAME", "AGE"];
-            var data: Array<any> = ["BigBlooper1", "string"];
-            var isSuccess: boolean = await storage.Write("dummy_test_table", keys, data);
-            assert.equal(isSuccess, false);
+            await assertextentions.assertThrowsAsync(/ER_TRUNCATED_WRONG_VALUE_FOR_FIELD/, async () =>
+            {
+                var keys: Array<any> = ["NAME", "AGE"];
+                var data: Array<any> = ["BigBlooper1", "string"];
+                await storage.Write("dummy_test_table", keys, data);
+            });
 
             var query: string = "SELECT * FROM dummy_test_table WHERE NAME = 'BigBlooper1'";
-            var results: Array<object> = await storage.QueryResultsOrNull(query);
-            assert.equal(results, null);
+            var results: Array<object> = await storage.Query(query);
+            assert.equal(results.length, 0);
         }),
 
-        it("should return false and data not saved when writing invalid data/key to database", async () =>
+        it("should throw ER_BAD_FIELD_ERROR and data not saved when writing invalid key to database", async () =>
         {
-            var keys: Array<any> = ["NAME", "NON_EXISTENT_FIELD"];
-            var data: Array<any> = ["BigBlooper2", 6];
-            var isSuccess: boolean = await storage.Write("dummy_test_table", keys, data);
-            assert.equal(isSuccess, false);
+            await assertextentions.assertThrowsAsync(/ER_BAD_FIELD_ERROR/, async () =>
+            {
+                var keys: Array<any> = ["NAME", "NON_EXISTENT_FIELD"];
+                var data: Array<any> = ["BigBlooper2", 6];
+                await storage.Write("dummy_test_table", keys, data);
+            });
 
             var query: string = "SELECT * FROM dummy_test_table WHERE NAME = 'BigBlooper2'";
-            var results: Array<object> = await storage.QueryResultsOrNull(query);
-            assert.equal(results, null);
+            var results: Array<object> = await storage.Query(query);
+            assert.equal(results.length, 0);
         });
     });
 
     after(async () =>
     {
-        await storage.QueryResultsOrNull('DROP TABLE dummy_test_table');
+        await storage.Query('DROP TABLE dummy_test_table');
         storage.Dispose();
     });
 });

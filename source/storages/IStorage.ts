@@ -14,12 +14,13 @@ export interface IStorage
     Initialize(): Promise<any>;
 
     /**
-     * Query storage returning results as JSON array or null if no results or error.
+     * Query storage returning results as JSON array.
      * @async
      * @param {string} sql query to run
-     * @returns {Promise<any>} results as JSON array or null if no results or error
+     * @returns {Promise<any>} results as JSON array
+     * @throws {Error} Error if errored
      */
-    QueryResultsOrNull(sql: string): Promise<any>;
+    Query(sql: string): Promise<any>;
 
     /**
      * Write one or more entries to specified table in database.
@@ -28,6 +29,7 @@ export interface IStorage
      * @param {Array<any>} keys field names of the table
      * @param {Array<any>} data to be inserted
      * @returns {Promise<boolean>} true if write successful, false otherwise
+     * @throws {Error} Error if errored
      */
     Write(tablename: string, keys: Array<any>, data: Array<any>): Promise<boolean>;
 

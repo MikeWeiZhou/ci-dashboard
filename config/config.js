@@ -8,7 +8,7 @@ config.db =
     host: "localhost",
     dbname: "cidashboard",
     username: "root",
-    password: ""
+    password: "password"
 };
 config.db.tablenames =
 {

@@ -27,14 +27,23 @@ export abstract class KpiMapper
      * @param {Date} from date
      * @param {Date} to date
      * @returns {Promise<IKpiState|null>} IKpiState or null when errored
+     * @throws {Error} Error if storage error
      */
     public async GetKpiStateOrNull(from: Date, to: Date): Promise<IKpiState|null>
     {
         var fromDate: string = moment(from).format(config.dateformat.mysql);
         var toDate: string = moment(to).format(config.dateformat.mysql);
         var sql: string = this.GetQueryString(fromDate, toDate);
-        var jsonArrayResults: object = await this._storage.QueryResultsOrNull(sql);
-        return (jsonArrayResults == null)
+        var jsonArrayResults: Array<any>;
+        try
+        {
+            jsonArrayResults = await this._storage.Query(sql);
+        }
+        catch (err)
+        {
+            throw err;
+        }
+        return (jsonArrayResults.length == 0)
             ? null
             : this.MapToKpiState(jsonArrayResults);
     }
