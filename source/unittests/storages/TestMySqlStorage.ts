@@ -91,6 +91,18 @@ describe("storages/MysqlStorage", () =>
             assert.equal(results.length, 1);
         }),
 
+        it("should return true and data saved when writing valid data strings with spaces", async () =>
+        {
+            var keys: Array<any> = ["NAME", "AGE"];
+            var data: Array<any> = ["some space inbetween", 6];
+            var isSuccess: boolean = await storage.Write("dummy_test_table", keys, data);
+            assert.equal(isSuccess, true);
+
+            var query: string = "SELECT * FROM dummy_test_table WHERE NAME = 'some space inbetween' AND AGE = 6";
+            var results: Array<object> = await storage.Query(query);
+            assert.equal(results.length, 1);
+        }),
+
         it("should return true and data saved when writing multiple valid data sets to database", async () =>
         {
             var keys: Array<any> = ["NAME", "AGE"];
