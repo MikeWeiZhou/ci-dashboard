@@ -10,8 +10,7 @@
     "//----------------------------------------------------------------------------": "",
     "test": "npm run compile && mocha compiled/unittests/tests.js",
     "///---------------------------------------------------------------------------": "",
-    "testpipelinein": "node compiled/test_pipeline_in.js",
-    "testpipelineout": "node compiled/test_pipeline_out.js",
+    "testpipeline": "node compiled/test_pipeline_in.js && node compiled/test_pipeline_out.js",
     "ct": "npm run compile && node compiled/test_random.js"
   },
   "author": "Johnny Lee, Elisa Chu, Tony So, Mike Zhou",

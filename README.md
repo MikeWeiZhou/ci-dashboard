@@ -21,10 +21,12 @@ These areas are just a working prototype.
 * Run command: *npm run start*
 * The default browser should automatically start and load the web app.
 
-### Test Pipeline from data collection (raw JSON file) -> data interface -> data storage
+### Test Pipeline
+Tests the pipeline from data collection -> data mapping -> database -> kpi state (containing plotly data).
 
 * Run command: *npm run testpipeline*
-* ^ runs the compiled version of the file *source/test_pipeline_json_to_db.ts*
+* ^ runs the compiled version of the file *source/test_pipeline_in.ts*
+* ^ runs the compiled version of the file *source/test_pipeline_out.ts*
 
 
 ## 3. Directory Structure
