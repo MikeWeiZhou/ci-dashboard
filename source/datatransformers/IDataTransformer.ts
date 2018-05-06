@@ -5,10 +5,15 @@
  */
 export interface IDataTransformer
 {
-    /** Table name for data set. */
+    /**
+     * Table name for data set.
+     */
     readonly TableName: string;
 
-    /** Table keys/fields for data set. Order must match data array returned from Transform(). */
+    /**
+     * Table keys/fields for data set.
+     * Order must match data array returned from Transform().
+     */
     readonly TableKeys: Array<string>;
 
     /**

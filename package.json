@@ -8,9 +8,9 @@
     "/-----------------------------------------------------------------------------": "",
     "compile": "tsc -p source --outDir compiled",
     "//----------------------------------------------------------------------------": "",
-    "test": "npm run compile && mocha compiled/unittests/tests.js",
-    "///---------------------------------------------------------------------------": "",
+    "test": "npm run compile && mocha compiled/unittests/tests.js && npm run testpipeline",
     "testpipeline": "node compiled/test_pipeline_in.js && node compiled/test_pipeline_out.js",
+    "///---------------------------------------------------------------------------": "",
     "ct": "npm run compile && node compiled/test_random.js"
   },
   "author": "Johnny Lee, Elisa Chu, Tony So, Mike Zhou",

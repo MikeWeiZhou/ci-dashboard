@@ -9,10 +9,11 @@ import { Log } from "../Log"
  */
 export class MysqlStorage implements IStorage
 {
-    /** Node.js MySQL connector requires insert statements with separate values parameter
+    /**
+     * Node.js MySQL connector requires insert statements with separate values parameter
      * be wrapped with this many array layers.
      */
-    private readonly _REQUIRED_VALUES_ARRAY_LAYER_COUNT = 3;
+    private readonly _REQUIRED_VALUES_ARRAY_LAYER_COUNT: number = 3;
 
     private _connection: mysql.Connection;
 

@@ -1,5 +1,5 @@
 import { Transform } from "stream"
-import { IDataTransformer } from "./datatransformers/IDataTransformer";
+import { IDataTransformer } from "./IDataTransformer";
 
 /**
  * TransformStream.

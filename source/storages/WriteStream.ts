@@ -1,6 +1,6 @@
 import { Writable } from "stream"
-import { IStorage } from "./storages/IStorage";
-import { IDataTransformer } from "./datatransformers/IDataTransformer"
+import { IStorage } from "./IStorage";
+import { IDataTransformer } from "../datatransformers/IDataTransformer"
 
 /**
  * WriteStream.
