@@ -4,9 +4,9 @@
  * to saving transformed data into a MySQL database.
  */
 
-import { IDataReader } from "./datareaders/IDataReader"
-import { JsonDataReader } from "./datareaders/JsonDataReader"
-import { PythonShellJsonDataReader } from "./datareaders/PythonShellJsonDataReader"
+import { IDataCollector } from "./datacollectors/IDataCollector"
+import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
+import { PythonShellJsonDataCollector } from "./datacollectors/PythonShellJsonDataCollector"
 import { IDataInterface } from "./datainterfaces/IDataInterface"
 import { QaBuildsAndRunsFromBambooDataInterface } from "./datainterfaces/QaBuildsAndRunsFromBambooDataInterface"
 import { IStorage } from "./storages/IStorage"
@@ -23,8 +23,8 @@ async function RunThroughPipeline()
     console.log("Running pipeline from datareader -> datatransformer -> storage.");
     console.log("If completed successfully, no errors would be thrown and Node.js will exit after completion.");
 
-    const dataReaderFromJsonFile: IDataReader = new JsonDataReader("./data/qa_builds_and_runs_from_bamboo.json", "*");
-    const dataReaderFromPythonScript: IDataReader = new PythonShellJsonDataReader("./data/test_print_json.py", "*", new Date("2015-01-10"), new Date("2019-01-10"));
+    const dataReaderFromJsonFile: IDataCollector = new JsonDataCollector("./data/qa_builds_and_runs_from_bamboo.json", "*");
+    const dataReaderFromPythonScript: IDataCollector = new PythonShellJsonDataCollector("./data/test_print_json.py", "*", new Date("2015-01-10"), new Date("2019-01-10"));
 
     console.log("Connecting to MySQL database...");
     await storage.Initialize();
@@ -64,7 +64,7 @@ async function CreateTable()
     });
 }
 
-async function ReadTransformAndSaveData(dataReader: IDataReader)
+async function ReadTransformAndSaveData(dataReader: IDataCollector)
 {
     return new Promise((resolve, reject) =>
     {

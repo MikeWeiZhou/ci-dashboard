@@ -1,11 +1,11 @@
 import { Stream } from "stream"
 
 /**
- * IDataReader.
+ * IDataCollector.
  * 
  * Returns a stream to the data source.
  */
-export interface IDataReader
+export interface IDataCollector
 {
     /**
      * Initialize the data source.

@@ -1,14 +1,14 @@
 import * as csv from "csv-parse"
 import * as fs from "fs"
 import { Stream } from "stream"
-import { IDataReader } from "./IDataReader"
+import { IDataCollector } from "./IDataCollector"
 
 /**
- * CsvDataReader.
+ * CsvDataCollector.
  * 
  * Returns a stream to the CSV file.
  */
-export class CsvDataReader implements IDataReader
+export class CsvDataCollector implements IDataCollector
 {
     private _filepath: string;
 

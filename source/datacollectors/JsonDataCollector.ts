@@ -1,14 +1,14 @@
 import * as fs from "fs"
 import { Stream } from "stream"
-import { IDataReader } from "./IDataReader"
+import { IDataCollector } from "./IDataCollector"
 const json = require("JSONStream");
 
 /**
- * JsonDataReader.
+ * JsonDataCollector.
  * 
  * Returns a stream to the JSON file.
  */
-export class JsonDataReader implements IDataReader
+export class JsonDataCollector implements IDataCollector
 {
     private _filepath: string;
     private _jsonParsePath: string;

@@ -1,16 +1,16 @@
 import * as moment from "moment"
 import { Readable, Stream } from "stream"
-import { IDataReader } from "./IDataReader"
+import { IDataCollector } from "./IDataCollector"
 const PythonShell = require("python-shell");
 const json = require("JSONStream");
 const config = require("../../config/config");
 
 /**
- * PythonShellJsonDataReader.
+ * PythonShellJsonDataCollector.
  * 
  * Returns a stream to stdout of a specified python script.
  */
-export class PythonShellJsonDataReader implements IDataReader
+export class PythonShellJsonDataCollector implements IDataCollector
 {
     private _filepath: string;
     private _jsonParsePath: string;
@@ -52,7 +52,7 @@ export class PythonShellJsonDataReader implements IDataReader
         });
 
         // executes when python script ends
-        var __this: PythonShellJsonDataReader = this;
+        var __this: PythonShellJsonDataCollector = this;
         this._pythonShell.end((err: Error, code: number, signal: any) =>
         {
             // exit code = 0 means executed successfully
