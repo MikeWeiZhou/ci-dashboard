@@ -26,13 +26,14 @@ These areas are just a working prototype.
 * Run command: *npm run testpipeline*
 * ^ runs the compiled version of the file *source/test_pipeline_json_to_db.ts*
 
+
 ## 3. Directory Structure
 
 ### compiled
-Javascript files. Compiled from Typescript. Includes unit tests.
+Javascript compiled from Typescript. Includes unit tests.
 
 ### source
-Typescript source files. Includes unit tests.
+Typescript source. Includes unit tests.
 
 ### data
 Sample data files.
@@ -42,6 +43,9 @@ Configuration files.
 
 ### docs
 Holds all the documentation and how-to's.
+
+### logs
+Server logs organized by date and time.
 
 ### plotly-demo
 Plotly.js experimentation. Front-end library.
