@@ -1,12 +1,12 @@
-import { IDataTransformer } from "./IDataTransformer"
+import { IDataInterface } from "./IDataInterface"
 const config = require("../../config/config");
 
 /**
- * QaBuildsAndRunsFromBambooDataTransformer.
+ * QaBuildsAndRunsFromBambooDataInterface.
  * 
  * Returns only the wanted properties from original JSON.
  */
-export class QaBuildsAndRunsFromBambooDataTransformer implements IDataTransformer
+export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
 {
     /**
      * Table name for data set.
@@ -20,6 +20,23 @@ export class QaBuildsAndRunsFromBambooDataTransformer implements IDataTransforme
      * @override
      */
     public readonly TableKeys: Array<string> = ["MINUTES_TOTAL_QUEUE_AND_BUILD", "BUILD_COMPLETED_DATE", "CYCLE", "PLATFORM", "PRODUCT", "IS_DEFAULT", "IS_SUCCESS", "BRANCH_ID"];
+
+    /**
+     * SQL query that setup the database.
+     */
+    public readonly DbSetupQuery: string = `
+        CREATE TABLE ${this.TableName}
+        (
+            MINUTES_TOTAL_QUEUE_AND_BUILD   INT             NOT NULL,
+            BUILD_COMPLETED_DATE            DATETIME        NOT NULL,
+            CYCLE                           CHAR(6)         NOT NULL,
+            PLATFORM                        CHAR(3)         NOT NULL,
+            PRODUCT                         CHAR(2)         NOT NULL,
+            IS_DEFAULT                      TINYINT(1)      NOT NULL,
+            IS_SUCCESS                      TINYINT(1)      NOT NULL,
+            BRANCH_ID                       INT             NOT NULL
+        )
+    `;
 
     private readonly _NO_BRANCH_ID: number = -1;
 

@@ -1,5 +1,5 @@
 import { Transform } from "stream"
-import { IDataTransformer } from "./IDataTransformer";
+import { IDataInterface } from "./IDataInterface";
 
 /**
  * TransformStream.
@@ -8,21 +8,21 @@ import { IDataTransformer } from "./IDataTransformer";
  */
 export class TransformStream extends Transform
 {
-    private _dataTransformer: IDataTransformer;
+    private _dataInterface: IDataInterface;
 
     /**
      * Constructor.
-     * @param {IDataTransformer} dataTransformer DataTransformer used to transform the JSON object
+     * @param {IDataInterface} dataInterface IDataInterface used to transform the JSON object
      */
-    public constructor(dataTransformer: IDataTransformer)
+    public constructor(dataInterface: IDataInterface)
     {
         // objectMode: stream accepts any JS object rather than the default string/buffer
         super({objectMode: true});
-        this._dataTransformer = dataTransformer;
+        this._dataInterface = dataInterface;
     }
 
     /**
-     * Transforms a JSON object using an DataTransformer.
+     * Transforms a JSON object using an IDataInterface.
      * @param {object} jsonObj a JSON object from the stream
      * @param {string} encoding not used
      * @param {Function} callback callback when finished transforming jsonObj
@@ -30,7 +30,7 @@ export class TransformStream extends Transform
      */
     public _transform(jsonObj: object, encoding: string, callback: Function): void
     {
-        this.push(this._dataTransformer.Transform(jsonObj));
+        this.push(this._dataInterface.Transform(jsonObj));
 
         // callback signals successful writing of jsonObj,
         // ommit callback() to signal error,

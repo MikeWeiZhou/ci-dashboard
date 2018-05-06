@@ -7,11 +7,11 @@
 import { IDataReader } from "./datareaders/IDataReader"
 import { JsonDataReader } from "./datareaders/JsonDataReader"
 import { PythonShellJsonDataReader } from "./datareaders/PythonShellJsonDataReader"
-import { IDataTransformer } from "./datatransformers/IDataTransformer"
-import { QaBuildsAndRunsFromBambooDataTransformer } from "./datatransformers/QaBuildsAndRunsFromBambooDataTransformer"
+import { IDataInterface } from "./datainterfaces/IDataInterface"
+import { QaBuildsAndRunsFromBambooDataInterface } from "./datainterfaces/QaBuildsAndRunsFromBambooDataInterface"
 import { IStorage } from "./storages/IStorage"
 import { MysqlStorage } from "./storages/MysqlStorage"
-import { TransformStream } from "./datatransformers/TransformStream"
+import { TransformStream } from "./datainterfaces/TransformStream"
 import { WriteStream } from "./storages/WriteStream"
 const config = require("../config/config")
 
@@ -68,11 +68,11 @@ async function ReadTransformAndSaveData(dataReader: IDataReader)
 {
     return new Promise((resolve, reject) =>
     {
-        const dataTransformer: IDataTransformer = new QaBuildsAndRunsFromBambooDataTransformer();
+        const dataInterface: IDataInterface = new QaBuildsAndRunsFromBambooDataInterface();
         dataReader.Initialize();
         dataReader.GetStream()
-            .pipe(new TransformStream(dataTransformer))
-            .pipe(new WriteStream(storage, dataTransformer))
+            .pipe(new TransformStream(dataInterface))
+            .pipe(new WriteStream(storage, dataInterface))
             .on('finish', () => {
                 dataReader.Dispose();
                 resolve();

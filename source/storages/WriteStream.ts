@@ -1,6 +1,6 @@
 import { Writable } from "stream"
 import { IStorage } from "./IStorage";
-import { IDataTransformer } from "../datatransformers/IDataTransformer"
+import { IDataInterface } from "../datainterfaces/IDataInterface"
 
 /**
  * WriteStream.
@@ -10,19 +10,19 @@ import { IDataTransformer } from "../datatransformers/IDataTransformer"
 export class WriteStream extends Writable
 {
     private _storage: IStorage;
-    private _dataTransformer: IDataTransformer;
+    private _dataInterface: IDataInterface;
 
     /**
      * Constructor.
      * @param {IStorage} storage used to store the data
-     * @param {IDataTransformer} dataTransformer used to transform the JSON object
+     * @param {IDataInterface} dataInterface used to transform the JSON object
      */
-    public constructor(storage: IStorage, dataTransformer: IDataTransformer)
+    public constructor(storage: IStorage, dataInterface: IDataInterface)
     {
         // objectMode: stream accepts any JS object rather than the default string/buffer
         super({objectMode: true});
         this._storage = storage;
-        this._dataTransformer = dataTransformer;
+        this._dataInterface = dataInterface;
     }
 
     /**
@@ -34,7 +34,7 @@ export class WriteStream extends Writable
      */
     public _write(data: Array<any>, encoding: string, callback: Function): void
     {
-        this._storage.Write(this._dataTransformer.TableName, this._dataTransformer.TableKeys, data);
+        this._storage.Write(this._dataInterface.TableName, this._dataInterface.TableKeys, data);
 
         // callback signals successful writing of data,
         // ommit callback() to signal error,

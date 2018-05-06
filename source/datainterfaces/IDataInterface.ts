@@ -1,9 +1,9 @@
 /**
- * IDataTransformer.
+ * IDataInterface.
  * 
- * Transforms a JSON object into a data array.
+ * Contains structure of a data set and able to transform raw JSON object to that structure.
  */
-export interface IDataTransformer
+export interface IDataInterface
 {
     /**
      * Table name for data set.
@@ -17,7 +17,13 @@ export interface IDataTransformer
     readonly TableKeys: Array<string>;
 
     /**
-     * Returns a data array. Order must match TableKeys.
+     * SQL query that setup the database.
+     */
+    readonly DbSetupQuery: string;
+
+    /**
+     * Returns a data array.
+     * Order must match TableKeys.
      * @param {any} o original JSON object
      * @returns {Array<any>} data array
      */
