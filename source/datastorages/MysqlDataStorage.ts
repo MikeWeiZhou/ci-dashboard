@@ -65,21 +65,21 @@ export class MysqlDataStorage implements IDataStorage
      * Query MySQL returning results as JSON array.
      * @async
      * @param {string} sql query to run
-     * @param {Array<any>} [data] for insert queries only
-     * @returns {Promise<any>} results as JSON array
+     * @param {Array<any>} [records] for insert queries only
+     * @returns {Promise<any>} results as JSON array or JSON object
      * @throws {Error} Error if errored
      * @override
      */
-    public async Query(sql: string, data?: Array<any>): Promise<any>
+    public async Query(sql: string, records?: Array<any>): Promise<any>
     {
         var _this: MysqlDataStorage = this;
         return new Promise((resolve: Function, reject: Function) =>
         {
-            _this._connection.query(sql, data, (err: mysql.MysqlError, results: Array<object>|object) =>
+            _this._connection.query(sql, records, (err: mysql.MysqlError, results: Array<object>|object) =>
             {
                 if (err)
                 {
-                    Log(err, `SQL Query: ${err.sql}\n\nData Array: ${data}`);
+                    Log(err, `SQL Query: ${err.sql}\n\nRecords Array: ${records}`);
                     reject(err);
                 }
                 else
@@ -91,23 +91,22 @@ export class MysqlDataStorage implements IDataStorage
     }
 
     /**
-     * Write one or more entries to specified table in database.
+     * Write one or more records to specified table in database.
      * @async
-     * @param {string} tablename
-     * @param {Array<any>} keys field names of the table
-     * @param {Array<any>} data to be inserted
+     * @param {string} tablename to write to
+     * @param {Array<any>} columns column names of the table
+     * @param {Array<any>} records to be inserted, can be one or more
      * @returns {Promise<boolean>} true if write successful, false otherwise
      * @throws {Error} Error if errored
-     * @override
      */
-    public async Write(tablename: string, keys: Array<any>, data: Array<any>): Promise<boolean>
+    public async Write(tablename: string, columns: Array<any>, records: Array<any>): Promise<boolean>
     {
-        var insertQuery: string = this.getInsertQuery(tablename, keys);
-        var insertData: Array<any> = this.wrapInsertDataArray(data);
+        var insertQuery: string = this.getInsertQuery(tablename, columns);
+        var insertRecords: Array<any> = this.wrapInsertRecordsArray(records);
         var results: any;
         try
         {
-            results = await this.Query(insertQuery, insertData);
+            results = await this.Query(insertQuery, insertRecords);
         }
         catch (err)
         {
@@ -127,16 +126,16 @@ export class MysqlDataStorage implements IDataStorage
 
     /**
      * Return an insert query for prepared statements.
-     * @param {string} tablename
-     * @param {string[]} keys in table
+     * @param {string} tablename to insert to
+     * @param {string[]} columns in table
      */
-    private getInsertQuery(tablename: string, keys: string[]): string
+    private getInsertQuery(tablename: string, columns: string[]): string
     {
         // e.g. INSERT INTO Test (name,email,n) VALUES ?
         var query: string = `INSERT INTO ${tablename} (`;
-        for (let i: number = 0; i < keys.length; ++i)
+        for (let i: number = 0; i < columns.length; ++i)
         {
-            query += keys[i] + ",";
+            query += columns[i] + ",";
         }
         query = query.slice(0, -1); // remove last comma
         query += ") VALUES ?";
@@ -144,14 +143,14 @@ export class MysqlDataStorage implements IDataStorage
     }
 
     /**
-     * Wraps insert data with a set number of arrays.
+     * Wraps insert records with a predefined number of arrays.
      * Required for MySQL connector query() function.
-     * @param {Array<any>} data to be wrapped
+     * @param {Array<any>} records to be wrapped, can be one or more
      */
-    private wrapInsertDataArray(data: Array<any>): Array<any>
+    private wrapInsertRecordsArray(records: Array<any>): Array<any>
     {
         var arrayLayersCount: number = 1;
-        var traverse: Array<any> = data;
+        var traverse: Array<any> = records;
         while (Array.isArray(traverse[0]))
         {
             traverse = traverse[0];
@@ -159,8 +158,8 @@ export class MysqlDataStorage implements IDataStorage
         }
         while (++arrayLayersCount <= this._REQUIRED_VALUES_ARRAY_LAYER_COUNT)
         {
-            data = [data];
+            records = [records];
         }
-        return data;
+        return records;
     }
 }

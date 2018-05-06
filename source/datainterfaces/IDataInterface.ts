@@ -11,10 +11,10 @@ export interface IDataInterface
     readonly TableName: string;
 
     /**
-     * Table keys/fields for data set.
+     * Table columns for data set.
      * Order must match data array returned from Transform().
      */
-    readonly TableKeys: Array<string>;
+    readonly TableColumns: Array<string>;
 
     /**
      * SQL query that setup the database.
@@ -22,10 +22,10 @@ export interface IDataInterface
     readonly DbSetupQuery: string;
 
     /**
-     * Returns a data array.
-     * Order must match TableKeys.
+     * Returns a data record derrived from a JSON object ready to be consumed by IDataStorage.
+     * Order must match TableColumns.
      * @param {any} o original JSON object
-     * @returns {Array<any>} data array
+     * @returns {Array<any>} data record as an array
      */
     Transform(o: any): Array<any>;
 }

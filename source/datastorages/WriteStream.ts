@@ -34,7 +34,7 @@ export class WriteStream extends Writable
      */
     public _write(data: Array<any>, encoding: string, callback: Function): void
     {
-        this._dataStorage.Write(this._dataInterface.TableName, this._dataInterface.TableKeys, data);
+        this._dataStorage.Write(this._dataInterface.TableName, this._dataInterface.TableColumns, data);
 
         // callback signals successful writing of data,
         // ommit callback() to signal error,

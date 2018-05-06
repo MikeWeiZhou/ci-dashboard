@@ -15,11 +15,11 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
     public readonly TableName: string = config.db.tablenames.qa_builds_and_runs_from_bamboo;
 
     /**
-     * Table keys/fields for data set.
+     * Table columns for data set.
      * Order must match data array returned from Transform().
      * @override
      */
-    public readonly TableKeys: Array<string> = ["MINUTES_TOTAL_QUEUE_AND_BUILD", "BUILD_COMPLETED_DATE", "CYCLE", "PLATFORM", "PRODUCT", "IS_DEFAULT", "IS_SUCCESS", "BRANCH_ID"];
+    public readonly TableColumns: Array<string> = ["MINUTES_TOTAL_QUEUE_AND_BUILD", "BUILD_COMPLETED_DATE", "CYCLE", "PLATFORM", "PRODUCT", "IS_DEFAULT", "IS_SUCCESS", "BRANCH_ID"];
 
     /**
      * SQL query that setup the database.
@@ -41,10 +41,10 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
     private readonly _NO_BRANCH_ID: number = -1;
 
     /**
-     * Returns a data array.
-     * Order must match TableKeys.
+     * Returns a data record derrived from a JSON object ready to be consumed by IDataStorage.
+     * Order must match TableColumns.
      * @param {any} o original JSON object
-     * @returns {Array<any>} data array
+     * @returns {Array<any>} data record as an array
      * @override
      */
     public Transform(o: any): Array<any>
