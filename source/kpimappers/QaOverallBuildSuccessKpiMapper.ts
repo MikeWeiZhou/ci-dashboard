@@ -1,4 +1,3 @@
-import * as moment from "moment"
 import { KpiMapper } from "./KpiMapper"
 import { IKpiState } from "./IKpiState"
 const config = require("../../config/config")
@@ -15,20 +14,18 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
 
     /**
      * Returns SQL query string given a date range.
-     * @param {Date} from date
-     * @param {Date} to date
+     * @param {string} from date
+     * @param {string} to date
      * @returns {string} SQL query string
      * @override
      */
-    protected GetQueryString(from: Date, to: Date): string
+    protected GetQueryString(from: string, to: string): string
     {
-        var fromString: string = moment(from).format("YYYY-MM-DD HH:mm:ss");
-        var toString: string = moment(to).format("YYYY-MM-DD HH:mm:ss");
         return `
             SELECT COUNT(*) AS 'COUNT',
                    IS_DEFAULT
             FROM ${this._tablename}
-            WHERE BUILD_COMPLETED_DATE BETWEEN '${fromString}' AND '${toString}'
+            WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
             GROUP BY IS_DEFAULT
         `;
     }
