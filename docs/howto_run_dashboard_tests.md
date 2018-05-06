@@ -1,4 +1,4 @@
-# How To Run Continuous Integration Dashboard Tests
+# How To Run Dashboard Tests
 
 ## 1. Install Dashboard Server
 Install and configure all software as described in *docs/howto_setup_and_run_dashboard.md*

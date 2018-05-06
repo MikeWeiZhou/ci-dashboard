@@ -57,7 +57,7 @@ async function CreateTable()
                 PRODUCT                         CHAR(2)         NOT NULL,
                 IS_DEFAULT                      TINYINT(1)      NOT NULL,
                 IS_SUCCESS                      TINYINT(1)      NOT NULL,
-                BRANCH_ID                       INT
+                BRANCH_ID                       INT             NOT NULL
             )
         `);
         resolve();
