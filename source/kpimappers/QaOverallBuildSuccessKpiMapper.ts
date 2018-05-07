@@ -32,7 +32,7 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
 
     /**
      * Returns a KpiState given an array or single JSON object containing required data.
-     * @param {Array<any>} jsonArray JSON results containing required data
+     * @param {Array<any>} jsonArray non-empty JSON array results containing required data
      * @returns {IKpiState} IKpiState object
      * @override
      */

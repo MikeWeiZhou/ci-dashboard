@@ -31,8 +31,8 @@ export abstract class KpiMapper
      */
     public async GetKpiStateOrNull(from: Date, to: Date): Promise<IKpiState|null>
     {
-        var fromDate: string = moment(from).format(config.dateformat.mysql);
-        var toDate: string = moment(to).format(config.dateformat.mysql);
+        var fromDate: string = moment.utc(from).format(config.dateformat.mysql);
+        var toDate: string = moment.utc(to).format(config.dateformat.mysql);
         var sql: string = this.GetQueryString(fromDate, toDate);
         var jsonArrayResults: Array<any>;
         try
@@ -58,8 +58,8 @@ export abstract class KpiMapper
 
     /**
      * Returns a KpiState given an array or single JSON object containing required data.
-     * @param {object} jsonArray JSON results containing required data
+     * @param {Array<any>} jsonArray non-empty JSON array results containing required data
      * @returns {IKpiState} IKpiState object
      */
-    protected abstract MapToKpiState(jsonArray: object): IKpiState;
+    protected abstract MapToKpiState(jsonArray: Array<any>): IKpiState;
 }

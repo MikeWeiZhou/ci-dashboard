@@ -16,7 +16,7 @@ SetupDatabase();
 
 async function SetupDatabase()
 {
-    var starting_data_date = moment(config.scheduler.starting_data_date).format(config.dateformat.mysql);
+    var starting_data_date = moment.utc(config.scheduler.starting_data_date).format(config.dateformat.mysql);
 
     // Ensure queries are able to run multiple times and not mess up existing database,
     // as users might erroneously call "npm run setup" multiple times

@@ -12,7 +12,7 @@ const logDirectory: string = "./" + config.log.directory;
 export function Log(error: Error, additionalInfo: string)
 {
     var date: Date = new Date();
-    var datestamp: string = moment(date).format("YYYY-MM-DD HH.mm.ss");
+    var datestamp: string = moment.utc(date).format("YYYY-MM-DD HH.mm.ss");
     var rand: number = Math.floor((Math.random() * 1000) + 1);
     var filename: string = `${logDirectory}/${datestamp} ${rand}.log`;
     var metadata: string = `TIMESTAMP: ${date}\n\n${additionalInfo}`;
