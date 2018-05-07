@@ -29,13 +29,14 @@ export class Scheduler
 
     /**
      * Schedules a given schedule if valid.
+     * @async
      * @param {ISchedule} schedule to run
      * @returns {Promise<boolean>} true if scheduled, false if not
      * @throws {Error} error if errored
      */
     public async Schedule(schedule: ISchedule): Promise<boolean>
     {
-        // Ensure no duplicate DataInterface scheduled
+        // Ensure no duplicate IDataInterface scheduled
         for (let i: number = 0; i < this._schedules.length; ++i)
         {
             if (this._schedules[i] == schedule.DataInterface)
@@ -77,6 +78,7 @@ export class Scheduler
             _this.runSchedule(newSchedule);
         }, schedule.RunIntervalInMinutes * 1000 * 60);
 
+        console.log(`Running schedule: ${schedule.DataInterface.TableName}`);
         schedule.DataCollector.Initialize(schedule.DataFromDate as Date, schedule.DataToDate as Date);
         schedule.DataCollector.GetStream()
             .pipe(new TransformStream(schedule.DataInterface))
@@ -89,6 +91,7 @@ export class Scheduler
 
     /**
      * Attempts to make a given schedule valid by adding the date ranges.
+     * @async
      * @param {ISchedule} schedule to validate
      * @returns {ISchedule|null} a valid ISchedule or null
      * @throws {Error} error if errored
@@ -101,7 +104,8 @@ export class Scheduler
         }
 
         var lastDataToDate: any = await this.getLastDataToDateFromDb(schedule.DataInterface);
-        var newSchedule: ISchedule = {
+        var newSchedule: ISchedule =
+        {
             DataCollector: schedule.DataCollector,
             DataInterface: schedule.DataInterface,
             RunIntervalInMinutes: schedule.RunIntervalInMinutes,
@@ -126,6 +130,7 @@ export class Scheduler
 
     /**
      * Updates database with the latest To Date from schedule.
+     * @async
      * @param {ISchedule} schedule containing latest to date info
      * @throws {Error} error if errored
      */
@@ -156,6 +161,7 @@ export class Scheduler
 
     /**
      * Returns the last TO_DATE of the given IDataInterface from the database.
+     * @async
      * @param {IDataInterface} dataInterface table to get latest To Date info from
      * @throws {Error} error if errored
      */

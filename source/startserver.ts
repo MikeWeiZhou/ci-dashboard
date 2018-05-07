@@ -7,6 +7,8 @@ const config = require("../config/config")
 startserver();
 async function startserver()
 {
+    console.log("Starting server...");
+
     const storage: IDataStorage = new MysqlDataStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
 
     await storage.Initialize();
