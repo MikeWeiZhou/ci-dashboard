@@ -8,9 +8,11 @@ import { Stream } from "stream"
 export interface IDataCollector
 {
     /**
-     * Initialize the data source.
+     * Initialize the data source for a given date range.
+     * @param {Date} from
+     * @param {Date} to
      */
-    Initialize(): void;
+    Initialize(from: Date, to: Date): void;
 
     /**
      * Returns a stream to the data.

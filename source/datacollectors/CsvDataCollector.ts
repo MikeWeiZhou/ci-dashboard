@@ -23,9 +23,11 @@ export class CsvDataCollector implements IDataCollector
 
     /**
      * Not used.
+     * @param {Date} from
+     * @param {Date} to
      * @override
      */
-    public Initialize(): void
+    public Initialize(from: Date, to: Date): void
     {
     }
 

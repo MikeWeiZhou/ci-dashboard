@@ -14,8 +14,6 @@ export class PythonShellJsonDataCollector implements IDataCollector
 {
     private _filepath: string;
     private _jsonParsePath: string;
-    private _fromDate: string;
-    private _toDate: string;
     private _readStream: Readable;
     private _pythonShell: any;
 
@@ -24,26 +22,29 @@ export class PythonShellJsonDataCollector implements IDataCollector
      * @param {string} filepath to python script to be executed
      * @param {string} jsonParsePath JSONPath to parse
      */
-    public constructor(filepath: string, jsonParsePath: string, fromDate: Date, toDate: Date)
+    public constructor(filepath: string, jsonParsePath: string)
     {
         this._filepath = filepath;
         this._jsonParsePath = jsonParsePath;
-        this._fromDate = moment(fromDate).format(config.dateformat.python);
-        this._toDate = moment(toDate).format(config.dateformat.python);
     }
 
     /**
      * Launch python script, send requested date range, and add event listeners.
+     * @param {Date} from
+     * @param {Date} to
      * @override
      */
-    public Initialize(): void
+    public Initialize(from: Date, to: Date): void
     {
+        var fromDate: string = moment(from).format(config.dateformat.python);
+        var toDate: string = moment(to).format(config.dateformat.python);
+
         this._readStream = new Readable({objectMode: true});
         this._readStream._read = () => {};
         this._pythonShell = new PythonShell(this._filepath, {mode: "json"});
 
         // send requested date ranges
-        this._pythonShell.send(`${this._fromDate}\n${this._toDate}`);
+        this._pythonShell.send(`${fromDate}\n${toDate}`);
 
         // listen for data and push to stream when available
         this._pythonShell.stdout.on("data", (data: any) =>

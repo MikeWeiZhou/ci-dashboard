@@ -24,7 +24,7 @@ async function RunThroughPipeline()
     console.log("If completed successfully, no errors would be thrown and Node.js will exit after completion.");
 
     const dataReaderFromJsonFile: IDataCollector = new JsonDataCollector("./data/qa_builds_and_runs_from_bamboo.json", "*");
-    const dataReaderFromPythonScript: IDataCollector = new PythonShellJsonDataCollector("./data/test_print_json.py", "*", new Date("2015-01-10"), new Date("2019-01-10"));
+    const dataReaderFromPythonScript: IDataCollector = new PythonShellJsonDataCollector("./data/test_print_json.py", "*");
 
     console.log("Connecting to MySQL database...");
     await storage.Initialize();
@@ -69,7 +69,7 @@ async function ReadTransformAndSaveData(dataReader: IDataCollector)
     return new Promise((resolve, reject) =>
     {
         const dataInterface: IDataInterface = new QaBuildsAndRunsFromBambooDataInterface();
-        dataReader.Initialize();
+        dataReader.Initialize(new Date("2015-01-10"), new Date("2019-01-10"));
         dataReader.GetStream()
             .pipe(new TransformStream(dataInterface))
             .pipe(new WriteStream(storage, dataInterface))
