@@ -19,7 +19,7 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
      * Order must match data array returned from Transform().
      * @override
      */
-    public readonly TableColumns: Array<string> = ["MINUTES_TOTAL_QUEUE_AND_BUILD", "BUILD_COMPLETED_DATE", "CYCLE", "PLATFORM", "PRODUCT", "IS_DEFAULT", "IS_SUCCESS", "BRANCH_ID"];
+    public readonly TableColumns: Array<string> = ["BUILDRESULTSUMMARY_ID", "MINUTES_TOTAL_QUEUE_AND_BUILD", "BUILD_COMPLETED_DATE", "CYCLE", "PLATFORM", "PRODUCT", "IS_DEFAULT", "IS_SUCCESS", "BRANCH_ID"];
 
     /**
      * SQL query that setup the database.
@@ -27,6 +27,7 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
     public readonly DbSetupQuery: string = `
         CREATE TABLE ${this.TableName}
         (
+            BUILDRESULTSUMMARY_ID           INT             PRIMARY KEY NOT NULL,
             MINUTES_TOTAL_QUEUE_AND_BUILD   INT             NOT NULL,
             BUILD_COMPLETED_DATE            DATETIME        NOT NULL,
             CYCLE                           CHAR(6)         NOT NULL,
@@ -60,6 +61,7 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
         //            d = branch id (if omitted, then default, otherwise unique number identifying branch)
 
         return [
+            o.BUILDRESULTSUMMARY_ID,                // BUILDRESULTSUMMARY_ID
             o.MINUTES_TOTAL_QUEUE_AND_BUILD,        // MINUTES_TOTAL_QUEUE_AND_BUILD
             o.BUILD_COMPLETED_DATE,                 // BUILD_COMPLETED_DATE
             o.BUILD_KEY.substring(0, 6),            // CYCLE aaaaaa

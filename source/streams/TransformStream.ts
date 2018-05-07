@@ -1,5 +1,5 @@
 import { Transform } from "stream"
-import { IDataInterface } from "./IDataInterface";
+import { IDataInterface } from "../datainterfaces/IDataInterface";
 
 /**
  * TransformStream.

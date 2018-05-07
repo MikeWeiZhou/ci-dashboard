@@ -1,6 +1,5 @@
 import * as mysql from "mysql"
 import { IDataStorage } from "./IDataStorage"
-import { Log } from "../Log"
 
 /**
  * MysqlDataStorage.
@@ -79,7 +78,6 @@ export class MysqlDataStorage implements IDataStorage
             {
                 if (err)
                 {
-                    Log(err, `SQL Query: ${err.sql}\n\nRecords Array: ${records}`);
                     reject(err);
                 }
                 else

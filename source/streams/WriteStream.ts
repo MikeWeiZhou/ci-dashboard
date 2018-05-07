@@ -1,5 +1,5 @@
 import { Writable } from "stream"
-import { IDataStorage } from "./IDataStorage";
+import { IDataStorage } from "../datastorages/IDataStorage";
 import { IDataInterface } from "../datainterfaces/IDataInterface"
 
 /**
@@ -46,7 +46,18 @@ export class WriteStream extends Writable
      */
     private async writeAsync(data: Array<any>, callback: Function): Promise<void>
     {
-        await this._dataStorage.Write(this._dataInterface.TableName, this._dataInterface.TableColumns, data);
+        try
+        {
+            await this._dataStorage.Write(this._dataInterface.TableName, this._dataInterface.TableColumns, data);
+        }
+        catch (err)
+        {
+            // ignore duplicate entries when writing in a stream
+            if (!err.code || err.code != "ER_DUP_ENTRY")
+            {
+                throw err;
+            }
+        }
 
         // callback signals successful writing of data,
         // ommit callback() to signal error,

@@ -11,8 +11,8 @@ import { IDataInterface } from "./datainterfaces/IDataInterface"
 import { QaBuildsAndRunsFromBambooDataInterface } from "./datainterfaces/QaBuildsAndRunsFromBambooDataInterface"
 import { IDataStorage } from "./datastorages/IDataStorage"
 import { MysqlDataStorage } from "./datastorages/MysqlDataStorage"
-import { TransformStream } from "./datainterfaces/TransformStream"
-import { WriteStream } from "./datastorages/WriteStream"
+import { TransformStream } from "./streams/TransformStream"
+import { WriteStream } from "./streams/WriteStream"
 const config = require("../config/config")
 
 const storage: IDataStorage = new MysqlDataStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
@@ -51,6 +51,7 @@ async function CreateTable()
         (`
             CREATE TABLE ${config.db.tablenames.qa_builds_and_runs_from_bamboo}
             (
+                BUILDRESULTSUMMARY_ID           INT             PRIMARY KEY NOT NULL,
                 MINUTES_TOTAL_QUEUE_AND_BUILD   INT             NOT NULL,
                 BUILD_COMPLETED_DATE            DATETIME        NOT NULL,
                 CYCLE                           CHAR(6)         NOT NULL,
@@ -74,7 +75,12 @@ async function ReadTransformAndSaveData(dataReader: IDataCollector)
         dataReader.GetStream()
             .pipe(new TransformStream(dataInterface))
             .pipe(new WriteStream(storage, dataInterface))
-            .on('finish', () => {
+            .on('error', (err) =>
+            {
+                console.log(err);
+            })
+            .on('finish', () =>
+            {
                 dataReader.Dispose();
                 resolve();
             });
