@@ -3,7 +3,7 @@
   "description": "Continuous Integration Dashboard for ***REMOVED*** Inc.",
   "version": "1.0.0",
   "scripts": {
-    "setup": "npm install && cd react-demo && npm install && cd .. && npm run compile",
+    "setup": "npm install && cd react-demo && npm install && cd .. && npm run compile && node compiled/setup.js",
     "start": "npm run --prefix react-demo start",
     "/-----------------------------------------------------------------------------": "",
     "compile": "tsc -p source --outDir compiled",
