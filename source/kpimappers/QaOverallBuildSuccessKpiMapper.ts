@@ -32,16 +32,25 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
 
     /**
      * Returns a KpiState given an array or single JSON object containing required data.
-     * @param {object} jsonArray JSON results containing required data
+     * @param {Array<any>} jsonArray JSON results containing required data
      * @returns {IKpiState} IKpiState object
      * @override
      */
-    protected MapToKpiState(jsonArray: object): IKpiState
+    protected MapToKpiState(jsonArray: Array<any>): IKpiState
     {
+        var values: Array<any> = [];
+        var labels: Array<any> = [];
+
+        for (let i: number = 0; i < jsonArray.length; ++i)
+        {
+            values.push(jsonArray[i].COUNT);
+            labels.push(jsonArray[i].IS_SUCCESS);
+        }
+
         return {
             data: [{
-                values: [jsonArray[0].COUNT, jsonArray[1].COUNT],
-                labels: [jsonArray[0].IS_SUCCESS, jsonArray[1].IS_SUCCESS],
+                values: values,
+                labels: labels,
                 type:   "pie"
             }],
             layout: {
