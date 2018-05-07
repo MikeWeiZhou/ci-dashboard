@@ -9,6 +9,7 @@ export interface IDataCollector
 {
     /**
      * Initialize the data source for a given date range.
+     * Must be able to handle multiple Initialize calls without disposing IDataCollector.
      * @param {Date} from
      * @param {Date} to
      */

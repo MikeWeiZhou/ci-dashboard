@@ -129,8 +129,9 @@ export class MysqlDataStorage implements IDataStorage
      */
     private getInsertQuery(tablename: string, columns: string[]): string
     {
-        // e.g. INSERT INTO Test (name,email,n) VALUES ?
-        var query: string = `INSERT INTO ${tablename} (`;
+        // e.g. INSERT IGNORE INTO Test (name,email,n) VALUES ?
+        // IGNORE = throw no errors no duplicate entries, just skip
+        var query: string = `INSERT IGNORE INTO ${tablename} (`;
         for (let i: number = 0; i < columns.length; ++i)
         {
             query += columns[i] + ",";

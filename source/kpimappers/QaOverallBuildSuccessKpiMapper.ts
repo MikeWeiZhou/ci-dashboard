@@ -9,7 +9,7 @@ const config = require("../../config/config")
  */
 export class QaOverallBuildSuccessKpiMapper extends KpiMapper
 {
-    private _tablename: string = config.db.tablenames.qa_builds_and_runs_from_bamboo;
+    private _tablename: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
     private _title: string = "QA Overall Build Success vs Fail";
 
     /**

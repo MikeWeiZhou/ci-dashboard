@@ -4,7 +4,7 @@ import { IDataInterface } from "../datainterfaces/IDataInterface";
 /**
  * TransformStream.
  * 
- * Transforms JSON objects using a given DataTransformer and pushes it down the pipeline.
+ * Transforms JSON objects using a given DataInterface and pushes it down the pipeline.
  */
 export class TransformStream extends Transform
 {

@@ -30,6 +30,7 @@ export class PythonShellJsonDataCollector implements IDataCollector
 
     /**
      * Launch python script, send requested date range, and add event listeners.
+     * Must be able to handle multiple Initialize calls without disposing IDataCollector.
      * @param {Date} from
      * @param {Date} to
      * @override

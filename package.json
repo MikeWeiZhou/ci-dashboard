@@ -5,11 +5,12 @@
   "scripts": {
     "setup": "npm install && cd react-demo && npm install && cd .. && npm run compile && node compiled/setup.js",
     "start": "npm run --prefix react-demo start",
+    "server": "node compiled/startserver",
     "/-----------------------------------------------------------------------------": "",
     "compile": "tsc -p source --outDir compiled",
     "//----------------------------------------------------------------------------": "",
     "test": "npm run compile && mocha compiled/unittests/tests.js && npm run testpipeline",
-    "testpipeline": "node compiled/test_pipeline_in.js && node compiled/test_pipeline_out.js",
+    "testpipeline": "node compiled/test_pipeline_out.js",
     "///---------------------------------------------------------------------------": "",
     "ct": "npm run compile && node compiled/test_random.js"
   },

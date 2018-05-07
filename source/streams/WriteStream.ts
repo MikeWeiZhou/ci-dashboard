@@ -52,11 +52,7 @@ export class WriteStream extends Writable
         }
         catch (err)
         {
-            // ignore duplicate entries when writing in a stream
-            if (!err.code || err.code != "ER_DUP_ENTRY")
-            {
-                throw err;
-            }
+            throw err;
         }
 
         // callback signals successful writing of data,

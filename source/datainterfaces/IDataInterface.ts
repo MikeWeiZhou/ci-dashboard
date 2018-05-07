@@ -17,13 +17,8 @@ export interface IDataInterface
     readonly TableColumns: Array<string>;
 
     /**
-     * SQL query that setup the database.
-     */
-    readonly DbSetupQuery: string;
-
-    /**
      * Returns a data record derrived from a JSON object ready to be consumed by IDataStorage.
-     * Order must match TableColumns.
+     * Array order must match TableColumns.
      * @param {any} o original JSON object
      * @returns {Array<any>} data record as an array
      */

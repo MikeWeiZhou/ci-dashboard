@@ -1,55 +1,80 @@
 var config = {};
 
-/**
- * Database
- */
+
+/*******************
+ * D A T A B A S E *
+ *******************/
+
 config.db =
 {
     host: "localhost",
     dbname: "cidashboard",
     username: "root",
-    password: "password",
-
-    tablenames:
-    {
-        // Stores meta info on each IDataInterface model
-        //      e.g. qa_builds_and_runs_from_bamboo
-        data_models_tracker: "data_models_tracker",
-
-        qa_builds_and_runs_from_bamboo: "qa_builds_and_runs_from_bamboo"
-    }
+    password: "password"
 };
 
-/**
- * Scheduler
- */
+config.db.tablename =
+{
+    // Stores meta info on each IDataInterface source
+    //      e.g. qa_builds_and_runs_from_bamboo
+    data_source_tracker: "data_source_tracker",
+
+    qa_builds_and_runs_from_bamboo: "qa_builds_and_runs_from_bamboo"
+}
+
+/*********************
+ * S C H E D U L E R *
+ *********************/
+
 config.scheduler =
 {
     // New data sources will start pulling records saved from this starting date
-    starting_data_date: new Date("2010-01-01"),
-
-    // In minutes
-    intervals:
-    {
-        qa_builds_and_runs_from_bamboo: 100
-    }
+    starting_data_date: new Date("2010-01-01")
 };
 
-/**
- * Logging
- * 
- * If directory does not exist, no logs will be written. i.e. create that folder.
- */
+// schedule interval in minutes
+config.scheduler.interval =
+{
+    qa_builds_and_runs_from_bamboo: 1
+};
+
+/*****************
+ * L O G G I N G *
+ *****************/
+
 config.log =
 {
     directory: "logs"
-}
+};
 
-/**
- * Date Format (using moment library)
- * 
- * Check different formats on: https://momentjs.com/docs/#/parsing/string-format/
- */
+/*************************
+ * D A T E   F O R M A T *
+ *************************/
+
+/* Check different formats on: https://momentjs.com/docs/#/parsing/string-format/
+    INPUT       EXAMPLE         DESCRIPTION
+    -----       -------         -----------
+    YYYY	    2014	        4 or 2 digit year
+    YY	        14	            2 digit year
+    Y	        -25	            Year with any number of digits and sign
+    Q	        1..4	        Quarter of year. Sets month to first month in quarter.
+    M MM	    1..12	        Month number
+    MMM MMMM	Jan..December	Month name in locale set by moment.locale()
+    D DD	    1..31	        Day of month
+    Do	        1st..31st	    Day of month with ordinal
+    DDD DDDD	1..365	        Day of year
+    X	        1410715640.579	Unix timestamp
+    x	        1410715640579	Unix ms timestamp
+
+    H HH	    0..23	        Hours (24 hour time)
+    h hh	    1..12	        Hours (12 hour time used with a A.)
+    k kk	    1..24	        Hours (24 hour time from 1 to 24)
+    a A	        am pm	        Post or ante meridiem (Note the one character a p are also considered valid)
+    m mm	    0..59	        Minutes
+    s ss	    0..59	        Seconds
+    S SS SSS	0..999	        Fractional seconds
+    Z ZZ	    +12:00	        Offset from UTC as +-HH:mm, +-HHmm, or Z
+*/
 config.dateformat =
 {
     // used for querying and inserting dates into MySQL database
