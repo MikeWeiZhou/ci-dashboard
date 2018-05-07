@@ -1,12 +1,12 @@
 # How To Setup And Run Dashboard
 
 * 1. Download and install Node.js
-* 2. Setup Node.js
-* 3. Download and install MySQL Community Server
-* 4. Create a MySQL database
-* 5. Run MySQL Community Server
-* 6. Update MySQL database credentials in config file
-* 7. Install Python
+* 2. Download and install MySQL Community Server
+* 3. Create a MySQL database
+* 4. Run MySQL Community Server
+* 5. Update MySQL database credentials in config file
+* 6. Install Python
+* 7. Setup Node.js
 * 8. Run Server
 
 ## 1. Download and install Node.js
@@ -22,14 +22,7 @@ Run these commands to install using package manager:
 Download Node.js installer from https://nodejs.org/en/download/
 
 
-## 2. Setup Node.js
-Run these commands to (1) install required Node.js dependencies and (2) compile all Typescript source files. Same commands in both Windows and Linux.
-
-* cd *[directory to root of this project]*
-* npm run setup
-
-
-## 3. Download and install MySQL Community Server
+## 2. Download and install MySQL Community Server
 Install the latest stable release - v8.0.11 as of writing
 
 ### For Debian-based linux distribution:
@@ -47,7 +40,7 @@ Download MySQL Community Server installer from https://dev.mysql.com/downloads/w
 * Select "Use Legacy Authentication Method (Retain MySQL 5.x Compatibility)" for Authentication Method
 
 
-## 4. Create a MySQL database
+## 3. Create a MySQL database
 Create a database to use.
 
 ### For Debian-based linux distribution:
@@ -62,7 +55,7 @@ Run these commands:
 * Run command: **create database cidashboard**
 
 
-## 5. Run MySQL Community Server
+## 4. Run MySQL Community Server
 The MySQL Community Server should be registered as a service and automatically started. If not, follow these instructions to start.
 
 ### For Debian-based linux distribution:
@@ -76,13 +69,13 @@ Run this command to start service:
 * Start service called "MySQL80"
 
 
-## 6. Update MySQL database credentials in config file
+## 5. Update MySQL database credentials in config file
 
 * Open file *config/config.js*
 * Update database credentials in property *config.db*
 
 
-## 7. Install Python
+## 6. Install Python
 Ensure "python" command is accessible from the command prompt/bash. Add python to your environmental path if necessary. This is required for the server to launch and interact with Python scripts.
 
 ### For Debian-based linux distribution:
@@ -94,6 +87,13 @@ Download Python 2 or 3 from https://www.python.org/.
 * Leave install settings as default except:
 * Select to add Python to environmental path
 * ^ You may need to restart your computer for the environmental path to update
+
+
+## 7. Setup Node.js
+Run these commands to (1) install required Node.js dependencies and (2) compile all Typescript source files and (3) Setup the database. Same commands in both Windows and Linux.
+
+* cd *[directory to root of this project]*
+* npm run setup
 
 
 ## 8. Run Server

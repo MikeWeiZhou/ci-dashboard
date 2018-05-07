@@ -3,11 +3,12 @@
 BCIT ISSP 2018 spring project - ***REMOVED*** CI Dashboard
 
 
-## 1. Operational areas
-These areas are just a working prototype.
+## 1. Demo-able areas
+These areas are just a working prototype. Run command **npm run setup** again, as it will help setup required database tables.
 
 * Data visualization demo
-* Pipeline from data collection (raw JSON file) -> data interface -> data storage
+* Data collector scheduler
+* Unit tests
 
 
 ## 2. How to setup and run latest development version of CI Dashboard
@@ -16,17 +17,21 @@ These areas are just a working prototype.
 * Install and setup required software as described in *docs/howto_setup_and_run_dashboard.md*
 * Open command line/bash and change directory to root of project
 
-### Test Data visualization
+### Data visualization demo
 
 * Run command: *npm run start*
 * The default browser should automatically start and load the web app.
 
-### Test Pipeline
-Tests the pipeline from data collection -> data mapping -> database -> kpi state (containing plotly data).
+### Data collector scheduler
 
-* Run command: *npm run testpipeline*
-* ^ runs the compiled version of the file *source/test_pipeline_in.ts*
-* ^ runs the compiled version of the file *source/test_pipeline_out.ts*
+* Run command: *npm run server*
+* ^ runs the compiled version of the file *source/startserver.ts*
+* ^ all schedules in compiled version of *source/startscheduler.ts* will start running
+
+### Unit tests
+
+* Run command: *npm run test*
+* ^ runs the unit test suite and pipeline-out
 
 
 ## 3. Directory Structure
