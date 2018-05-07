@@ -36,13 +36,13 @@ export class Scheduler
     public async Schedule(schedule: ISchedule): Promise<boolean>
     {
         // Ensure no duplicate DataInterface scheduled
-        // for (let i: number = 0; i < this._schedules.length; ++i)
-        // {
-        //     if (this._schedules[i] == schedule.DataInterface)
-        //     {
-        //         return false;
-        //     }
-        // }
+        for (let i: number = 0; i < this._schedules.length; ++i)
+        {
+            if (this._schedules[i] == schedule.DataInterface)
+            {
+                return false;
+            }
+        }
 
         // Ensure only valid schedules run
         var validSchedule: ISchedule|null = await this.makeValidScheduleOrNull(schedule);
@@ -63,11 +63,19 @@ export class Scheduler
     private runSchedule(schedule: ISchedule): void
     {
         // Schedule to run again
-        var _this = this;
-        setTimeout(() =>
+        var _this: Scheduler = this;
+        setTimeout(async () =>
         {
-            _this.runSchedule(schedule);
-        }, schedule.RunIntervalInMinutes * 1000);
+            var newSchedule: ISchedule =
+            {
+                DataCollector: schedule.DataCollector,
+                DataInterface: schedule.DataInterface,
+                RunIntervalInMinutes: schedule.RunIntervalInMinutes,
+                DataFromDate: await _this.getLastDataToDateFromDb(schedule.DataInterface),
+                DataToDate: moment.utc(new Date()).add(schedule.RunIntervalInMinutes, 'm').toDate()
+            };
+            _this.runSchedule(newSchedule);
+        }, schedule.RunIntervalInMinutes * 1000 * 60);
 
         schedule.DataCollector.Initialize(schedule.DataFromDate as Date, schedule.DataToDate as Date);
         schedule.DataCollector.GetStream()
@@ -124,7 +132,7 @@ export class Scheduler
     private async updateDataToDateInDb(schedule: ISchedule): Promise<void>
     {
         var results: any;
-        var date: string = moment(schedule.DataToDate).format(config.dateformat.mysql);
+        var date: string = moment.utc(schedule.DataToDate).format(config.dateformat.mysql);
         var query: string = `UPDATE ${config.db.tablename.data_source_tracker}
                             SET TO_DATE = '${date}'
                             WHERE TABLE_NAME = '${schedule.DataInterface.TableName}'`;
