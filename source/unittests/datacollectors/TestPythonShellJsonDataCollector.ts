@@ -26,6 +26,17 @@ describe("datacollectors/PythonShellJsonDataCollector", () =>
         });
     });
 
+    describe("Initialization", () =>
+    {
+        it("should throw NOT_INITIALIZED_ERR getting uninitialized stream", () =>
+        {
+            assert.throws(() =>
+            {
+                new PythonShellJsonDataCollector(pyfile, "*").GetStream();
+            }, /NOT_INITIALIZED_ERR/);
+        });
+    });
+
     describe("Receive JSON Objects", () =>
     {
         it("should receive correct # and identical json objects to ones sent", (done: Function) =>
@@ -45,7 +56,7 @@ describe("datacollectors/PythonShellJsonDataCollector", () =>
                         done();
                     }
                 });
-        }),
+        });
 
         it("should throw error and no data when python sends invalid json objects", (done: Function) =>
         {
@@ -64,7 +75,7 @@ describe("datacollectors/PythonShellJsonDataCollector", () =>
                     }
                     done();
                 });
-        }),
+        });
 
         it("should throw 'exited with code 10' error when python script crashes from sys.exit(10)", (done: Function) =>
         {

@@ -1,6 +1,6 @@
 import * as csv from "csv-parse"
 import * as fs from "fs"
-import { Stream } from "stream"
+import { Writable, Stream } from "stream"
 import { IDataCollector } from "./IDataCollector"
 
 /**
@@ -38,8 +38,12 @@ export class CsvDataCollector implements IDataCollector
      */
     public GetStream(): Stream
     {
+        var _csvStream: Writable = csv({columns: true});
         return fs.createReadStream(this._filepath)
-            .pipe(csv({columns: true}));
+            // forward read stream's error to _csvStream
+            // giving downstream access to errors
+            .on("error", (err: Error) => { _csvStream.emit("error", err) })
+            .pipe(_csvStream);
     }
 
     /**

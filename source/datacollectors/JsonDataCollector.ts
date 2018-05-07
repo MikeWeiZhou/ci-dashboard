@@ -1,5 +1,5 @@
 import * as fs from "fs"
-import { Stream } from "stream"
+import { Writable, Stream } from "stream"
 import { IDataCollector } from "./IDataCollector"
 const json = require("JSONStream");
 
@@ -41,8 +41,12 @@ export class JsonDataCollector implements IDataCollector
      */
     public GetStream(): Stream
     {
+        var _jsonStream: Writable = json.parse(this._jsonParsePath);
         return fs.createReadStream(this._filepath)
-            .pipe(json.parse(this._jsonParsePath));
+            // forward read stream's error to _jsonStream
+            // giving downstream access to errors
+            .on("error", (err: Error) => { _jsonStream.emit("error", err) })
+            .pipe(_jsonStream);
     }
 
     /**
