@@ -1,5 +1,5 @@
 import * as moment from "moment"
-import { Readable, Writable, Stream } from "stream"
+import { Writable, Stream } from "stream"
 import { IDataCollector } from "./IDataCollector"
 const PythonShell = require("python-shell");
 const json = require("JSONStream");
@@ -15,7 +15,6 @@ export class PythonShellJsonDataCollector implements IDataCollector
     private _filepath: string;
     private _jsonParsePath: string;
     private _isInitialized: boolean;
-    private _readStream: Readable;
     private _pythonShell: any;
 
     /**
@@ -42,15 +41,15 @@ export class PythonShellJsonDataCollector implements IDataCollector
         var fromDate: string = moment.utc(from).format(config.dateformat.python);
         var toDate: string = moment.utc(to).format(config.dateformat.python);
 
-        this._readStream = new Readable({objectMode: true});
-        this._readStream._read = () => {};
+        // this._readStream = new Readable({objectMode: true});
+        // this._readStream._read = () => {};
         this._pythonShell = new PythonShell(this._filepath, {mode: "text"});
 
         // listen for data and push to stream when available
-        this._pythonShell.stdout.on("data", (data: any) =>
-        {
-            this._readStream.push(data);
-        });
+        // this._pythonShell.stdout.on("data", (data: any) =>
+        // {
+        //     this._readStream.push(data);
+        // });
 
         // send requested date ranges
         this._pythonShell.send(fromDate).send(toDate);
@@ -64,12 +63,12 @@ export class PythonShellJsonDataCollector implements IDataCollector
             // can have python script call sys.exit(5) to give error code of 5
             if (err)
             {
-                __this._readStream.emit("error", err);
+                __this._pythonShell.stdout.emit("error", err);
                 return;
             }
 
             // signal end of stream
-            __this._readStream.push(null);
+            __this._pythonShell.stdout.push(null);
         });
 
         this._isInitialized = true;
@@ -89,11 +88,17 @@ export class PythonShellJsonDataCollector implements IDataCollector
         }
 
         var _jsonStream: Writable = json.parse(this._jsonParsePath);
-        return this._readStream
+        return this._pythonShell.stdout
             // forward _readStream's error to _jsonStream
             // giving downstream access to errors
             .on("error", (err: Error) => { _jsonStream.emit("error", err) })
             .pipe(_jsonStream);
+
+        // return this._readStream
+        //     // forward _readStream's error to _jsonStream
+        //     // giving downstream access to errors
+        //     .on("error", (err: Error) => { _jsonStream.emit("error", err) })
+        //     .pipe(_jsonStream);
     }
 
     /**

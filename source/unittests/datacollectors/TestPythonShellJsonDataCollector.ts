@@ -1,4 +1,4 @@
-import * as assert from "assert";
+import * as assert from "assert"
 import * as fs from "fs"
 import { PythonShellJsonDataCollector } from "../../datacollectors/PythonShellJsonDataCollector"
 
@@ -64,14 +64,17 @@ describe("datacollectors/PythonShellJsonDataCollector", () =>
             pyshell.GetStream()
                 .on("data", (data: any) =>
                 {
-                    assert.equal(true, false);
-                    done();
+                    done(new Error("Data received for invalid json object"));
                 })
                 .on("error", (err: any) =>
                 {
-                    if (!/Invalid JSON/.test(err.message))
+                    // 'The Exception ignored in' error happens intermitently
+                    // due to reporting of broken stdout pipe during interpreter shutdown
+                    // https://bugs.python.org/issue11380
+                    // It intermitently happens in Windows 10 Python 2 and Python 3
+                    if (!/Invalid JSON/.test(err.message) && !/Exception ignored in/.test(err.message))
                     {
-                        assert.equal(true, false);
+                        done(err);
                     }
                     done();
                 });
@@ -86,7 +89,7 @@ describe("datacollectors/PythonShellJsonDataCollector", () =>
                 {
                     if (!/exited with code 10/.test(err.message))
                     {
-                        assert.equal(true, false);
+                        done(err);
                     }
                     done();
                 });
@@ -101,7 +104,7 @@ describe("datacollectors/PythonShellJsonDataCollector", () =>
                 {
                     if (!/ZeroDivisionError/.test(err.message))
                     {
-                        assert.equal(true, false);
+                        done(err);
                     }
                     done();
                 });
