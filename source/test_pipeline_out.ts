@@ -26,6 +26,7 @@ async function RunThroughPipeline()
     console.log(kpi);
 
     storage.Dispose();
+    console.log("Finished pipeline-out test.");
 }
 
 async function ReadStorageAndConvertToKpi(): Promise<IKpiState|null>

@@ -1,7 +1,7 @@
 /**
  * IDataInterface.
  * 
- * Contains structure of a data set and able to transform raw JSON object to that structure.
+ * Contains data model and able to transform raw JSON object to that model.
  */
 export interface IDataInterface
 {

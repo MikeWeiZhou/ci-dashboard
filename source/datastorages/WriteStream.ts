@@ -34,7 +34,19 @@ export class WriteStream extends Writable
      */
     public _write(data: Array<any>, encoding: string, callback: Function): void
     {
-        this._dataStorage.Write(this._dataInterface.TableName, this._dataInterface.TableColumns, data);
+        // Uses a little hack to ensure callback() is not called too early
+        // or it will signal the end of stream before data is finished writing
+        this.writeAsync(data, callback);
+    }
+
+    /**
+     * Writes stream data to storage using StorageWriter asynchronously.
+     * @param {Array<any>} data from the stream
+     * @param {Function} callback callback when finished writing data
+     */
+    private async writeAsync(data: Array<any>, callback: Function): Promise<void>
+    {
+        await this._dataStorage.Write(this._dataInterface.TableName, this._dataInterface.TableColumns, data);
 
         // callback signals successful writing of data,
         // ommit callback() to signal error,

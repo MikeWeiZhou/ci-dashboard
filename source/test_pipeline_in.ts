@@ -39,6 +39,7 @@ async function RunThroughPipeline()
     await ReadTransformAndSaveData(dataReaderFromJsonFile);
 
     storage.Dispose();
+    console.log("Finished pipeline-in test.");
 }
 
 async function CreateTable()

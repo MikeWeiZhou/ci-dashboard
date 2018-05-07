@@ -4,7 +4,7 @@ const config = require("../../config/config");
 /**
  * QaBuildsAndRunsFromBambooDataInterface.
  * 
- * Returns only the wanted properties from original JSON.
+ * Contains data model and able to transform raw JSON object to that model.
  */
 export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
 {
