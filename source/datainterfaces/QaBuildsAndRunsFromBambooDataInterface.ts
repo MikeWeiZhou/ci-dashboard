@@ -59,18 +59,15 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
         //           cc = product: FX, MX, DX, IX
         //            d = branch id (if omitted, then default, otherwise unique number identifying branch)
 
-        var values: Array<any> = [];
-        values.push(o.MINUTES_TOTAL_QUEUE_AND_BUILD);       // MINUTES_TOTAL_QUEUE_AND_BUILD
-        values.push(o.BUILD_COMPLETED_DATE);                // BUILD_COMPLETED_DATE
-        values.push(o.BUILD_KEY.substring(0, 6));           // CYCLE aaaaaa
-        values.push(o.BUILD_KEY.substring(9, 12));          // PLATFORM bbb
-        values.push(o.BUILD_KEY.substring(13, 15));         // PRODUCT cc
-        values.push((o.BUILD_KEY.length > 17) ? 0 : 1);     // IS_DEFAULT [d]
-        values.push((o.BUILD_STATE == "Failed") ? 0 : 1);   // IS_SUCCESS
-        values.push((o.BUILD_KEY.length > 17)               // BRANCH_ID [d]
-            ? o.BUILD_KEY.substring(17)
-            : this._NO_BRANCH_ID
-            );
-        return values;
+        return [
+            o.MINUTES_TOTAL_QUEUE_AND_BUILD,        // MINUTES_TOTAL_QUEUE_AND_BUILD
+            o.BUILD_COMPLETED_DATE,                 // BUILD_COMPLETED_DATE
+            o.BUILD_KEY.substring(0, 6),            // CYCLE aaaaaa
+            o.BUILD_KEY.substring(9, 12),           // PLATFORM bbb
+            o.BUILD_KEY.substring(13, 15),          // PRODUCT cc
+            (o.BUILD_KEY.length > 17) ? 0 : 1,      // IS_DEFAULT [d]
+            (o.BUILD_STATE == "Failed") ? 0 : 1,    // IS_SUCCESS
+            (o.BUILD_KEY.length > 17) ? o.BUILD_KEY.substring(17) : this._NO_BRANCH_ID // BRANCH_ID [d]
+        ];
     }
 }

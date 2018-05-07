@@ -112,7 +112,7 @@ export class MysqlDataStorage implements IDataStorage
         {
             throw err;
         }
-        return (results.affectedRows > 0);
+        return (results.affectedRows != 0);
     }
 
     /**
