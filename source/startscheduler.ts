@@ -1,4 +1,4 @@
-import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
+// import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
 import { PythonShellJsonDataCollector } from "./datacollectors/PythonShellJsonDataCollector"
 import { QaBuildsAndRunsFromBambooDataInterface } from "./datainterfaces/QaBuildsAndRunsFromBambooDataInterface"
 import { IDataStorage } from "./datastorages/IDataStorage"
@@ -9,12 +9,12 @@ export async function startscheduler(storage: IDataStorage): Promise<void>
 {
     const scheduler: Scheduler = new Scheduler(storage);
 
-    scheduler.Schedule(
-    {
-        DataCollector: new JsonDataCollector("./data/qa_builds_and_runs_from_bamboo.json", "*"),
-        DataInterface: new QaBuildsAndRunsFromBambooDataInterface(),
-        RunIntervalInMinutes: config.scheduler.interval.qa_builds_and_runs_from_bamboo
-    });
+    // scheduler.Schedule(
+    // {
+    //     DataCollector: new JsonDataCollector("./data/qa_builds_and_runs_from_bamboo.json", "*"),
+    //     DataInterface: new QaBuildsAndRunsFromBambooDataInterface(),
+    //     RunIntervalInMinutes: config.scheduler.interval.qa_builds_and_runs_from_bamboo
+    // });
 
     await scheduler.Schedule(
     {
