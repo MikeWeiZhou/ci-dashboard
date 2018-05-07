@@ -5,7 +5,7 @@ const config = require("../../../config/config");
 
 var storage: MysqlDataStorage;
 
-describe("storages/MysqlDataStorage", () =>
+describe("datastorages/MysqlDataStorage", () =>
 {
     before(async () =>
     {

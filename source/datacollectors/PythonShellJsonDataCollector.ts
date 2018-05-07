@@ -37,12 +37,12 @@ export class PythonShellJsonDataCollector implements IDataCollector
      */
     public Initialize(from: Date, to: Date): void
     {
-        var fromDate: string = moment(from).format(config.dateformat.python);
-        var toDate: string = moment(to).format(config.dateformat.python);
+        var fromDate: string = moment.utc(from).format(config.dateformat.python);
+        var toDate: string = moment.utc(to).format(config.dateformat.python);
 
         this._readStream = new Readable({objectMode: true});
         this._readStream._read = () => {};
-        this._pythonShell = new PythonShell(this._filepath, {mode: "json"});
+        this._pythonShell = new PythonShell(this._filepath, {mode: "text"});
 
         // send requested date ranges
         this._pythonShell.send(`${fromDate}\n${toDate}`);
@@ -63,7 +63,7 @@ export class PythonShellJsonDataCollector implements IDataCollector
 
             if (err)
             {
-                throw err;
+                __this._readStream.emit("error", err);
             }
 
             // signal end of stream

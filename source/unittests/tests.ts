@@ -2,4 +2,5 @@
  * Test Suite for Continuous Integration Dashboard for ***REMOVED***.
  */
 
-require("./storages/TestMySqlDataStorage");
+require("./datacollectors/TestPythonShellJsonDataCollector");
+require("./datastorages/TestMySqlDataStorage");
