@@ -1,6 +1,7 @@
 // import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
-import { PythonShellJsonDataCollector } from "./datacollectors/PythonShellJsonDataCollector"
+//import { PythonShellJsonDataCollector } from "./datacollectors/PythonShellJsonDataCollector"
 import { QaBuildsAndRunsFromBambooDataInterface } from "./datainterfaces/QaBuildsAndRunsFromBambooDataInterface"
+import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
 import { IDataStorage } from "./datastorages/IDataStorage"
 import { Scheduler } from "./scheduler/Scheduler"
 import { ISchedule } from "./scheduler/ISchedule";
@@ -14,12 +15,14 @@ export async function startscheduler(storage: IDataStorage): Promise<void>
     const schedules: Array< {name: string, schedule: ISchedule} > =
     [
         {
-            name: "QaBuildsAndRunsFromBamboo from test_print_json.py",
+            name: "QaBuildsAndRunsFromBamboo from qa_builds_and_runs_from_bamboo.json",
             schedule:
             {
-                DataCollector: new PythonShellJsonDataCollector("./data/test_print_json.py", "*"),
+               // DataCollector: new PythonShellJsonDataCollector("./data/test_print_json.py", "*"),
+                DataCollector: new JsonDataCollector("./data/qa_builds_and_runs_from_bamboo.json", "*"),
                 DataInterface: new QaBuildsAndRunsFromBambooDataInterface(),
-                RunIntervalInMinutes: config.scheduler.interval.qa_builds_and_runs_from_bamboo,
+                
+                RunIntervalInMinutes: 9999999999999999,
 
                 DataFromDate: new Date("2017-01-01"),
                 DataToDate: new Date("2017-04-01")

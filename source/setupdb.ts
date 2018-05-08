@@ -37,8 +37,8 @@ async function SetupDatabase()
             MINUTES_TOTAL_QUEUE_AND_BUILD   INT             NOT NULL,
             BUILD_COMPLETED_DATE            DATETIME        NOT NULL,
             CYCLE                           CHAR(6)         NOT NULL,
-            PLATFORM                        CHAR(3)         NOT NULL,
-            PRODUCT                         CHAR(2)         NOT NULL,
+            PLATFORM                        VARCHAR(50)     NOT NULL,
+            PRODUCT                         VARCHAR(50)     NOT NULL,
             IS_DEFAULT                      TINYINT(1)      NOT NULL,
             IS_SUCCESS                      TINYINT(1)      NOT NULL,
             BRANCH_ID                       INT             NOT NULL
