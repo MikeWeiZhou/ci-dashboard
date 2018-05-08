@@ -2,6 +2,8 @@
 // More of the library documentation here
 // https://plot.ly/javascript/
 
+// This is an example of a scatter graph
+
 var trace1 = {
   x: [0, 1, 2, 3, 4, 5, 6, 7, 8],
   y: [0, 1, 2, 3, 4, 5, 6, 7, 8],

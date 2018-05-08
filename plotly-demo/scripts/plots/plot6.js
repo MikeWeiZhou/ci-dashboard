@@ -1,7 +1,7 @@
 // Plot 6 represents a might be test scenario
 // Between average time it takes to queue and successfully bulid for each platform
 // Represnted in a Line graph
-// Uses the following fields: MINUTES_TOTAL_QUEUE_AND_BUILD,BUILD_KEY,BUILD_STATE,BUILD_COMPLETED_DATE
+// Uses the following fields: MINUTES_TOTAL_QUEUE_AND_BUILD, BUILD_KEY, BUILD_STATE, BUILD_COMPLETED_DATE
 
 // to edit the buttons here
 var selectorOptions = {
@@ -34,6 +34,12 @@ var selectorOptions = {
     }],
 };
 
+function getAverage(winData,linData,macData) {
+    return (winData + linData + macData) / 3;
+}
+
+// These data can be filtered finer to represent master/develop
+// OR the products lineup
 var winData = {
     x:['2018-04-20','2018-04-21','2018-04-23','2018-04-24','2018-04-25'],
     // time in y is in ms, need to convert it to actual time
@@ -56,19 +62,35 @@ var macData = {
     name: 'Mac'
 }
 
+var movingAvg = {
+    x:['2018-04-20','2018-04-21','2018-04-23','2018-04-24','2018-04-25'],
+    y:[635,664,653,682.3,646],
+    name: 'Average',
+    mode: 'lines',
+    type: 'line',
+    line: {
+        color: 'rgb(255, 0, 0)',
+        width: 4,
+        dash:'dot'
+    },
+}
+
 var layout6 = {
-    title: 'Number of builds vs time period with platforms',
+    title: 'Average time to queue and successfully build',
     xaxis: {
         title: 'Date',
         rangeselector: selectorOptions,
         fixedrange: true
     },
     yaxis: {
-        title: 'Compiled time in ms',
+        title: 'Time in ms',
         fixedrange: true
-    }
+    },
+    // DISABLE THE HOVERING OF DATA
+    // Uncomment code below to disable
+    // hovermode: false
 };
 
-var data = [winData,linData,macData];
+var data = [winData,linData,macData,movingAvg];
 
 Plotly.newPlot('tester6', data, layout6, {displayModeBar: false});
