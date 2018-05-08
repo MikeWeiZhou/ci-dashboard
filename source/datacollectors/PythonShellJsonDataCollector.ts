@@ -45,12 +45,6 @@ export class PythonShellJsonDataCollector implements IDataCollector
         // this._readStream._read = () => {};
         this._pythonShell = new PythonShell(this._filepath, {mode: "text"});
 
-        // listen for data and push to stream when available
-        // this._pythonShell.stdout.on("data", (data: any) =>
-        // {
-        //     this._readStream.push(data);
-        // });
-
         // send requested date ranges
         this._pythonShell.send(fromDate).send(toDate);
 
@@ -93,12 +87,6 @@ export class PythonShellJsonDataCollector implements IDataCollector
             // giving downstream access to errors
             .on("error", (err: Error) => { _jsonStream.emit("error", err) })
             .pipe(_jsonStream);
-
-        // return this._readStream
-        //     // forward _readStream's error to _jsonStream
-        //     // giving downstream access to errors
-        //     .on("error", (err: Error) => { _jsonStream.emit("error", err) })
-        //     .pipe(_jsonStream);
     }
 
     /**

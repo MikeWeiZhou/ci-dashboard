@@ -90,8 +90,10 @@ Download Python 2 or 3 from https://www.python.org/.
 
 
 ## 7. Setup Node.js
-Run these commands to (1) install required Node.js dependencies and (2) compile all Typescript source files and (3) Setup the database. Same commands in both Windows and Linux.
+Run these commands to (1) install required Node.js dependencies and (2) compile & build the front- and back-end and (4) Setup the database. Same commands in both Windows and Linux.
 
+* **This may take more than several minutes**
+* **Ensure config/config.js has valid MySQL database config and credentials**
 * cd *[directory to root of this project]*
 * npm run setup
 

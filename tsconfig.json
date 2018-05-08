@@ -3,6 +3,8 @@
         "baseUrl": ".",
         "module": "commonjs",
         "lib": ["es6"],
+        "rootDir": "source",
+        "outDir": "build",
         "moduleResolution": "node",
         "removeComments": true,
         "preserveConstEnums": true,

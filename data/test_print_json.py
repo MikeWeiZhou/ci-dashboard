@@ -4,6 +4,12 @@
 #   3. exit script with an exit code detectable on node server
 #   4. program crash detectable on node server (e.g. division by zero)
 
+# See source/unittests/datacollectors/unittests.py for more elaborate demonstration
+# of the communication between python and node.
+#
+# the unit test in source/unittests/datacollectors/TestPythonShellJsonDataCollector.ts
+# drives the communication.
+
 import sys
 import json
 

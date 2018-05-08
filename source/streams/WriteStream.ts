@@ -30,6 +30,7 @@ export class WriteStream extends Writable
      * @param {Array<any>} data from the stream
      * @param {string} encoding not used
      * @param {Function} callback callback when finished writing data
+     * @throws {Error} when data storage write fails
      * @override
      */
     public _write(data: Array<any>, encoding: string, callback: Function): void
@@ -41,8 +42,10 @@ export class WriteStream extends Writable
 
     /**
      * Writes stream data to storage using StorageWriter asynchronously.
+     * @async
      * @param {Array<any>} data from the stream
      * @param {Function} callback callback when finished writing data
+     * @throws {Error} when data storage write fails
      */
     private async writeAsync(data: Array<any>, callback: Function): Promise<void>
     {

@@ -34,10 +34,28 @@ These areas are just a working prototype. Run command **npm run setup** again, a
 * ^ runs the unit test suite and pipeline-out
 
 
-## 3. Directory Structure
+## 3. NPM Commands
+These commands are mainly for easier development and testing. **DB Note**: If database model changes, old tables must be dropped/changed first.
 
-### compiled
-Javascript compiled from Typescript. Includes unit tests.
+* **npm run setup** installs node dependencies, builds front and back-end, and setup database
+* **npm run setup-front** setup front-end only
+* **npm run setup-back** setup back-end only, including the database
+***
+* **npm run build** builds front and back-end
+* **npm run build-front** builds front-end only
+* **npm run build-back** builds back-end only
+***
+* **npm run start** runs the built version of dashboard
+***
+* **npm run dev-back** runs the back-end in dev-mode without needing to build
+* **npm run dev-front** runs the front-end in dev-mode without needing to build
+***
+* **npm run test** builds the back-end and runs unit tests on the back-end
+
+## 4. Directory Structure
+
+### build
+Javascript compiled from Typescript. Includes react front-end and unit tests.
 
 ### source
 Typescript source. Includes unit tests.

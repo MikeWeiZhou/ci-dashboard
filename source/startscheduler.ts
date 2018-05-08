@@ -3,7 +3,7 @@ import { PythonShellJsonDataCollector } from "./datacollectors/PythonShellJsonDa
 import { QaBuildsAndRunsFromBambooDataInterface } from "./datainterfaces/QaBuildsAndRunsFromBambooDataInterface"
 import { IDataStorage } from "./datastorages/IDataStorage"
 import { Scheduler } from "./scheduler/Scheduler"
-import { ISchedule } from "scheduler/ISchedule";
+import { ISchedule } from "./scheduler/ISchedule";
 const config = require("../config/config")
 
 export async function startscheduler(storage: IDataStorage): Promise<void>
