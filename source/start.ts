@@ -1,16 +1,18 @@
 import { IDataStorage } from "./datastorages/IDataStorage"
 import { MysqlDataStorage } from "./datastorages/MysqlDataStorage"
 
+import { startwebserver } from "./startwebserver"
 import { startscheduler } from "./startscheduler"
 const config = require("../config/config")
 
-startserver();
-async function startserver()
+startservices();
+async function startservices()
 {
-    console.log("Starting server...");
+    console.log("Starting services...");
 
-    const storage: IDataStorage = new MysqlDataStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
-
+    const storage: IDataStorage = new MysqlDataStorage(config.db.connection);
     await storage.Initialize();
+
+    startwebserver(storage);
     await startscheduler(storage);
 }

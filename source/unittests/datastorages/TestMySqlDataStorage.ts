@@ -24,7 +24,7 @@ describe("datastorages/MysqlDataStorage", () =>
             ("Johnny", 100),
             ("Elisa", 1000)
         `;
-        storage = new MysqlDataStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
+        storage = new MysqlDataStorage(config.db.connection);
         await storage.Initialize();
         await storage.Query(createDummyTable);
         await storage.Query(createDummyData);
@@ -36,7 +36,13 @@ describe("datastorages/MysqlDataStorage", () =>
         {
             await assertextentions.assertThrowsAsync(/ER_ACCESS_DENIED_ERROR/, async () =>
             {
-                var storage: MysqlDataStorage = new MysqlDataStorage(config.db.host, config.db.dbname, "wrong_username", "password");
+                var storage: MysqlDataStorage = new MysqlDataStorage
+                ({
+                    host: config.db.host,
+                    database: config.db.dbname,
+                    user: "wrong_username",
+                    password: "password"
+                });
                 await storage.Initialize();
             });
         });

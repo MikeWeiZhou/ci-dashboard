@@ -18,20 +18,11 @@ export class MysqlDataStorage implements IDataStorage
 
     /**
      * Constructor.
-     * @param {string} host 
-     * @param {string} db 
-     * @param {string} user 
-     * @param {string} pass 
+     * @param {mysql.ConnectionConfig} connectionConfig containing database and credentials
      */
-    public constructor(host: string, db: string, user: string, pass: string)
+    public constructor(connectionConfig: mysql.ConnectionConfig)
     {
-        this._connection = mysql.createConnection
-        ({
-            host: host,
-            database: db,
-            user: user,
-            password: pass
-        });
+        this._connection = mysql.createConnection(connectionConfig);
     }
 
     /**

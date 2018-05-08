@@ -44,7 +44,7 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
             values.push(jsonArray[i].COUNT);
-            labels.push(jsonArray[i].IS_SUCCESS);
+            labels.push(jsonArray[i].IS_DEFAULT);
         }
 
         return {

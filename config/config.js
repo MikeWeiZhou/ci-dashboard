@@ -1,15 +1,27 @@
 var config = {};
 
 
+/***********************
+ * W E B   S E R V E R *
+ ***********************/
+
+config.webserver =
+{
+    port: process.env.PORT || 80
+};
+
 /*******************
  * D A T A B A S E *
  *******************/
 
-config.db =
+config.db = {};
+
+config.db.connection =
 {
     host: "localhost",
-    dbname: "cidashboard",
-    username: "root",
+    port: 3306,
+    database: "cidashboard",
+    user: "root",
     password: "password"
 };
 
@@ -82,6 +94,15 @@ config.dateformat =
 
     // used for communication with python scripts
     python: "YYYY-MM-DD HH:mm:ss"
+};
+
+/***********************************
+ * U S E F U L   V A R I A B L E S *
+ ***********************************/
+
+config.var =
+{
+    basedir: __dirname.replace(/\\/g, '/').replace(/\/[\w-]+$/, '')
 };
 
 module.exports = config;

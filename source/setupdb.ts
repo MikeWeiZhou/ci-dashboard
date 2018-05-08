@@ -10,7 +10,7 @@ import { IDataStorage } from "./datastorages/IDataStorage"
 import { MysqlDataStorage } from "./datastorages/MysqlDataStorage"
 const config = require("../config/config")
 
-const storage: IDataStorage = new MysqlDataStorage(config.db.host, config.db.dbname, config.db.username, config.db.password);
+const storage: IDataStorage = new MysqlDataStorage(config.db.connection);
 
 SetupDatabase();
 

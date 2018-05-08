@@ -103,5 +103,4 @@ Run these commands to start the server. Same commands in both Windows and Linux.
 
 * cd *[directory to root of this project]*
 * npm run start
-
-Currently, the command above will also automatically launch the webapp after starting.
+* http://localhost
