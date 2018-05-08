@@ -25,13 +25,6 @@ personArr = []
 personArr.append(person1) # must be wrapped with array
 personArr.append(person2) # must be wrapped with array
 
-
-# command from node
-# 1 = spit out valid json objects
-# 2 = spit out string array objects
-# 3 = crash with division by zero in middle of transfering valid json objects
-# 4 = exit program with exit code
-
 # first line sent from node
 fromdate = sys.stdin.readline().strip()
 
@@ -40,7 +33,7 @@ if fromdate == "2018-01-01 00:00:00" :
     print(json.dumps(monkeyArr))
     print(json.dumps(personArr))
 
-# 2. send json arrays to node server
+# 2. send arrays to node server
 elif fromdate == "2018-01-02 00:00:00" :
     print(["fail", "bail"])
 

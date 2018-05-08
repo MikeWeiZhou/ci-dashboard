@@ -9,9 +9,9 @@ export async function startwebserver(storage: IDataStorage): Promise<void>
 {
     console.log("Starting Web Server...");
     const webServer: express.Express = express();
-    const path: string = config.var.basedir + "/build/react";
 
-    // List of all KPIs. Category : KPI
+    // List of all KPI Mappers
+    // Category : KPIMapper
     const kpis: any =
     {
         qa:
@@ -23,23 +23,23 @@ export async function startwebserver(storage: IDataStorage): Promise<void>
     // Route index
     webServer.get("/", (request: express.Request, response: express.Response) =>
     {
-        response.sendFile(path + "/index.html");
+        response.sendFile(config.webserver.public_directory + "/index.html");
     });
 
-    // Route everything minus paths starting with "/kpi" to front-end folder
+    // Route everything to React, minus paths starting with "/kpi"
     webServer.get(/^(?!\/kpi)[\w.=/-]*/, (request: express.Request, response: express.Response) =>
     {
-        if (fs.existsSync(path + request.path))
+        if (fs.existsSync(config.webserver.public_directory + request.path))
         {
-            response.sendFile(path + request.path);
+            response.sendFile(config.webserver.public_directory + request.path);
         }
         else
         {
-            response.status(404).send("Not found");
+            response.status(config.webserver.response.no_exists).send("File not found");
         }
     });
 
-    // Route things starting with "/kpi"
+    // KPI REST API
     webServer.get("/kpi/:category/:kpi/:from/:to", (request: express.Request, response: express.Response) =>
     {
         if (kpis[request.params.category] && kpis[request.params.category][request.params.kpi])
@@ -50,27 +50,27 @@ export async function startwebserver(storage: IDataStorage): Promise<void>
                 {
                     if (results != null)
                     {
-                        response.send(results);
+                        response.status(config.webserver.response.ok).send(results);
                     }
                     else
                     {
-                        response.status(404).send("Non-existent KPI");
+                        response.status(config.webserver.response.no_data).send("No data for KPI");
                     }
                 })
                 .catch((err: Error) =>
                 {
-                    response.status(500).send(err);
+                    response.status(config.webserver.response.error).send(err);
                 });
         }
         else
         {
-            response.status(400).send("Invalid request");
+            response.status(config.webserver.response.no_exists).send("Non-existent KPI");
         }
     });
 
     // Start listening
     webServer.listen(config.webserver.port, () =>
     {
-        console.log(`Rest API listening on port ${config.webserver.port}`);
+        console.log(`Web Server listening on port ${config.webserver.port}`);
     });
 }

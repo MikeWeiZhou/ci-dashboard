@@ -7,7 +7,16 @@ var config = {};
 
 config.webserver =
 {
-    port: process.env.PORT || 80
+    port:               8080,
+    public_directory:   __dirname.replace(/\\/g, '/').replace(/\/[\w-]+$/, '') + "/build/public"
+};
+
+config.webserver.response =
+{
+    ok:         200,
+    error:      500,
+    no_data:    404,
+    no_exists:  404
 };
 
 /*******************
@@ -18,11 +27,11 @@ config.db = {};
 
 config.db.connection =
 {
-    host: "localhost",
-    port: 3306,
-    database: "cidashboard",
-    user: "root",
-    password: "password"
+    host:       "localhost",
+    port:       3306,
+    database:   "cidashboard",
+    user:       "root",
+    password:   "password"
 };
 
 config.db.tablename =
@@ -41,6 +50,7 @@ config.db.tablename =
 config.scheduler =
 {
     // New data sources will start pulling records saved from this starting date
+    // Unless manually set when scheduling
     starting_data_date: new Date("2010-01-01")
 };
 
@@ -94,15 +104,6 @@ config.dateformat =
 
     // used for communication with python scripts
     python: "YYYY-MM-DD HH:mm:ss"
-};
-
-/***********************************
- * U S E F U L   V A R I A B L E S *
- ***********************************/
-
-config.var =
-{
-    basedir: __dirname.replace(/\\/g, '/').replace(/\/[\w-]+$/, '')
 };
 
 module.exports = config;

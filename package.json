@@ -8,7 +8,7 @@
     "setup-back": "npm install && npm run build-back && node build/setupdb",
     "-----------------------------------------------------------------------------/": "",
     "build": "npm run build-front && npm run build-back",
-    "build-front": "cd react-demo && npm run build && cd .. && npx cpx react-demo/build/**/* build/react",
+    "build-front": "cd react-demo && npm run build && cd .. && npx cpx 'react-demo/build/**/*' build/public",
     "build-back": "tsc",
     "----------------------------------------------------------------------------//": "",
     "start": "node build/start",

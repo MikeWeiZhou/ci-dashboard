@@ -22,11 +22,11 @@ export abstract class KpiMapper
     }
 
     /**
-     * Returns a KPI state object that can be consumed by Plotly.js, or null.
+     * Returns a KPI state object that can be consumed by Plotly.js, or null when insufficient or no data.
      * @async
      * @param {Date} from date
      * @param {Date} to date
-     * @returns {Promise<IKpiState|null>} IKpiState or null when errored
+     * @returns {Promise<IKpiState|null>} IKpiState or null when insufficient or no data
      * @throws {Error} Error if storage error
      */
     public async GetKpiStateOrNull(from: Date, to: Date): Promise<IKpiState|null>
@@ -45,11 +45,11 @@ export abstract class KpiMapper
         }
         return (jsonArrayResults.length == 0)
             ? null
-            : this.MapToKpiState(jsonArrayResults);
+            : this.MapToKpiStateOrNull(jsonArrayResults);
     }
 
     /**
-     * Returns SQL query string given a date range.
+     * Returns SQL query string given a date range or null when insufficient data.
      * @param {string} from date
      * @param {string} to date
      * @returns {string} SQL query string
@@ -57,9 +57,9 @@ export abstract class KpiMapper
     protected abstract GetQueryString(from: string, to: string): string;
 
     /**
-     * Returns a KpiState given an array or single JSON object containing required data.
-     * @param {Array<any>} jsonArray non-empty JSON array results containing required data
-     * @returns {IKpiState} IKpiState object
+     * Returns a KpiState or null given an array or single JSON object containing required data.
+     * @param {Array<any>} jsonArray non-empty JSON array results containing data
+     * @returns {IKpiState|null} IKpiState object or null when insufficient data
      */
-    protected abstract MapToKpiState(jsonArray: Array<any>): IKpiState;
+    protected abstract MapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null;
 }
