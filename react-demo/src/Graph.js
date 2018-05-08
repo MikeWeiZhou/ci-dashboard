@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Plot from 'react-plotly.js';
 
 /**
- * Graph represents a simple Plotly element
+ * Graph represents a simple Plotly graph element
  */
 class Graph extends Component {
     render() {    

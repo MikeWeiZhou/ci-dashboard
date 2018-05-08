@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import QA_Overall from './kpi/QA_Overall';
+import QaOverall from './kpi/QaOverall';
 
 class BuildDashboard extends Component {
     // state = {
@@ -10,7 +10,7 @@ class BuildDashboard extends Component {
     render() {
         return (
             <div className="Build">
-                <QA_Overall />
+                <QaOverall />
             </div>
         );
     }

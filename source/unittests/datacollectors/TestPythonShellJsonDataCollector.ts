@@ -75,6 +75,7 @@ describe("datacollectors/PythonShellJsonDataCollector", () =>
                     if (!/Invalid JSON/.test(err.message) && !/Exception ignored in/.test(err.message))
                     {
                         done(err);
+                        return;
                     }
                     done();
                 });
@@ -90,6 +91,7 @@ describe("datacollectors/PythonShellJsonDataCollector", () =>
                     if (!/exited with code 10/.test(err.message))
                     {
                         done(err);
+                        return;
                     }
                     done();
                 });

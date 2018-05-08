@@ -1,11 +1,16 @@
+<<<<<<< HEAD
 // import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
 //import { PythonShellJsonDataCollector } from "./datacollectors/PythonShellJsonDataCollector"
+=======
+import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
+// import { PythonShellJsonDataCollector } from "./datacollectors/PythonShellJsonDataCollector"
+>>>>>>> 4fbab62c2245ccd0523f971aba765315a78fce29
 import { QaBuildsAndRunsFromBambooDataInterface } from "./datainterfaces/QaBuildsAndRunsFromBambooDataInterface"
 import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
 import { IDataStorage } from "./datastorages/IDataStorage"
 import { Scheduler } from "./scheduler/Scheduler"
-import { ISchedule } from "./scheduler/ISchedule";
-const config = require("../config/config")
+import { ISchedule } from "./scheduler/ISchedule"
+// const config = require("../config/config")
 
 export async function startscheduler(storage: IDataStorage): Promise<void>
 {
@@ -18,12 +23,11 @@ export async function startscheduler(storage: IDataStorage): Promise<void>
             name: "QaBuildsAndRunsFromBamboo from qa_builds_and_runs_from_bamboo.json",
             schedule:
             {
-               // DataCollector: new PythonShellJsonDataCollector("./data/test_print_json.py", "*"),
+                // DataCollector: new PythonShellJsonDataCollector("./data/test_print_json.py", "*"),
                 DataCollector: new JsonDataCollector("./data/qa_builds_and_runs_from_bamboo.json", "*"),
                 DataInterface: new QaBuildsAndRunsFromBambooDataInterface(),
-                
-                RunIntervalInMinutes: 9999999999999999,
-
+                // RunIntervalInMinutes: config.scheduler.interval.qa_builds_and_runs_from_bamboo,
+                RunIntervalInMinutes: 999, // Mike - Potential overflow issue here
                 DataFromDate: new Date("2017-01-01"),
                 DataToDate: new Date("2017-04-01")
             }
