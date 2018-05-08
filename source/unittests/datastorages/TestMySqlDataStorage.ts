@@ -127,6 +127,7 @@ describe("datastorages/MysqlDataStorage", () =>
 
         it("should throw ER_TRUNCATED_WRONG_VALUE_FOR_FIELD and data not saved when writing invalid data to database", async () =>
         {
+            // MariaDB throws ER_BAD_FIELD_ERROR instead
             await assertextentions.assertThrowsAsync(/ER_TRUNCATED_WRONG_VALUE_FOR_FIELD/, async () =>
             {
                 var keys: Array<any> = ["NAME", "AGE"];
