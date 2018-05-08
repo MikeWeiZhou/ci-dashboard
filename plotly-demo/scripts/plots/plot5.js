@@ -34,6 +34,8 @@ var selectorOptions = {
     }],
 };
 
+// These data can be filtered finer to represent master/develop
+// OR the products lineup
 var winData = {
     x:['2018-04-20','2018-04-21','2018-04-23','2018-04-24','2018-04-25'],
     y:[11,4,14,11,3],
@@ -53,6 +55,19 @@ var macData = {
     y:[6,7,9,10,2],
     type: 'line',
     name: 'Mac'
+}
+
+var movingAvg = {
+    x:['2018-04-20','2018-04-21','2018-04-23','2018-04-24','2018-04-25'],
+    y:[9.6,5.6,13.3,10,2],
+    name: 'Average',
+    mode: 'lines',
+    type: 'line',
+    line: {
+        color: 'rgb(255, 0, 0)',
+        width: 4,
+        dash:'dot'
+    }
 }
 
 var layout5 = {
@@ -75,9 +90,12 @@ var layout5 = {
             size: 18,
             color: '#7f7f7f'
         }
-    }
+    },
+    // DISABLE THE HOVERING OF DATA
+    // Uncomment code below to disable
+    hovermode: false
 };
 
-var data = [winData,linData,macData];
+var data = [winData,linData,macData,movingAvg];
 
 Plotly.newPlot('tester5', data, layout5, {displayModeBar: false});

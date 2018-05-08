@@ -1,6 +1,9 @@
 // this format is fine too if using the same data from plot1
 // doesn't work the other way around
 
+// This is an example of a line graph without any scatter plots
+// With a line for moving averages
+
 // Change settings for the second layout 
 // Such as title
 var layout2 = {

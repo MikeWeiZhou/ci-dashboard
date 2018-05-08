@@ -1,3 +1,5 @@
+// Plot4.js is an example of a bar graph
+
 // Change settings for the second layout
 var data = [{
 	values:[19,26,55],
