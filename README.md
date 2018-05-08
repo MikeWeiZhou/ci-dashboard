@@ -8,8 +8,9 @@ From an end-user perspective, nothing is functional yet.
 
 * The team is working on different ways of visualizing the data **(priority)**
 * The pipeline from data source (e.g. python script) to the REST API serving KPI states **is working and in refinement/bug fixing**
-* Front-end data visualization **is somewhat working and in progress**
+* Front-end data visualization layer **is somewhat working and in progress**
 * There is currently no connection between the front and back-end. **work in progress**
+* More unit tests are on the way
 
 ### Installation
 
