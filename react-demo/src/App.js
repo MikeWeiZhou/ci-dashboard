@@ -197,7 +197,7 @@ class App extends Component {
             onUpdate={(figure) => this.setState(figure)}
         />
         <br />
-        <button onClick={() => this.changeData()}>Change data set</button>
+        <button className="btn btn-primary" onClick={() => this.changeData()}>Change data set</button>
         <br />
         <Plot
               data={this.qa_platform_successrate_per_product_data}

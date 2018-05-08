@@ -6,7 +6,8 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
+import BuildDashboard from './BuildDashboard';
 
-ReactDOM.render(<App />, document.getElementById('root'));
-// ReactDOM.render(<App />, document.getElementById('root2'));
+// ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<BuildDashboard />, document.getElementById('root'));
 registerServiceWorker();
