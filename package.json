@@ -8,7 +8,7 @@
     "setup-back": "npm install && npm run build-back && node build/setupdb",
     "-----------------------------------------------------------------------------/": "",
     "build": "npm run build-front && npm run build-back",
-    "build-front": "cd react-demo && npm run build && cd .. && npx cpx 'react-demo/build/**/*' build/public",
+    "build-front": "cd react-demo && npm run build && cd ..",
     "build-back": "tsc",
     "----------------------------------------------------------------------------//": "",
     "start": "node build/start",
@@ -38,7 +38,6 @@
     "@types/mysql": "^2.15.4",
     "@types/node": "^10.0.3",
     "@types/python-shell": "^0.4.1",
-    "cpx": "^1.5.0",
     "mocha": "^5.1.1",
     "ts-node": "^6.0.3",
     "typescript": "^2.8.3"

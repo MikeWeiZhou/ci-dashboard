@@ -8,7 +8,7 @@ var config = {};
 config.webserver =
 {
     port:               8080,
-    public_directory:   __dirname.replace(/\\/g, '/').replace(/\/[\w-]+$/, '') + "/build/public"
+    public_directory:   __dirname.replace(/\\/g, '/').replace(/\/[\w-]+$/, '') + "/react-demo/build"
 };
 
 config.webserver.response =
