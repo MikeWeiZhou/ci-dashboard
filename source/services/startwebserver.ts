@@ -14,7 +14,7 @@ export function startwebserver(storage: IDataStorage): void
     // Category : KPIMapper
     const kpis: any =
     {
-        qa:
+        "qa":
         {
             overall_builds_success: new QaOverallBuildSuccessKpiMapper(storage)
         }
@@ -66,6 +66,22 @@ export function startwebserver(storage: IDataStorage): void
         {
             response.status(config.webserver.response.no_exists).send("Non-existent KPI");
         }
+    });
+
+    // GET KPI LIST
+    webServer.get("/getkpilist", (request: express.Request, response: express.Response) =>
+    {
+        response.send
+        ({
+            "qa":
+            {
+                title: "Quality Assurance",
+                kpis:
+                [
+                    "overall_builds_success"
+                ]
+            }
+        });
     });
 
     // Start listening
