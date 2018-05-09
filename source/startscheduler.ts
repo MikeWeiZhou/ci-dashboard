@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-// import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
-//import { PythonShellJsonDataCollector } from "./datacollectors/PythonShellJsonDataCollector"
-=======
 import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
 // import { PythonShellJsonDataCollector } from "./datacollectors/PythonShellJsonDataCollector"
->>>>>>> 4fbab62c2245ccd0523f971aba765315a78fce29
 import { QaBuildsAndRunsFromBambooDataInterface } from "./datainterfaces/QaBuildsAndRunsFromBambooDataInterface"
-import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
 import { IDataStorage } from "./datastorages/IDataStorage"
 import { Scheduler } from "./scheduler/Scheduler"
 import { ISchedule } from "./scheduler/ISchedule"
