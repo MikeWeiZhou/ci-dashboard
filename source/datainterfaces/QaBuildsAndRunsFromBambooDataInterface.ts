@@ -34,9 +34,6 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
         "BRANCH_ID"
     ];
 
-    // Branch ID when missing from BUILD_KEY
-    private readonly _noBranchId: number = -1;
-
     // Platform Code : Platform Name
     private readonly _platformName: object =
     {
@@ -89,7 +86,7 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
             this._productName[productCode],         // PRODUCT_NAME
             (isDefault) ? 1 : 0,                    // IS_DEFAULT [d]
             o.BUILD_STATE,                          // BUILD_STATE
-            (isDefault) ? this._noBranchId : o.BUILD_KEY.substring(17) // BRANCH_ID [d]
+            (isDefault) ? null : o.BUILD_KEY.substring(17) // BRANCH_ID [d]
         ];
     }
 }
