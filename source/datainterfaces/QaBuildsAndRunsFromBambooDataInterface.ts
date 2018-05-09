@@ -51,7 +51,8 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
         "FX": "***REMOVED***",
         "MX": "***REMOVED***",
         "DX": "***REMOVED***",
-        "IC": "***REMOVED***"
+        "IC": "***REMOVED***",
+        "DM": "DM"
     };
 
     /**
