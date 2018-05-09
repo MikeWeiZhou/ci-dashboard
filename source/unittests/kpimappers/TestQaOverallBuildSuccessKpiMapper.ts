@@ -5,8 +5,8 @@ import { QaOverallBuildSuccessKpiMapper } from "../../kpimappers/QaOverallBuildS
 import { MysqlDataStorage } from "../../datastorages/MysqlDataStorage"
 import { JsonDataCollector } from "../../datacollectors/JsonDataCollector"
 import { IKpiState } from "../../kpimappers/IKpiState"
-import { Scheduler } from "../../scheduler/Scheduler"
-import { ISchedule } from "../../scheduler/ISchedule"
+import { Scheduler } from "../../services/Scheduler"
+import { ISchedule } from "../../services/ISchedule"
 const config = require("../../../config/config");
 
 var storage: MysqlDataStorage;
@@ -42,6 +42,7 @@ describe("kpimappers/QaOverallBildSuccessKpiMapper", () =>
         //Using client data (should use generated data instead?)
         var schedule: ISchedule =
         {
+            Title: "Something",
             DataCollector: new JsonDataCollector("./data/qa_builds_and_runs_from_bamboo.json", "*"),
             DataInterface: new QaBuildsAndRunsFromBambooDataInterface(),
             RunIntervalInMinutes: 999, // Mike - Potential overflow issue here
