@@ -1,36 +1,35 @@
 /**
- * This will set up the required database tables.
+ * This will drop used database tables.
  */
 
 import { IDataStorage } from "./datastorages/IDataStorage"
 import { MysqlDataStorage } from "./datastorages/MysqlDataStorage"
 const config = require("../config/config")
-const sqlqueries = require("../config/sqlqueries")
 
-SetupDatabase();
-async function SetupDatabase()
+DropDatabase();
+async function DropDatabase()
 {
     const storage: IDataStorage = new MysqlDataStorage(config.db.connection);
 
-    console.log("\n\nSetting up database...");
+    console.log("\n\nDropping database tables...");
     console.log("Connecting to database...");
     await storage.Initialize();
 
-    for (let i: number = 0; i < sqlqueries.setup.length; ++i)
+    for (let tablename of Object.keys(config.db.tablename))
     {
         try
         {
-            console.log(i + ". Running database query...");
-            await storage.Query(sqlqueries.setup[i]);
+            console.log(`Dropping table if exists ${tablename}...`);
+            await storage.Query(`DROP TABLE IF EXISTS ${tablename}`);
         }
         catch (err)
         {
-            console.log("ERROR RUNNING QUERY: " + sqlqueries.setup[i]);
+            console.log(`ERROR DROPPING TABLE: ${tablename}`);
             throw err;
         }
     }
 
     console.log("Closing database connection...");
     storage.Dispose();
-    console.log("Completed database setup.");
+    console.log("Completed dropping database tables.");
 }

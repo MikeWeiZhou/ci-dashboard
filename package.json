@@ -5,7 +5,9 @@
   "scripts": {
     "setup": "npm run setup-front && npm run setup-back",
     "setup-front": "cd react-demo && npm install && cd .. && npm run build-front",
-    "setup-back": "npm install && npm run build-back && node build/setupdb",
+    "setup-back": "npm install && npm run build-back && npm run setup-db",
+    "setup-db": "ts-node source/setupdb",
+    "reset-db": "ts-node source/dropdb && npm run setup-db",
     "-----------------------------------------------------------------------------/": "",
     "build": "npm run build-front && npm run build-back",
     "build-front": "cd react-demo && npm run build && cd ..",
