@@ -19,11 +19,40 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
      * Order must match data array returned from Transform().
      * @override
      */
-    public readonly TableColumns: Array<string> 
-        = ["BUILDRESULTSUMMARY_ID", "MINUTES_TOTAL_QUEUE_AND_BUILD"
-        , "BUILD_COMPLETED_DATE", "CYCLE", "PLATFORM", "PRODUCT", "IS_DEFAULT", "IS_SUCCESS", "BRANCH_ID"];
+    public readonly TableColumns: Array<string> =
+    [
+        "BUILDRESULTSUMMARY_ID",
+        "MINUTES_TOTAL_QUEUE_AND_BUILD",
+        "BUILD_COMPLETED_DATE",
+        "CYCLE",
+        "PLATFORM_CODE",
+        "PRODUCT_CODE",
+        "PLATFORM_NAME",
+        "PRODUCT_NAME",
+        "IS_DEFAULT",
+        "BUILD_STATE",
+        "BRANCH_ID"
+    ];
 
-    private readonly _NO_BRANCH_ID: number = -1;
+    // Branch ID when missing from BUILD_KEY
+    private readonly _noBranchId: number = -1;
+
+    // Platform Code : Platform Name
+    private readonly _platformName: object =
+    {
+        "WIN": "Windows",
+        "LIN": "Linux",
+        "MAC": "Mac"
+    };
+
+    // Product Code : Product Name
+    private readonly _productName: object =
+    {
+        "FX": "***REMOVED***",
+        "MX": "***REMOVED***",
+        "DX": "***REMOVED***",
+        "IC": "***REMOVED***"
+    };
 
     /**
      * Returns a data record derrived from a JSON object ready to be consumed by IDataStorage.
@@ -35,64 +64,31 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
     public Transform(o: any): Array<any>
     {
         // count:       012345 678 9012 34 56 7
-        // BUILD_KEY is aaaaaa LAT bbb- cc 64 [d]
+        // BUILD_KEY    aaaaaa LAT bbb- cc 64 [d]
         // example:     S2018B LAT LIN- DX 64 45
-        //              S2018A LAT WIN- FX64
+        //              S2018A LAT WIN- FX 64
         //
         // where aaaaaa = cycle e.g. S2018B
         //          bbb = platform e.g. LIN
         //           cc = product: FX, MX, DX, IX
         //            d = branch id (if omitted, then default, otherwise unique number identifying branch)
 
-        return [                           
+        var platformCode: string = o.BUILD_KEY.substring(9, 12);
+        var productCode: string = o.BUILD_KEY.substring(13, 15);
+        var isDefault: boolean = !(o.BUILD_KEY.length > 17);
+
+        return [
             o.BUILDRESULTSUMMARY_ID,                // BUILDRESULTSUMMARY_ID
             o.MINUTES_TOTAL_QUEUE_AND_BUILD,        // MINUTES_TOTAL_QUEUE_AND_BUILD
             o.BUILD_COMPLETED_DATE,                 // BUILD_COMPLETED_DATE
             o.BUILD_KEY.substring(0, 6),            // CYCLE aaaaaa
-            this.getPlatformFull(o.BUILD_KEY.substring(9, 12)),           // PLATFORM bbbb
-            this.getProductFull(o.BUILD_KEY.substring(13, 15)),          // PRODUCT cc
-            (o.BUILD_KEY.length > 17) ? 0 : 1,      // IS_DEFAULT [d]
-            (o.BUILD_STATE == "Failed") ? 0 : 1,    // IS_SUCCESS
-            (o.BUILD_KEY.length > 17) ? o.BUILD_KEY.substring(17) : this._NO_BRANCH_ID // BRANCH_ID [d]
+            platformCode,                           // PLATFORM_CODE bbb
+            productCode,                            // PRODUCT_CODE cc
+            this._platformName[platformCode],       // PLATFORM_NAME
+            this._productName[productCode],         // PRODUCT_NAME
+            (isDefault) ? 1 : 0,                    // IS_DEFAULT [d]
+            o.BUILD_STATE,                          // BUILD_STATE
+            (isDefault) ? this._noBranchId : o.BUILD_KEY.substring(17) // BRANCH_ID [d]
         ];
-    }
-
-    public getPlatformFull(platformCode :string) :string
-    {
-        switch(platformCode) {
-            case "WIN": {
-                return "Windows";
-            }
-            case "LIN": {
-                return "Linux";
-            }
-            case "MAC": {
-                return "Mac";
-            }
-            default: {
-                return platformCode;
-            }
-        }
-    }
-
-    public getProductFull(productCode :string) :string
-    {
-        switch(productCode) {
-            case "FX": {
-                return "***REMOVED***";
-            }
-            case "MX": {
-                return "Mode";
-            }
-            case "DX": {
-                return "Device";
-            }
-            case "IC": {
-                return "Interconnect";
-            }
-            default: {
-                return productCode;
-            }
-        }
     }
 }
