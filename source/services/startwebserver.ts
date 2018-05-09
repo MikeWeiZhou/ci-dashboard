@@ -3,6 +3,7 @@ import * as fs from "fs"
 import { IDataStorage } from "../datastorages/IDataStorage"
 import { IKpiState } from "../kpimappers/IKpiState"
 import { QaOverallBuildSuccessKpiMapper } from "../kpimappers/QaOverallBuildSuccessKpiMapper"
+import { QaBuildSuccessPerPlatformPerProductKpiMapper } from "../kpimappers/QaBuildSuccessPerPlatformPerProductKpiMapper"
 const config = require("../../config/config")
 
 export function startwebserver(storage: IDataStorage): void
@@ -14,9 +15,11 @@ export function startwebserver(storage: IDataStorage): void
     // Category : KPIMapper
     const kpis: any =
     {
+        // Add mappers here
         "qa":
         {
-            overall_builds_success: new QaOverallBuildSuccessKpiMapper(storage)
+            overall_builds_success: new QaOverallBuildSuccessKpiMapper(storage),
+            build_success_rate_per_platform_per_product: new QaBuildSuccessPerPlatformPerProductKpiMapper(storage)
         }
     };
 
@@ -71,6 +74,8 @@ export function startwebserver(storage: IDataStorage): void
     // GET KPI LIST
     webServer.get("/getkpilist", (request: express.Request, response: express.Response) =>
     {
+        // Second part of where to add
+        // Need to add to the kpi mapper
         response.send
         ({
             "qa":
@@ -78,7 +83,9 @@ export function startwebserver(storage: IDataStorage): void
                 title: "Quality Assurance",
                 kpis:
                 [
-                    "overall_builds_success"
+                    // Exact name is the same as above
+                    "overall_builds_success",
+                    "build_success_rate_per_platform_per_product"
                 ]
             }
         });
