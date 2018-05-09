@@ -1,6 +1,6 @@
+import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
 // import { PythonShellJsonDataCollector } from "./datacollectors/PythonShellJsonDataCollector"
 import { QaBuildsAndRunsFromBambooDataInterface } from "./datainterfaces/QaBuildsAndRunsFromBambooDataInterface"
-import { JsonDataCollector } from "./datacollectors/JsonDataCollector"
 import { IDataStorage } from "./datastorages/IDataStorage"
 import { Scheduler } from "./scheduler/Scheduler"
 import { ISchedule } from "./scheduler/ISchedule"
