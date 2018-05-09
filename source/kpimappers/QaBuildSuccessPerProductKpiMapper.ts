@@ -7,10 +7,10 @@ const config = require("../../config/config")
  * 
  * QA Build Success vs Fail Per Platform Per Product.
  */
-export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
+export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
 {
     private _tablename: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
-    private _title: string = "QA Build Success Rate Per Product Per Product";
+    private _title: string = "QA Build Success Rate Per Product";
 
     /**
      * Returns SQL query string given a date range.
@@ -22,13 +22,13 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
     protected GetQueryString(from: string, to: string): string
     {
         return `
-            SELECT PLATFORM_NAME, PRODUCT_NAME, 
+            SELECT PRODUCT_NAME, 
                   (SELECT COUNT(*) FROM ${this._tablename}
-                   WHERE BUILD_STATE = 'Successful' AND PLATFORM_CODE = a.PLATFORM_CODE 
+                   WHERE BUILD_STATE = 'Successful'
                    AND PRODUCT_CODE = a.PRODUCT_CODE) / COUNT(*) as 'Success'
             FROM ${this._tablename} a
             WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-            GROUP BY PLATFORM_NAME, PRODUCT_NAME
+            GROUP BY PRODUCT_NAME
         `;
     }
 
@@ -41,28 +41,24 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
     {
         var values: Array<any> = [];
         var labels: Array<any> = [];
-        // testing for third value pushing
-        var thirdValue : Array<any> = [];
 
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
-            // Success Rate
             values.push(jsonArray[i].Success);
-            // Product Name
             labels.push(jsonArray[i].PRODUCT_NAME);
-            // Platform Name
-            thirdValue.push(jsonArray[i].PLATFORM_NAME);
         }
 
         return {
             data: [{
-                x: labels,
-                y: values,
-                type: "bar"
+                // values represent the y axis
+                values: values,
+                // labels represent the x value
+                labels: labels,
+                type:   "pie"
             }],
             layout: {
                 title: this._title,
-                range: [0, 100]
+                barmode: 'group'
             },
             frames: [],
             config: {}

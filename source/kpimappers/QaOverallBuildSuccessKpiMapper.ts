@@ -21,23 +21,14 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
      */
     protected GetQueryString(from: string, to: string): string
     {
-        // return `
-        //     SELECT COUNT(*) AS 'COUNT',
-        //            IS_DEFAULT
-        //     FROM ${this._tablename}
-        //     WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-        //     GROUP BY IS_DEFAULT
-        // `;
         return `
-        SELECT PLATFORM_NAME, 
-                (SELECT COUNT(*)
-                FROM ${this._tablename} 
-                WHERE BUILD_STATE = 'Successful'
-                AND PLATFORM_CODE = a.PLATFORM_CODE)
-                / COUNT(*) AS 'Success'
-        FROM ${this._tablename} a
+        SELECT 
+            (SELECT COUNT(*)
+            FROM ${this._tablename} 
+            WHERE BUILD_STATE = 'Successful')
+            / COUNT(*) AS 'Success'
+        FROM ${this._tablename}
         WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-        GROUP BY PLATFORM_NAME
     `;
     }
 
@@ -49,12 +40,12 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
     protected MapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
     {
         var values: Array<any> = [];
-        var labels: Array<any> = [];
+        var labels: Array<any> = ["Overall"];
 
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
             values.push(jsonArray[i].Success);
-            labels.push(jsonArray[i].PLATFORM_NAME);
+            //labels.push(jsonArray[i].PLATFORM_NAME);
         }
 
         return {

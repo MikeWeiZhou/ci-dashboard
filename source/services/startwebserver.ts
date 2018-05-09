@@ -4,6 +4,8 @@ import { IDataStorage } from "../datastorages/IDataStorage"
 import { IKpiState } from "../kpimappers/IKpiState"
 import { QaOverallBuildSuccessKpiMapper } from "../kpimappers/QaOverallBuildSuccessKpiMapper"
 import { QaBuildSuccessPerPlatformPerProductKpiMapper } from "../kpimappers/QaBuildSuccessPerPlatformPerProductKpiMapper"
+import { QaBuildSuccessPerPlatformKpiMapper } from "../kpimappers/QaBuildSuccessPerPlatformKpiMapper"
+import { QaBuildSuccessPerProductKpiMapper} from "../kpimappers/QaBuildSuccessPerProductKpiMapper"
 const config = require("../../config/config")
 
 export function startwebserver(storage: IDataStorage): void
@@ -19,7 +21,9 @@ export function startwebserver(storage: IDataStorage): void
         "qa":
         {
             overall_builds_success: new QaOverallBuildSuccessKpiMapper(storage),
-            build_success_rate_per_platform_per_product: new QaBuildSuccessPerPlatformPerProductKpiMapper(storage)
+            build_success_rate_per_platform_per_product: new QaBuildSuccessPerPlatformPerProductKpiMapper(storage),
+            build_success_rate_per_platform : new QaBuildSuccessPerPlatformKpiMapper(storage),
+            build_success_rate_per_product: new QaBuildSuccessPerProductKpiMapper(storage)
         }
     };
 
@@ -85,7 +89,9 @@ export function startwebserver(storage: IDataStorage): void
                 [
                     // Exact name is the same as above
                     "overall_builds_success",
-                    "build_success_rate_per_platform_per_product"
+                    "build_success_rate_per_platform_per_product",
+                    "build_success_rate_per_platform",
+                    "build_success_rate_per_product"
                 ]
             }
         });
