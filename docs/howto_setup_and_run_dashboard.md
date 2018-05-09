@@ -1,13 +1,13 @@
 # How To Setup And Run Dashboard
 
-* 1. Download and install Node.js
-* 2. Download and install MySQL Community Server
-* 3. Create a MySQL database
-* 4. Run MySQL Community Server
-* 5. Update MySQL database credentials in config file
-* 6. Install Python
-* 7. Setup Node.js
-* 8. Run Server
+1. Download and install Node.js
+2. Download and install MySQL Community Server
+3. Create a MySQL database
+4. Run MySQL Community Server
+5. Update MySQL database credentials in config file
+6. Install Python
+7. Setup Node.js
+8. Run Server
 
 ## 1. Download and install Node.js
 Install the latest stable long-term-release (LTS) - v8.11.1 as of writing
@@ -103,4 +103,4 @@ Run these commands to start the server. Same commands in both Windows and Linux.
 
 * cd *[directory to root of this project]*
 * npm run start
-* http://localhost
+* http://localhost:8080 (or other port # in ./config/config.js)
