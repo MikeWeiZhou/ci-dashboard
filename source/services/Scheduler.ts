@@ -104,7 +104,7 @@ export class Scheduler
      */
     private async makeValidScheduleOrNull(schedule: ISchedule): Promise<ISchedule|null>
     {
-        if (schedule.RunIntervalInMinutes <= 0)
+        if (!(0 <= schedule.RunIntervalInMinutes && schedule.RunIntervalInMinutes <= 9999))
         {
             return null;
         }
@@ -197,7 +197,7 @@ export class Scheduler
         // No results. Recommend running "npm run setup" again.
         if (results.length == 0)
         {
-            var err: Error = new Error(`${dataInterface.TableName} not tracked. Error thrown in Scheduler. Recommended running "npm run setup" again`);
+            var err: Error = new Error(`${dataInterface.TableName} table not tracked.`);
             Log(err, `SQL Query: ${query}`);
             throw err;
         }
