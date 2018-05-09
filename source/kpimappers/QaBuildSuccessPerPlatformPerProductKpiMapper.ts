@@ -55,7 +55,6 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
             data: [{
                 values: values,
                 labels: labels,
-                thirdValue: thirdValue,
                 type:   "pie"
             }],
             layout: {
