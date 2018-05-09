@@ -22,11 +22,13 @@
 //     protected GetQueryString(from: string, to: string): string
 //     {
 //         return `
-//             SELECT COUNT(*) AS 'COUNT',
-//                 PLATFORM, PRODUCT, IS_DEFAULT
-//             FROM ${this._tablename}
+//             SELECT PLATFORM, PRODUCT, 
+//                   (SELECT COUNT(*) FROM ${this._talename}
+//                    WHERE IS_SUCCESS = 1 AND PLATFORM = a.PLATFORM 
+//                    AND PRODUCT = a.PRODUCT) / COUNT(*) as 'Success Rate'
+//             FROM ${this._tablename} a
 //             WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-//             GROUP BY PLATFORM, PRODUCT, IS_DEFAULT
+//             GROUP BY PLATFORM, PRODUCT, 
 //         `;
 //     }
 
