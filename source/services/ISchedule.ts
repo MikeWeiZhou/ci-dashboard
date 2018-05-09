@@ -8,6 +8,7 @@ import { IDataInterface } from "../datainterfaces/IDataInterface"
  */
 export interface ISchedule
 {
+    readonly Title: string;
     readonly DataCollector: IDataCollector;
     readonly DataInterface: IDataInterface;
     readonly RunIntervalInMinutes: number;

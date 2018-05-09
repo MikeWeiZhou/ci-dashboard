@@ -69,6 +69,7 @@ export class Scheduler
         {
             var newSchedule: ISchedule =
             {
+                Title: schedule.Title,
                 DataCollector: schedule.DataCollector,
                 DataInterface: schedule.DataInterface,
                 RunIntervalInMinutes: schedule.RunIntervalInMinutes,
@@ -78,14 +79,19 @@ export class Scheduler
             _this.runSchedule(newSchedule);
         }, schedule.RunIntervalInMinutes * 1000 * 60);
 
-        console.log(`Running schedule: ${schedule.DataInterface.TableName}`);
+        console.log(`Running schedule: ${schedule.Title}`);
+
         schedule.DataCollector.Initialize(schedule.DataFromDate as Date, schedule.DataToDate as Date);
         schedule.DataCollector.GetStream()
             .pipe(new TransformStream(schedule.DataInterface))
             .pipe(new WriteStream(this._dataStorage, schedule.DataInterface))
-            .on("finish", () =>
+            .on("finish", async () =>
             {
-                _this.updateDataToDateInDb(schedule);
+                console.log(`Finished running data collection for schedule ${schedule.Title}`);
+                if (!await _this.updateDataToDateInDb(schedule))
+                {
+                    console.log("BUT FAILED TO update dates info in data source tracking table");
+                }
             });
     }
 
@@ -106,6 +112,7 @@ export class Scheduler
         var lastDataToDate: any = await this.getLastDataToDateFromDb(schedule.DataInterface);
         var newSchedule: ISchedule =
         {
+            Title: schedule.Title,
             DataCollector: schedule.DataCollector,
             DataInterface: schedule.DataInterface,
             RunIntervalInMinutes: schedule.RunIntervalInMinutes,
@@ -132,31 +139,37 @@ export class Scheduler
      * Updates database with the latest To Date from schedule.
      * @async
      * @param {ISchedule} schedule containing latest to date info
-     * @throws {Error} error if errored
+     * @returns {Promise<boolean>} true if update success, false otherwise
      */
-    private async updateDataToDateInDb(schedule: ISchedule): Promise<void>
+    private async updateDataToDateInDb(schedule: ISchedule): Promise<boolean>
     {
         var results: any;
         var date: string = moment.utc(schedule.DataToDate).format(config.dateformat.mysql);
         var query: string = `UPDATE ${config.db.tablename.data_source_tracker}
-                            SET TO_DATE = '${date}'
-                            WHERE TABLE_NAME = '${schedule.DataInterface.TableName}'`;
+                             SET TO_DATE = '${date}'
+                             WHERE TABLE_NAME = '${schedule.DataInterface.TableName}'`;
         try
         {
             results = await this._dataStorage.Query(query);
         }
         catch (err)
         {
-            Log(err, `Errored when calling updateDataToDateInDb in Scheduler\n\nSQL Query: ${query}`);
-            throw err;
+            Log(err, `Failed to update tracking information for schedule ${schedule.Title}\n\nSQL Query: ${query}`);
+            return false;
         }
 
         if (results.affectedRows == 0)
         {
-            var err: Error = new Error(`${schedule.DataInterface.TableName} not tracked. Error thrown in Scheduler. Recommended running "npm run setup" again`);
+            var err: Error = new Error
+            (`
+                Table ${schedule.DataInterface.TableName} not in data source tracking table.
+                SQL Query: ${query}
+            `);
             Log(err, `SQL Query: ${query}`);
-            throw err;
+            return false;
         }
+
+        return true;
     }
 
     /**

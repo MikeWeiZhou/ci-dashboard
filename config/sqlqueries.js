@@ -1,6 +1,6 @@
-const config = require("./config");
+const config = require("./config")
 
-const sqlqueries = {};
+var sqlqueries = {};
 
 /*************
  * S E T U P *
@@ -34,6 +34,6 @@ sqlqueries.setup =
     // Add to data source tracker table
     `INSERT INTO ${config.db.tablename.data_source_tracker} (TABLE_NAME)
         VALUES ('${config.db.tablename.qa_builds_and_runs_from_bamboo}')`
- ];
+];
 
- module.exports = sqlqueries;
+module.exports = sqlqueries;

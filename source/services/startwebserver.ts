@@ -1,13 +1,13 @@
 import * as express from "express"
 import * as fs from "fs"
-import { IDataStorage } from "./datastorages/IDataStorage"
-import { IKpiState } from "./kpimappers/IKpiState"
-import { QaOverallBuildSuccessKpiMapper } from "./kpimappers/QaOverallBuildSuccessKpiMapper"
-const config = require("../config/config")
+import { IDataStorage } from "../datastorages/IDataStorage"
+import { IKpiState } from "../kpimappers/IKpiState"
+import { QaOverallBuildSuccessKpiMapper } from "../kpimappers/QaOverallBuildSuccessKpiMapper"
+const config = require("../../config/config")
 
-export async function startwebserver(storage: IDataStorage): Promise<void>
+export function startwebserver(storage: IDataStorage): void
 {
-    console.log("Starting Web Server...");
+    console.log("\n\nStarting Web Server...");
     const webServer: express.Express = express();
 
     // List of all KPI Mappers
@@ -27,7 +27,7 @@ export async function startwebserver(storage: IDataStorage): Promise<void>
     });
 
     // Route everything to React, minus paths starting with "/kpi"
-    webServer.get(/^(?!\/kpi)[\w.=/-]*/, (request: express.Request, response: express.Response) =>
+    webServer.get(/^(?!\/getkpi)[\w.=/-]*/, (request: express.Request, response: express.Response) =>
     {
         if (fs.existsSync(config.webserver.public_directory + request.path))
         {
@@ -40,7 +40,7 @@ export async function startwebserver(storage: IDataStorage): Promise<void>
     });
 
     // KPI REST API
-    webServer.get("/kpi/:category/:kpi/:from/:to", (request: express.Request, response: express.Response) =>
+    webServer.get("/getkpi/:category/:kpi/:from/:to", (request: express.Request, response: express.Response) =>
     {
         if (kpis[request.params.category] && kpis[request.params.category][request.params.kpi])
         {
