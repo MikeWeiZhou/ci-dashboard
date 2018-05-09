@@ -69,6 +69,7 @@ export class MysqlDataStorage implements IDataStorage
             {
                 if (err)
                 {
+                    err.message += `\nSQL Query: ${sql}\nInsert Data: ${records}\n`;
                     reject(err);
                 }
                 else
