@@ -3,47 +3,48 @@
 // const config = require("../../config/config")
 
 // /**
-//  * DefectsTotalNumberOfBugs.
+//  * UsersStoriesTeamVelocity
 //  * 
-//  * Defects - Total Number of Bugs
+//  * User Stories Team Velocity
+//  * Where it tracks story points per week
 //  */
-// export class DefectsTotalNumberOfBugs extends KpiMapper
+// export class UsersStoriesTeamVelocityKpiMapper extends KpiMapper
 // {
-//     private _tablename: string = config.db.tablename.resolved_story_points;
-//     private _title: string = "Defects - Total Number of Bugs";
+//     private _tablename: string = config.db.resolved_story_points;
+//     private _title: string = "User Stories for Team Velocity";
 
 //     /**
-//      * Returns SQL query string given a date range.
+//      * Returns SQL query string given a date range
 //      * @param {string} from date
 //      * @param {string} to date
-//      * @returns {string} SQL query string
+//      * @return {string} SQL query string
 //      * @override
 //      */
-//     protected GetQueryString(from: string, to: string): string
+//     protected GetQueryString(from: string, to:string)
 //     {
 //         return `
-//             SELECT COUNT(*) AS 'COUNT',
-//                    IS_DEFAULT
-//             FROM ${this._tablename}
-//             WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-//             GROUP BY IS_DEFAULT
+//         SELECT SUM(*) AS 'SUM',
+//             STORY_POINTS
+//         FROM ${this._tablename}
+//         WHERE RESOLUTION_DATE between '${from}' AND '${to}'
+//         GROUP BY STORY_POINTS
 //         `;
 //     }
 
-//     /**
-//      * Returns a KpiState or null given an array or single JSON object containing required data.
+// /**
+//  * Returns a KpiState or null given an array or single JSON object containing required data.
 //      * @param {Array<any>} jsonArray non-empty JSON array results containing data
 //      * @returns {IKpiState|null} IKpiState object or null when insufficient data
-//      */
-//     protected MapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
+//  */
+// protected MapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
 //     {
 //         var values: Array<any> = [];
 //         var labels: Array<any> = [];
 
 //         for (let i: number = 0; i < jsonArray.length; ++i)
 //         {
-//             values.push(jsonArray[i].COUNT);
-//             labels.push(jsonArray[i].IS_DEFAULT);
+//             values.push(jsonArray[i].SUM);
+//             labels.push(jsonArray[i].STORY_POINTS);
 //         }
 
 //         return {

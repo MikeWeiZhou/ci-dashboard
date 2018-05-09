@@ -7,7 +7,7 @@
 //  * 
 //  * Defects - Average Days to resolution for bugs completed
 //  */
-// export class DefectsAverageDaysToResolution extends KpiMapper
+// export class DefectsAverageDaysToResolutionKpiMapper extends KpiMapper
 // {
 //     private _tablename: string = config.db.tablename.resolved_story_points;
 //     private _title: string = "Defects - Average Days to resolve bugs";
