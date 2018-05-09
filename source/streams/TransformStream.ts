@@ -23,6 +23,7 @@ export class TransformStream extends Transform
 
     /**
      * Transforms a JSON object using an IDataInterface.
+     * Called automatically when used in a pipe.
      * @param {object} jsonObj a JSON object from the stream
      * @param {string} encoding not used
      * @param {Function} callback callback when finished transforming jsonObj

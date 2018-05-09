@@ -28,6 +28,7 @@ export class WriteStream extends Writable
 
     /**
      * Writes stream data to storage using a StorageWriter.
+     * Called automatically when used in a pipe.
      * @param {Array<any>} data from the stream
      * @param {string} encoding not used
      * @param {Function} callback callback when finished writing data

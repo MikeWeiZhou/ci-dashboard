@@ -31,7 +31,6 @@ sqlqueries.setup =
         BUILD_STATE                     VARCHAR(30)     NOT NULL,
         BRANCH_ID                       INT
     )`,
-    // Add to data source tracker table
     `INSERT INTO ${config.db.tablename.data_source_tracker} (TABLE_NAME)
         VALUES ('${config.db.tablename.qa_builds_and_runs_from_bamboo}')`,
 
@@ -44,7 +43,6 @@ sqlqueries.setup =
         CREATION_DATE   DATETIME    NOT NULL,
         RESOLUTION_DATE DATETIME
     )`,
-    // Add to data source tracker table
     `INSERT INTO ${config.db.tablename.data_source_tracker} (TABLE_NAME)
         VALUES ('${config.db.tablename.bug_resolution_dates}')`,
 
@@ -56,7 +54,6 @@ sqlqueries.setup =
         RESOLUTION_DATE DATETIME    NOT NULL,
         STORY_POINTS    FLOAT
     )`,
-    // Add to data source tracker table
     `INSERT INTO ${config.db.tablename.data_source_tracker} (TABLE_NAME)
         VALUES ('${config.db.tablename.resolved_story_points}')`
 ];
