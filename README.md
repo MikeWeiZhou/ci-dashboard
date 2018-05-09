@@ -3,13 +3,13 @@
 BCIT ISSP 2018 spring project - ***REMOVED*** CI Dashboard
 
 
-## 1. Latest Prototype (Tuesday May 5th, 2018 12:15 AM)
-From an end-user perspective, nothing is functional yet.
+## 1. Latest Prototype (Tuesday May 9th, 2018 2:10 PM)
+From an end-user perspective, currently the prototype has the basic client-server architecture setup and is functional.
 
 * The team is working on different ways of visualizing the data **(priority)**
 * The pipeline from data source (e.g. python script) to the REST API serving KPI states **is working and in refinement/bug fixing**
-* Front-end data visualization layer **is somewhat working and in progress**
-* There is currently no connection between the front and back-end. **work in progress**
+* Front-end currently requests data from the backend via API (with customizable date ranges) and generates the KPI graphs dynamically
+* Currently we are making front-end data visualization layer more modular so when a new KPI is added in the back-end the UI will automatically update to show the new KPI **work in progress**
 * More unit tests are on the way
 
 ### Installation
