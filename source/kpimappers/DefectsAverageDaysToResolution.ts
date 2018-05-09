@@ -3,14 +3,14 @@
 // const config = require("../../config/config")
 
 // /**
-//  * DefectsCreatedResolvedKpiMapper.
+//  * DefectsAverageDaysToResolution.
 //  * 
-//  * Defects - Created vs Resolved.
+//  * Defects - Average Days to resolution for bugs completed
 //  */
-// export class DefectsCreatedResolvedKpiMapper extends KpiMapper
+// export class DefectsAverageDaysToResolution extends KpiMapper
 // {
 //     private _tablename: string = config.db.tablename.resolved_story_points;
-//     private _title: string = "Defects - Created vs Resolved";
+//     private _title: string = "Defects - Average Days to resolve bugs";
 
 //     /**
 //      * Returns SQL query string given a date range.

@@ -3,14 +3,14 @@
 // const config = require("../../config/config")
 
 // /**
-//  * DefectsCreatedResolvedKpiMapper.
+//  * DefectsTotalNumberOfBugs.
 //  * 
-//  * Defects - Created vs Resolved.
+//  * Defects - Total Number of Bugs
 //  */
-// export class DefectsCreatedResolvedKpiMapper extends KpiMapper
+// export class DefectsTotalNumberOfBugs extends KpiMapper
 // {
 //     private _tablename: string = config.db.tablename.resolved_story_points;
-//     private _title: string = "Defects - Created vs Resolved";
+//     private _title: string = "Defects - Total Number of Bugs";
 
 //     /**
 //      * Returns SQL query string given a date range.
