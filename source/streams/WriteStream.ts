@@ -1,4 +1,5 @@
 import { Writable } from "stream"
+import { Log } from "../Log"
 import { IDataStorage } from "../datastorages/IDataStorage";
 import { IDataInterface } from "../datainterfaces/IDataInterface"
 
@@ -58,6 +59,7 @@ export class WriteStream extends Writable
             // ignore duplicate entries when writing in a stream
             if (!err.code || err.code != "ER_DUP_ENTRY")
             {
+                Log(err, `Failed write to ${this._dataInterface.TableName}\n\nData: ${data}`);
                 throw err;
             }
         }
