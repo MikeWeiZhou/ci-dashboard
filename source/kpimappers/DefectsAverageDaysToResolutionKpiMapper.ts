@@ -3,14 +3,14 @@
 // const config = require("../../config/config")
 
 // /**
-//  * QaBuildSuccessPerPlatformPerProduct.
+//  * DefectsAverageDaysToResolution.
 //  * 
-//  * QA Build Success vs Fail Per Platform Per Product.
+//  * Defects - Average Days to resolution for bugs completed
 //  */
-// export class QaBuildSuccessPerPlatformPerProduct extends KpiMapper
+// export class DefectsAverageDaysToResolutionKpiMapper extends KpiMapper
 // {
-//     private _tablename: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
-//     private _title: string = "QA Overall Build Success vs Fail";
+//     private _tablename: string = config.db.tablename.resolved_story_points;
+//     private _title: string = "Defects - Average Days to resolve bugs";
 
 //     /**
 //      * Returns SQL query string given a date range.
@@ -22,13 +22,11 @@
 //     protected GetQueryString(from: string, to: string): string
 //     {
 //         return `
-//             SELECT PLATFORM, PRODUCT, 
-//                   (SELECT COUNT(*) FROM ${this._talename}
-//                    WHERE IS_SUCCESS = 1 AND PLATFORM = a.PLATFORM 
-//                    AND PRODUCT = a.PRODUCT) / COUNT(*) as 'Success Rate'
-//             FROM ${this._tablename} a
+//             SELECT COUNT(*) AS 'COUNT',
+//                    IS_DEFAULT
+//             FROM ${this._tablename}
 //             WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-//             GROUP BY PLATFORM, PRODUCT, 
+//             GROUP BY IS_DEFAULT
 //         `;
 //     }
 
@@ -45,7 +43,7 @@
 //         for (let i: number = 0; i < jsonArray.length; ++i)
 //         {
 //             values.push(jsonArray[i].COUNT);
-//             labels.push(jsonArray[i].PRODUCT);
+//             labels.push(jsonArray[i].IS_DEFAULT);
 //         }
 
 //         return {

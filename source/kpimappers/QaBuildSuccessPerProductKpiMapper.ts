@@ -3,14 +3,14 @@ import { IKpiState } from "./IKpiState"
 const config = require("../../config/config")
 
 /**
- * QaOverallBuildSuccessKpiMapper.
+ * QaBuildSuccessPerPlatformPerProduct.
  * 
- * QA Overall Build Success vs Fail.
+ * QA Build Success vs Fail Per Platform Per Product.
  */
-export class QaOverallBuildSuccessKpiMapper extends KpiMapper
+export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
 {
     private _tablename: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
-    private _title: string = "QA Overall Build Success vs Fail";
+    private _title: string = "QA Build Success Rate Per Product";
 
     /**
      * Returns SQL query string given a date range.
@@ -22,14 +22,14 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
     protected GetQueryString(from: string, to: string): string
     {
         return `
-        SELECT 
-            (SELECT COUNT(*)
-            FROM ${this._tablename} 
-            WHERE BUILD_STATE = 'Successful')
-            / COUNT(*) AS 'Success'
-        FROM ${this._tablename}
-        WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-    `;
+            SELECT PRODUCT_NAME, 
+                  (SELECT COUNT(*) FROM ${this._tablename}
+                   WHERE BUILD_STATE = 'Successful'
+                   AND PRODUCT_CODE = a.PRODUCT_CODE) / COUNT(*) as 'Success'
+            FROM ${this._tablename} a
+            WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
+            GROUP BY PRODUCT_NAME
+        `;
     }
 
     /**
@@ -40,22 +40,25 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
     protected MapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
     {
         var values: Array<any> = [];
-        var labels: Array<any> = ["Overall"];
+        var labels: Array<any> = [];
 
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
             values.push(jsonArray[i].Success);
-            //labels.push(jsonArray[i].PLATFORM_NAME);
+            labels.push(jsonArray[i].PRODUCT_NAME);
         }
 
         return {
             data: [{
+                // values represent the y axis
                 values: values,
+                // labels represent the x value
                 labels: labels,
                 type:   "pie"
             }],
             layout: {
-                title: this._title
+                title: this._title,
+                barmode: 'group'
             },
             frames: [],
             config: {}
