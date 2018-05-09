@@ -33,7 +33,32 @@ sqlqueries.setup =
     )`,
     // Add to data source tracker table
     `INSERT INTO ${config.db.tablename.data_source_tracker} (TABLE_NAME)
-        VALUES ('${config.db.tablename.qa_builds_and_runs_from_bamboo}')`
+        VALUES ('${config.db.tablename.qa_builds_and_runs_from_bamboo}')`,
+
+    // Create Bug Resolution Dates data table
+    `CREATE TABLE ${config.db.tablename.bug_resolution_dates}
+    (
+        BUG_ID          VARCHAR(15) NOT NULL PRIMARY KEY,
+        PRODUCT         VARCHAR(15) NOT NULL,
+        PRIORITY        VARCHAR(20) NOT NULL,
+        CREATION_DATE   DATETIME    NOT NULL,
+        RESOLUTION_DATE DATETIME
+    )`,
+    // Add to data source tracker table
+    `INSERT INTO ${config.db.tablename.data_source_tracker} (TABLE_NAME)
+        VALUES ('${config.db.tablename.bug_resolution_dates}')`,
+
+    // Create Resolved Story Points data table
+    `CREATE TABLE ${config.db.tablename.resolved_story_points}
+    (
+        STORY_ID        VARCHAR(15) NOT NULL PRIMARY KEY,
+        CYCLE           CHAR(6)     NOT NULL,
+        RESOLUTION_DATE DATETIME    NOT NULL,
+        STORY_POINTS    FLOAT
+    )`,
+    // Add to data source tracker table
+    `INSERT INTO ${config.db.tablename.data_source_tracker} (TABLE_NAME)
+        VALUES ('${config.db.tablename.resolved_story_points}')`
 ];
 
 module.exports = sqlqueries;

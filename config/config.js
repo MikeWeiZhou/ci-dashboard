@@ -31,16 +31,18 @@ config.db.connection =
     port:       3306,
     database:   "cidashboard",
     user:       "root",
-    password:   ""
+    password:   "password"
 };
 
 config.db.tablename =
 {
     // Stores meta info on each IDataInterface source
     //      e.g. qa_builds_and_runs_from_bamboo
-    data_source_tracker: "data_source_tracker",
+    data_source_tracker:            "data_source_tracker",
 
-    qa_builds_and_runs_from_bamboo: "qa_builds_and_runs_from_bamboo"
+    qa_builds_and_runs_from_bamboo: "qa_builds_and_runs_from_bamboo",
+    bug_resolution_dates:           "bug_resolution_dates",
+    resolved_story_points:          "resolved_story_points"
 }
 
 /*********************
@@ -52,12 +54,6 @@ config.scheduler =
     // New data sources will start pulling records saved from this starting date
     // Unless manually set when scheduling
     starting_data_date: new Date("2010-01-01")
-};
-
-// schedule interval in minutes
-config.scheduler.interval =
-{
-    qa_builds_and_runs_from_bamboo: 1
 };
 
 /*****************

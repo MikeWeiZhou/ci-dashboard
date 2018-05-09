@@ -3,8 +3,6 @@ const config = require("../../config/config");
 
 /**
  * QaBuildsAndRunsFromBambooDataInterface.
- * 
- * Contains data model and able to transform raw JSON object to that model.
  */
 export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
 {
@@ -61,6 +59,10 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
      */
     public Transform(o: any): Array<any>
     {
+        // Expects JSON parse path to be "$*"" by default
+        // Meaning it will wrap the original JSON with "value" and "key" properties
+        o = o.value;
+
         // count:       012345 678 9012 34 56 7
         // BUILD_KEY    aaaaaa LAT bbb- cc 64 [d]
         // example:     S2018B LAT LIN- DX 64 45

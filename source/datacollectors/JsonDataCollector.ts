@@ -16,9 +16,9 @@ export class JsonDataCollector implements IDataCollector
     /**
      * Constructor.
      * @param {string} filepath to JSON to-be read
-     * @param {string} jsonParsePath JSONPath to parse
+     * @param {string} jsonParsePath JSONPath to parse (see https://www.npmjs.com/package/JSONStream)
      */
-    public constructor(filepath: string, jsonParsePath: string)
+    public constructor(filepath: string, jsonParsePath: string = "$*")
     {
         this._filepath = filepath;
         this._jsonParsePath = jsonParsePath;

@@ -20,9 +20,9 @@ export class PythonShellJsonDataCollector implements IDataCollector
     /**
      * Constructor.
      * @param {string} filepath to python script to be executed
-     * @param {string} jsonParsePath JSONPath to parse
+     * @param {string} jsonParsePath JSONPath to parse (see https://www.npmjs.com/package/JSONStream)
      */
-    public constructor(filepath: string, jsonParsePath: string)
+    public constructor(filepath: string, jsonParsePath: string = "$*")
     {
         this._filepath = filepath;
         this._jsonParsePath = jsonParsePath;
