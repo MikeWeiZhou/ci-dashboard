@@ -10,7 +10,7 @@ const config = require("../../config/config")
 export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
 {
     private _tablename: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
-    private _title: string = "QA Build Success Rate Per Product Per Product";
+    private _title: string = "QA Build Success Rate Per Platform Per Product";
 
     /**
      * Returns SQL query string given a date range.
@@ -28,7 +28,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                    AND PRODUCT_CODE = a.PRODUCT_CODE) / COUNT(*) as 'Success'
             FROM ${this._tablename} a
             WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-            GROUP BY PLATFORM_NAME, PRODUCT_NAME
+            GROUP BY PRODUCT_NAME, PLATFORM_NAME
         `;
     }
 
@@ -39,30 +39,46 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
      */
     protected MapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
     {
-        var values: Array<any> = [];
-        var labels: Array<any> = [];
-        // testing for third value pushing
-        var thirdValue : Array<any> = [];
+        // Contains the values (To plot the graph)
+        var windows: Array<any> = [];
+        // Contains the labels (To get a group bar)
+        var windowsLabel: Array<any> = [];
+
+        var linux: Array<any> = [];
+        var linuxLabel: Array<any> = [];
+
+        var mac: Array<any> = [];
+        var macLabel: Array<any> = [];
 
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
-            // Success Rate
-            values.push(jsonArray[i].Success);
-            // Product Name
-            labels.push(jsonArray[i].PRODUCT_NAME);
-            // Platform Name
-            thirdValue.push(jsonArray[i].PLATFORM_NAME);
+            if (jsonArray[i].PLATFORM_NAME == "Windows") {
+                windows.push(jsonArray[i].Success);
+                windowsLabel.push(jsonArray[i].PRODUCT_NAME);
+            } else if (jsonArray[i].PLATFORM_NAME == "Linux") {
+                linux.push(jsonArray[i].Success);
+                linuxLabel.push(jsonArray[i].PRODUCT_NAME);
+            } else { // It is a mac system
+                mac.push(jsonArray[i].Success);
+                macLabel.push(jsonArray[i].PRODUCT_NAME);
+            }
         }
 
         return {
             data: [{
-                x: labels,
-                y: values,
+                x: windowsLabel,
+                y: windows,
+                name: "Windows",
+                type: "bar"
+            },
+            {
+                x: linuxLabel,
+                y: linux,
+                name: "Linux",
                 type: "bar"
             }],
             layout: {
-                title: this._title,
-                range: [0, 100]
+                title: this._title
             },
             frames: [],
             config: {}
