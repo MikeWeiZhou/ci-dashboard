@@ -101,7 +101,8 @@ export class StoryPointsVelocityKpiMapper extends KpiMapper
                 },
                 yaxis: {
                     title: "Average points/day",
-                    fixedrange: true
+                    fixedrange: true,
+                    range: [0, this._annualStretchGoal/365 + 1]
                 },
                 shapes: [
                     {

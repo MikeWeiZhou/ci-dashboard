@@ -99,7 +99,7 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
                     range: [dateLowerBound, dateUpperBound]
                 },
                 yaxis: {
-                    title: "Success rate",
+                    title: "Average success rate/day",
                     tickformat: ',.0%',
                     fixedrange: true,
                     range: [0,1]

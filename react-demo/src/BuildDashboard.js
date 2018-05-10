@@ -15,8 +15,8 @@ class BuildDashboard extends Component {
             ,"qa/build_success_rate"
             ,"dev/story_points_velocity"
         ],
-        startDate: "2017-01-01",
-        endDate: "2018-01-01"
+        startDate: "2017-05-01",
+        endDate: "2018-05-01"
     };
 
     render() {
