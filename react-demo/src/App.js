@@ -3,6 +3,14 @@ import './App.css';
 import Category from './Category';
 
 class App extends Component {
+  categoryResponseeData = {
+    categories: [
+      "qa",
+      "defect",
+      "story"
+    ]
+  };
+
   responseData = {
     // QA category
     qa: {

@@ -8,7 +8,7 @@ class Graph extends Component {
     render() {    
         return (
                 <Plot
-                    className="Graph"
+                    className="graph"
                     data={this.props.data}
                     layout={this.props.layout}
                     frames={this.props.frames}
