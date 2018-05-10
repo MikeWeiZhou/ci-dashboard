@@ -7,7 +7,9 @@ class KPI extends Component {
         data: [], 
         layout: {}, 
         frames: [], 
-        config: {} 
+        config: {
+            displayModBar: false
+        } 
     };
 
     // Called after component is mounted
@@ -68,7 +70,7 @@ class KPI extends Component {
                 this.setState({ 
                     data: [],
                     layout: {
-                        title: "Server error",
+                        title: res.name,
                         titlefont: {
                             color: "red"
                         }
