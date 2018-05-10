@@ -28,7 +28,8 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
             SELECT PRODUCT_NAME, 
                   (SELECT COUNT(*) FROM ${this._tablename}
                    WHERE BUILD_STATE = 'Successful'
-                   AND PRODUCT_CODE = a.PRODUCT_CODE) / COUNT(*) as 'Success'
+                   AND PRODUCT_CODE = a.PRODUCT_CODE AND
+                   BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}') / COUNT(*) as 'Success'
             FROM ${this._tablename} a
             WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
             GROUP BY PRODUCT_NAME
