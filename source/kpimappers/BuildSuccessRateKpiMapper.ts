@@ -12,7 +12,7 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
     public readonly Title: string = "Build Success Rate (all branches)";
 
     // Minimum number of data points preferred in chart
-    private _minNumOfDataPoints: number = 10;
+    private readonly _preferredMinNumOfDataPoints: number = 10;
 
     // Target for build success rate in decimal
     private _target: number = .75;
@@ -21,6 +21,7 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
     private _stretchGoal: number = .90;
 
     private readonly _tableName: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
+    private _minNumOfDataPoints: number;
     private _daysInPeriod: number;
     private _from: string;
     private _to: string;
@@ -37,7 +38,7 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
     {
         this._from = from;
         this._to = to;
-        this._minNumOfDataPoints = Math.min(dateRange, this._minNumOfDataPoints);
+        this._minNumOfDataPoints = Math.min(dateRange, this._preferredMinNumOfDataPoints);
         this._daysInPeriod = Math.floor(dateRange / this._minNumOfDataPoints);
 
         return `
@@ -67,6 +68,12 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
      */
     protected mapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
     {
+        // Invalid; One data point on a scatter chart shows nothing
+        if (jsonArray.length == 1)
+        {
+            return null;
+        }
+
         var dateLowerBound: string = moment(this._from).format(config.dateformat.charts);
         var dateUpperBound: string = moment(this._to).format(config.dateformat.charts);
 

@@ -12,7 +12,7 @@ export class StoryPointsVelocityKpiMapper extends KpiMapper
     public readonly Title: string = "Story Points Velocity";
 
     // Minimum number of data points preferred in chart
-    private _minNumOfDataPoints: number = 10;
+    private readonly _preferredMinNumOfDataPoints: number = 10;
 
     // Target for number of story points to be completed annually
     private _annualTarget: number = 1088;
@@ -21,6 +21,7 @@ export class StoryPointsVelocityKpiMapper extends KpiMapper
     private _annualStretchGoal: number = 1137;
 
     private readonly _tableName: string = config.db.tablename.resolved_story_points;
+    private _minNumOfDataPoints: number;
     private _daysInPeriod: number;
     private _from: string;
     private _to: string;
@@ -37,7 +38,7 @@ export class StoryPointsVelocityKpiMapper extends KpiMapper
     {
         this._from = from;
         this._to = to;
-        this._minNumOfDataPoints = Math.min(dateRange, this._minNumOfDataPoints);
+        this._minNumOfDataPoints = Math.min(dateRange, this._preferredMinNumOfDataPoints);
         this._daysInPeriod = Math.floor(dateRange / this._minNumOfDataPoints);
 
         return `
@@ -68,6 +69,12 @@ export class StoryPointsVelocityKpiMapper extends KpiMapper
      */
     protected mapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
     {
+        // Invalid; One data point on a scatter chart shows nothing
+        if (jsonArray.length == 1)
+        {
+            return null;
+        }
+
         var dateLowerBound: string = moment(this._from).format(config.dateformat.charts);
         var dateUpperBound: string = moment(this._to).format(config.dateformat.charts);
 
