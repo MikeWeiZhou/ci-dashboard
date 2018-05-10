@@ -7,6 +7,8 @@ import { QaBuildSuccessPerPlatformPerProductKpiMapper } from "../kpimappers/QaBu
 import { QaBuildSuccessPerPlatformKpiMapper } from "../kpimappers/QaBuildSuccessPerPlatformKpiMapper"
 import { QaBuildSuccessPerProductKpiMapper} from "../kpimappers/QaBuildSuccessPerProductKpiMapper"
 import { BuildSuccessRateKpiMapper} from "../kpimappers/BuildSuccessRateKpiMapper"
+import { DefectsMajorCreatedResolvedKpiMapper } from "../kpimappers/DefectsMajorCreatedResolvedKpiMapper"
+import { DefectsCriticalCreatedResolvedKpiMapper } from "../kpimappers/DefectsCriticalCreatedResolvedKpiMapper"
 const config = require("../../config/config")
 
 export function start_webserver(storage: IDataStorage): void
@@ -19,6 +21,11 @@ export function start_webserver(storage: IDataStorage): void
     const kpis: any =
     {
         // Add mappers here
+        "defects":
+        {
+            major_defects_created: new DefectsMajorCreatedResolvedKpiMapper(storage),
+            critical_defects_created: new DefectsCriticalCreatedResolvedKpiMapper(storage)
+        },
         "qa":
         {
             overall_builds_success: new QaOverallBuildSuccessKpiMapper(storage),
@@ -93,7 +100,9 @@ export function start_webserver(storage: IDataStorage): void
                     "overall_builds_success",
                     "build_success_rate_per_platform_per_product",
                     "build_success_rate_per_platform",
-                    "build_success_rate_per_product"
+                    "build_success_rate_per_product",
+                    "major_defects_created",
+                    "critical_defects_created"
                 ]
             }
         });
