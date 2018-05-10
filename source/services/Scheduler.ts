@@ -158,11 +158,13 @@ export class Scheduler
             return false;
         }
 
+        // No results; table is not tracked
         if (results.affectedRows == 0)
         {
             var err: Error = new Error
             (`
                 Table ${schedule.DataInterface.TableName} not in data source tracking table.
+                Run npm run reset to delete all tables and re-create them.
                 SQL Query: ${query}
             `);
             Log(err, `SQL Query: ${query}`);
@@ -194,10 +196,14 @@ export class Scheduler
             throw err;
         }
 
-        // No results. Recommend running "npm run setup" again.
+        // No results; table is not tracked
         if (results.length == 0)
         {
-            var err: Error = new Error(`${dataInterface.TableName} table not tracked.`);
+            var err: Error = new Error
+            (`
+                Table ${dataInterface.TableName} not in data source tracking table.
+                Run npm run reset to delete all tables and re-create them.
+            `);
             Log(err, `SQL Query: ${query}`);
             throw err;
         }
