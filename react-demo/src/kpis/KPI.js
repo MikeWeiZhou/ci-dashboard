@@ -40,13 +40,15 @@ class KPI extends Component {
         .then(jsonResponse => this.setState({ 
                                                 data: jsonResponse.data,
                                                 layout: jsonResponse.layout,
+                                                frames: jsonResponse.frames,
+                                                config: jsonResponse.config
                                             }));
     }
     
     render() {
         return (
             <div>
-                <Graph data={this.state.data} layout={this.state.layout} />
+                <Graph data={this.state.data} layout={this.state.layout} frames={this.state.frames} config={this.state.config}/>
                 <br />
                 {/* <button className="btn btn-primary" onClick={() => this.changeData()}>Change data set</button> */}
             </div>

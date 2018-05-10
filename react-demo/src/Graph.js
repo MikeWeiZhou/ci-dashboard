@@ -11,8 +11,8 @@ class Graph extends Component {
                     className="Graph"
                     data={this.props.data}
                     layout={this.props.layout}
-                    // frames={this.props.frames}
-                    // config={this.props.config}
+                    frames={this.props.frames}
+                    config={this.props.config}
                     // onInitialized={(figure) => this.setState(figure)}
                     // onUpdate={(figure) => this.setState(figure)}
                 />
