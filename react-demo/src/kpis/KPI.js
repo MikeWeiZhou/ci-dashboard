@@ -10,27 +10,12 @@ class KPI extends Component {
         config: {} 
     };
 
-    // Requests data from API
-    requestData() {
-        // Construct route
-        var url = `getkpi/${this.props.route}/${this.props.startDate}/${this.props.endDate}`;
-        // GET request to retrieve data
-        fetch(url
-        ).then(res => res.json())
-        .then(jsonResponse => this.setState({ 
-                                                data: jsonResponse.data,
-                                                layout: jsonResponse.layout,
-                                                frames: jsonResponse.frames,
-                                                config: jsonResponse.config
-                                            }));
-    }
-
-    //Called after component is mounted
+    // Called after component is mounted
     componentDidMount() {
         this.requestData();
     }
 
-    //Called after component is updated    
+    // Called after component is updated    
     componentDidUpdate(prevProps) {
         // Only request data if props is updated
         if (prevProps !== this.props)
@@ -43,6 +28,59 @@ class KPI extends Component {
                 <Graph data={this.state.data} layout={this.state.layout} frames={this.state.frames} config={this.state.config}/>
             </div>
         );
+    }
+
+    // Requests data from API
+    async requestData() {
+        // Construct route
+        var url = `getkpi/${this.props.route}/${this.props.startDate}/${this.props.endDate}`;
+
+        try{
+            // GET request to retrieve data
+            var res = await fetch(url);
+
+            // Set state if response is OK
+            if (res.ok) {
+                var resJSON = await res.json();
+                this.setState({ 
+                    data: resJSON.data,
+                    layout: resJSON.layout,
+                    frames: resJSON.frames,
+                    config: resJSON.config
+                });
+            // Log error and display it on graph if response is not OK
+            } else if (res.status == 404) {
+                var resText = await res.text();
+                this.setState({ 
+                    data: [],
+                    layout: {
+                        title: resText,
+                        titlefont: {
+                            color: "red"
+                        }
+                    },
+                    frames: [],
+                    config: {}
+                });
+                console.log(`Failed request - url: ${res.url}, status: ${res.status}, body: ${resText}`);
+            } else {
+                var resText = await res.text();
+                this.setState({ 
+                    data: [],
+                    layout: {
+                        title: "Server error",
+                        titlefont: {
+                            color: "red"
+                        }
+                    },
+                    frames: [],
+                    config: {}
+                });
+                console.log(`Failed request - url: ${res.url}, status: ${res.status}, body: ${resText}`);
+            }
+        } catch(error) {
+            console.log(error.message);
+        }
     }
 }
 
