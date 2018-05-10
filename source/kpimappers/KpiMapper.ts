@@ -36,7 +36,7 @@ export abstract class KpiMapper
     {
         var fromDate: moment.Moment = moment.utc(from);
         var toDate: moment.Moment = moment.utc(to);
-        var dateRange: number = fromDate.diff(toDate, "days");
+        var dateRange: number = toDate.diff(fromDate, "days");
         var sql: string = this.getQueryString(fromDate.format(config.dateformat.mysql), toDate.format(config.dateformat.mysql),dateRange);
         var jsonArrayResults: Array<any>;
         try
