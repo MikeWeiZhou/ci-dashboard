@@ -9,8 +9,10 @@ const config = require("../../config/config")
  */
 export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
 {
+    public readonly Category: string = "Defects";
+    public readonly Title: string = "Defects (Critical) - Created vs Resolved";
+
     private _tablename: string = config.db.tablename.bug_resolution_dates;
-    private _title: string = "Defects (Critical) - Created vs Resolved";
 
     /**
      * Returns SQL query string given a date range.
@@ -19,7 +21,7 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
      * @returns {string} SQL query string
      * @override
      */
-    protected GetQueryString(from: string, to: string): string
+    protected getQueryString(from: string, to: string): string
     {
         return `
         SELECT COUNT(*) AS 'COUNT',
@@ -36,7 +38,7 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
      * @param {Array<any>} jsonArray non-empty JSON array results containing data
      * @returns {IKpiState|null} IKpiState object or null when insufficient data
      */
-    protected MapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
+    protected mapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
     {
         var values: Array<any> = [];
         var labels: Array<any> = [];
@@ -63,10 +65,10 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
             data: [{
                 values: values,
                 labels: labels,
-                type:   "pie"
+                type:   "bar"
             }],
             layout: {
-                title: this._title
+                title: this.Title
             },
             frames: [],
             config: {}
