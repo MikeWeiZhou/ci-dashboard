@@ -17,7 +17,6 @@ describe("kpimappers/QaOverallBildSuccessKpiMapper", () =>
 
     before(async () =>
     {
-        //Creates a Q
         var createTable: string = 
         `CREATE TABLE IF NOT EXISTS test_qa
         (
@@ -38,14 +37,14 @@ describe("kpimappers/QaOverallBildSuccessKpiMapper", () =>
         await storage.Initialize();
         await storage.Query(createTable);
 
-        //Create and add entries containing dates spanning across 1 year and 10 days
-        //Using client data (should use generated data instead?)
+        //Create and add entries containing dates that spans 1 year and 10 days
+        //Using client data
         var schedule: ISchedule =
         {
             Title: "Something",
             DataCollector: new JsonDataCollector("./data/qa_builds_and_runs_from_bamboo.json", "*"),
             DataInterface: new QaBuildsAndRunsFromBambooDataInterface(),
-            RunIntervalInMinutes: 999, // Mike - Potential overflow issue here
+            RunIntervalInMinutes: 999, 
             DataFromDate: new Date("2017-04-01"),
             DataToDate: new Date("2018-04-10")
         }
@@ -103,12 +102,7 @@ describe("kpimappers/QaOverallBildSuccessKpiMapper", () =>
             });
         });
 
-    });
-
-    describe("KPI State Object - Date Range Edge Cases", () =>
-    {
-        
-        it("KPI Object not created if 'From' date is before the first entry ", () =>
+        it("retrieve 30 day range", () =>
         {
             var expected:IKpiState = 
             {
@@ -145,41 +139,19 @@ describe("kpimappers/QaOverallBildSuccessKpiMapper", () =>
             });
         });
 
+    });
+
+    describe("KPI State Object - Date Range Edge Cases", () =>
+    {
+        
+        it("KPI Object not created if 'From' date is before the first entry ", () =>
+        {
+           
+        });
+
         it("Object not created if 'To' date is after the last entry", () =>
         {
-            var expected:IKpiState = 
-            {
-                "data": [
-                    {
-                        "values": [
-                            74,
-                            92
-                        ],
-                        "labels": [
-                            0,
-                            1
-                        ],
-                        "type": "pie"
-                    }
-                ],
-                "layout": {
-                    "title": "QA Overall Build Success vs Fail"
-                },
-                "frames": [],
-                "config": {}
-            };
-            var fromDate : Date = new Date('2017-05-01');
-            var toDate : Date = new Date('2017-05-07');
-            mapper.GetKpiStateOrNull(fromDate, toDate)
-            .then((results: IKpiState|null) =>
-            {
-                assert.deepEqual(results, expected);
-            })
-            .catch((err: Error) =>
-            {
-                console.log("ERROR:");
-                console.log(err);
-            });
+
         });
 
     });
