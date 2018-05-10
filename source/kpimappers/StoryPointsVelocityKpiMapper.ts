@@ -4,23 +4,23 @@ import { IKpiState } from "./IKpiState"
 const config = require("../../config/config")
 
 /**
- * BuildSuccessRateKpiMapper.
+ * StoryPointsVelocityKpiMapper.
  */
-export class BuildSuccessRateKpiMapper extends KpiMapper
+export class StoryPointsVelocityKpiMapper extends KpiMapper
 {
-    public readonly Category: string = "Product Delivery";
-    public readonly Title: string = "Build Success Rate (all branches)";
+    public readonly Category: string = "Development";
+    public readonly Title: string = "Story Points Velocity";
 
     // Minimum number of data points preferred in chart
     private _minNumOfDataPoints: number = 10;
 
-    // Target for build success rate in decimal
-    private _target: number = .75;
+    // Target for number of story points to be completed annually
+    private _annualTarget: number = 1088;
 
-    // Stretch goal for build success rate in decimal
-    private _stretchGoal: number = .90;
+    // Stretch goal for number of story points to be completed annually
+    private _annualStretchGoal: number = 1137;
 
-    private readonly _tableName: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
+    private readonly _tableName: string = config.db.tablename.resolved_story_points;
     private _daysInPeriod: number;
     private _from: string;
     private _to: string;
@@ -41,22 +41,23 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
         this._daysInPeriod = Math.floor(dateRange / this._minNumOfDataPoints);
 
         return `
-            SELECT COUNT(CASE WHEN IS_SUCCESS = 1 THEN IS_SUCCESS END)/COUNT(*) AS 'SUCCESS_RATE'
-                  ,FLOOR(DATEDIFF('${to}', BUILD_COMPLETED_DATE) / ${this._daysInPeriod}) AS 'PERIOD'
+            SELECT COUNT(*) AS 'COUNT'
+                  ,FLOOR(DATEDIFF('${to}', RESOLUTION_DATE) / ${this._daysInPeriod}) AS 'PERIOD'
             FROM ${this._tableName}
-            WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
+            WHERE RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
             GROUP BY PERIOD
             ORDER BY PERIOD DESC;
         `;
         /*
         Bigger period values = older
-        +--------------+--------+
-        | SUCCESS_RATE | PERIOD |
-        +--------------+--------+
-        |       0.5911 |      2 |
-        |       0.4335 |      1 |
-        |       0.4492 |      0 |
-        +--------------+--------+*/
+        +-------+--------+
+        | COUNT | PERIOD |
+        +-------+--------+
+        |    43 |      4 |
+        |     7 |      3 |
+        |     4 |      2 |
+        |     9 |      1 |
+        +-------+--------+*/
     }
 
     /**
@@ -77,7 +78,7 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
             x.push(moment(this._to)
                 .subtract(jsonArray[i].PERIOD * this._daysInPeriod, "days")
                 .format(config.dateformat.charts));
-            y.push(jsonArray[i].SUCCESS_RATE);
+            y.push(jsonArray[i].COUNT / this._daysInPeriod);
         }
 
         return {
@@ -99,10 +100,8 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
                     range: [dateLowerBound, dateUpperBound]
                 },
                 yaxis: {
-                    title: "Success rate",
-                    tickformat: ',.0%',
-                    fixedrange: true,
-                    range: [0,1]
+                    title: "Average points/day",
+                    fixedrange: true
                 },
                 shapes: [
                     {
@@ -110,8 +109,8 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
                         xref: 'paper',
                         x0: 0,
                         x1: 1,
-                        y0: this._target,
-                        y1: this._target,
+                        y0: this._annualTarget/365,
+                        y1: this._annualTarget/365,
                         line: {
                             color: 'rgb(0, 255, 0)',
                             width: 4,
@@ -123,8 +122,8 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
                         xref: 'paper',
                         x0: 0,
                         x1: 1,
-                        y0: this._stretchGoal,
-                        y1: this._stretchGoal,
+                        y0: this._annualStretchGoal/365,
+                        y1: this._annualStretchGoal/365,
                         line: {
                             color: 'rgb(255, 0, 0)',
                             width: 4,

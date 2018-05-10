@@ -9,13 +9,14 @@ class BuildDashboard extends Component {
             ,"qa/build_success_rate_per_platform_per_product"
             ,"qa/build_success_rate_per_platform"
             ,"qa/build_success_rate_per_product"
-            ,"qa/build_success_rate"
             ,"defects/major_defects_created"
             ,"defects/critical_defects_created"
             ,"defects/total_defects"
+            ,"qa/build_success_rate"
+            ,"dev/story_points_velocity"
         ],
-        startDate: "2018-03-26",
-        endDate: "2018-04-01"
+        startDate: "2017-01-01",
+        endDate: "2018-01-01"
     };
 
     render() {

@@ -10,6 +10,7 @@ import { BuildSuccessRateKpiMapper} from "../kpimappers/BuildSuccessRateKpiMappe
 import { DefectsMajorCreatedResolvedKpiMapper } from "../kpimappers/DefectsMajorCreatedResolvedKpiMapper"
 import { DefectsCriticalCreatedResolvedKpiMapper } from "../kpimappers/DefectsCriticalCreatedResolvedKpiMapper"
 import { DefectsTotalNumberOfBugsKpiMapper } from "../kpimappers/DefectsTotalNumberOfBugsKpiMapper"
+import { StoryPointsVelocityKpiMapper } from "../kpimappers/StoryPointsVelocityKpiMapper"
 
 
 const config = require("../../config/config")
@@ -24,13 +25,17 @@ export function start_webserver(storage: IDataStorage): void
     const kpis: any =
     {
         // Add mappers here
-        "defects":
+        defects:
         {
             major_defects_created: new DefectsMajorCreatedResolvedKpiMapper(storage),
             critical_defects_created: new DefectsCriticalCreatedResolvedKpiMapper(storage),
             total_defects: new DefectsTotalNumberOfBugsKpiMapper(storage)
         },
-        "qa":
+        dev:
+        {
+            story_points_velocity: new StoryPointsVelocityKpiMapper(storage)
+        },
+        qa:
         {
             overall_builds_success: new QaOverallBuildSuccessKpiMapper(storage),
             build_success_rate_per_platform_per_product: new QaBuildSuccessPerPlatformPerProductKpiMapper(storage),
@@ -88,29 +93,27 @@ export function start_webserver(storage: IDataStorage): void
         }
     });
 
-    // GET KPI LIST
-    webServer.get("/getkpilist", (request: express.Request, response: express.Response) =>
+    // Get KPI Categories
+    webServer.get("/getkpicategories", (request: express.Request, response: express.Response) =>
     {
-        // Second part of where to add
-        // Need to add to the kpi mapper
-        response.send
-        ({
-            "qa":
-            {
-                title: "Quality Assurance",
-                kpis:
-                [
-                    // Exact name is the same as above
-                    "overall_builds_success",
-                    "build_success_rate_per_platform_per_product",
-                    "build_success_rate_per_platform",
-                    "build_success_rate_per_product",
-                    "major_defects_created",
-                    "critical_defects_created",
-                    "total_defects"
-                ]
-            }
-        });
+        response.send(Object.keys(kpis));
+    });
+
+    // Get KPI Categories
+    webServer.get("/getkpicategorydetails/:category", (request: express.Request, response: express.Response) =>
+    {
+        if (kpis[request.params.category])
+        {
+            response.send
+            ({
+                title: request.params.category,
+                kpis: Object.keys(kpis[request.params.category])
+            });
+        }
+        else
+        {
+            response.status(config.webserver.response.no_exists).send("Non-existent KPI category");
+        }
     });
 
     // Start listening

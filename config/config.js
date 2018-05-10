@@ -99,7 +99,10 @@ config.dateformat =
     mysql: "YYYY-MM-DD HH:mm:ss",
 
     // used for communication with python scripts
-    python: "YYYY-MM-DD HH:mm:ss"
+    python: "YYYY-MM-DD HH:mm:ss",
+
+    // used for date input for Plot.ly charts
+    charts: "YYYY-MM-DD"
 };
 
 module.exports = config;
