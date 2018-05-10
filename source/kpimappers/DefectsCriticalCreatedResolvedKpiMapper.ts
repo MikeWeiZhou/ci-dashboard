@@ -52,10 +52,9 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
             totalCreated = jsonArray[0].COUNT;
             if(jsonArray.length > 1) {
                 totalCreated = jsonArray[0].COUNT + jsonArray[1].COUNT;
-
-                values.push(totalCreated);
-                labels.push(totaCreatedLabel);
             }
+            values.push(totalCreated);
+            labels.push(totaCreatedLabel);
         }
 
             values.push(jsonArray[0].COUNT);
@@ -63,12 +62,21 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
 
         return {
             data: [{
-                values: values,
-                labels: labels,
-                type:   "bar"
+                x: labels,
+                y: values,
+                type:   "bar",
+                name: this.Title
             }],
             layout: {
-                title: this.Title
+                title: this.Title,
+                xaxis:{
+                    title: "Defect Status",
+                    fixedrange: true
+                },
+                yaxis: {
+                    title: "Count",
+                    fixedrange: true
+                }
             },
             frames: [],
             config: {}

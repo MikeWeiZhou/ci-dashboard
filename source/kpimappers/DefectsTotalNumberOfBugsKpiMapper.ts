@@ -52,12 +52,21 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
 
         return {
             data: [{
-                values: values,
-                labels: labels,
-                type:   "bar"
+                x: labels,
+                y: values,
+                type:   "bar",
+                name: this.Title
             }],
             layout: {
-                title: this.Title
+                title: this.Title,
+                xaxis:{
+                    title: "Defect Type",
+                    fixedrange: true
+                },
+                yaxis: {
+                    title: "Count",
+                    fixedrange: true
+                }
             },
             frames: [],
             config: {}
