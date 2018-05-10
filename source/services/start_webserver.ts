@@ -85,7 +85,7 @@ export function start_webserver(storage: IDataStorage): void
                 })
                 .catch((err: Error) =>
                 {
-                    err.message = `${kpis[request.params.category][request.params.kpi].Title}: ${err.name}`;
+                    err.name = `${kpis[request.params.category][request.params.kpi].Title}: ${err.name}`;
                     response.status(config.webserver.response.error).send(err);
                 });
         }
