@@ -79,17 +79,20 @@ export function start_webserver(storage: IDataStorage): void
                     }
                     else
                     {
-                        response.status(config.webserver.response.no_data).send("No data for KPI");
+                        response.status(config.webserver.response.no_data)
+                            .send(`${kpis[request.params.category][request.params.kpi].Title}: No data for KPI`);
                     }
                 })
                 .catch((err: Error) =>
                 {
+                    err.message = `${kpis[request.params.category][request.params.kpi].Title}: ${err.name}`;
                     response.status(config.webserver.response.error).send(err);
                 });
         }
         else
         {
-            response.status(config.webserver.response.no_exists).send("Non-existent KPI");
+            response.status(config.webserver.response.no_exists)
+                .send(`${request.params.kpi}: Non-existent KPI`);
         }
     });
 
