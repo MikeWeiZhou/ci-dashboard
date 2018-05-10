@@ -54,17 +54,16 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
         var macValue: Array<any> = [];
         var macLabel: Array<any> = [];
 
-        const percentageValue = 100;
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
             if (jsonArray[i].PLATFORM_NAME == "Windows") {
-                windowsValue.push(jsonArray[i].Success * percentageValue);
+                windowsValue.push(jsonArray[i].Success);
                 windowsLabel.push(jsonArray[i].PRODUCT_NAME);
             } else if (jsonArray[i].PLATFORM_NAME == "Linux") {
-                linuxValue.push(jsonArray[i].Success * percentageValue);
+                linuxValue.push(jsonArray[i].Success);
                 linuxLabel.push(jsonArray[i].PRODUCT_NAME);
             } else { // It is a mac system
-                macValue.push(jsonArray[i].Success * percentageValue);
+                macValue.push(jsonArray[i].Success);
                 macLabel.push(jsonArray[i].PRODUCT_NAME);
             }
         }
@@ -96,7 +95,9 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                 },
                 yaxis: {
                     title: 'Products',
-                    fixedrange: true
+                    tickformat: ',.0%',
+                    fixedrange: true,
+                    range: [0,1]
                 }
             },
             frames: [],

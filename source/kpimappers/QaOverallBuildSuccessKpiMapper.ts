@@ -28,8 +28,14 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
         SELECT 
             (SELECT COUNT(*)
             FROM ${this._tablename} 
-            WHERE BUILD_STATE = 'Successful')
-            / COUNT(*) AS 'Success'
+            WHERE BUILD_STATE = 'Successful' AND 
+            BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}')
+            / COUNT(*) AS 'Success',
+            (SELECT COUNT(*)
+            FROM ${this._tablename} 
+            WHERE BUILD_STATE = 'Failed' AND 
+            BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}')
+            / COUNT(*) AS 'Failed'
         FROM ${this._tablename}
         WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
     `;
@@ -50,7 +56,7 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
         {
             values.push(jsonArray[i].Success);
             //labels.push(jsonArray[i].PLATFORM_NAME);
-            values.push(1 - jsonArray[i].Success);
+            values.push(jsonArray[i].Failed);
         }
 
         return {
