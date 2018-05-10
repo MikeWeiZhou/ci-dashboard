@@ -43,27 +43,28 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
      */
     protected mapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
     {
-        // Contains the values (To plot the graph)
-        var windows: Array<any> = [];
-        // Contains the labels (To get a group bar)
+        // Contains the values (The data to plot the graph)
+        var windowsValue: Array<any> = [];
+        // Contains the labels (To fields to get a group bar)
         var windowsLabel: Array<any> = [];
 
-        var linux: Array<any> = [];
+        var linuxValue: Array<any> = [];
         var linuxLabel: Array<any> = [];
 
-        var mac: Array<any> = [];
+        var macValue: Array<any> = [];
         var macLabel: Array<any> = [];
 
+        const percentageValue = 100;
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
             if (jsonArray[i].PLATFORM_NAME == "Windows") {
-                windows.push(jsonArray[i].Success);
+                windowsValue.push(jsonArray[i].Success * percentageValue);
                 windowsLabel.push(jsonArray[i].PRODUCT_NAME);
             } else if (jsonArray[i].PLATFORM_NAME == "Linux") {
-                linux.push(jsonArray[i].Success);
+                linuxValue.push(jsonArray[i].Success * percentageValue);
                 linuxLabel.push(jsonArray[i].PRODUCT_NAME);
             } else { // It is a mac system
-                mac.push(jsonArray[i].Success);
+                macValue.push(jsonArray[i].Success * percentageValue);
                 macLabel.push(jsonArray[i].PRODUCT_NAME);
             }
         }
@@ -71,21 +72,35 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
         return {
             data: [{
                 x: windowsLabel,
-                y: windows,
+                y: windowsValue,
                 name: "Windows",
                 type: "bar"
             },
             {
                 x: linuxLabel,
-                y: linux,
+                y: linuxValue,
                 name: "Linux",
+                type: "bar"
+            },
+            {
+                x: macLabel,
+                y: macValue,
+                name: "Mac",
                 type: "bar"
             }],
             layout: {
-                title: this.Title
+                title: this.Title,
+                xaxis: {
+                    title: "Build Percentage",
+                    fixedrange: true
+                },
+                yaxis: {
+                    title: 'Products',
+                    fixedrange: true
+                }
             },
             frames: [],
-            config: {}
+            config: {displayModeBar: false}
         };
     }
 }

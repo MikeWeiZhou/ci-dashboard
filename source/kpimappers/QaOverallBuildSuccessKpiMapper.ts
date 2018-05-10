@@ -44,12 +44,13 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
     protected mapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
     {
         var values: Array<any> = [];
-        var labels: Array<any> = ["Overall"];
+        var labels: Array<any> = ["Overall Build Success","Overall Build Failure"];
 
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
             values.push(jsonArray[i].Success);
             //labels.push(jsonArray[i].PLATFORM_NAME);
+            values.push(1 - jsonArray[i].Success);
         }
 
         return {
@@ -62,7 +63,7 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
                 title: this.Title
             },
             frames: [],
-            config: {}
+            config: {displayModeBar: false}
         };
     }
 }
