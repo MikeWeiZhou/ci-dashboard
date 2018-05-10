@@ -9,7 +9,8 @@
     "setup-db": "node build/setupdb",
     "reset-db": "node build/dropdb && npm run setup-db",
     "-----------------------------------------------------------------------------/": "",
-    "build": "npm run build-front && npm run build-back",
+    "build": "npm run build-back",
+    "build-all": "npm run build-front && npm run build-back",
     "build-front": "cd react-demo && npm run build && cd ..",
     "build-back": "tsc",
     "----------------------------------------------------------------------------//": "",
@@ -20,8 +21,7 @@
     "test": "npm run build-back && mocha build/unittests/**/*.js",
     "-------------------------------------------------------------------------/////": "",
     "dev": "npm run build-back && npm run start",
-    "fast": "ts-node source/test_random",
-    "reset": "npm run build-back && npm run reset-db && npm run start"
+    "t": "ts-node source/test_random"
   },
   "author": "Johnny Lee, Elisa Chu, Tony So, Mike Zhou",
   "homepage": "https://bitbucket.org/tsungyulee/kpi-dashboard#readme",
