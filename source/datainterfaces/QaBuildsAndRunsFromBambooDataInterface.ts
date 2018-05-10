@@ -28,6 +28,7 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
         "PLATFORM_NAME",
         "PRODUCT_NAME",
         "IS_DEFAULT",
+        "IS_SUCCESS",
         "BUILD_STATE",
         "BRANCH_ID"
     ];
@@ -87,6 +88,7 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
             this._platformName[platformCode],       // PLATFORM_NAME
             this._productName[productCode],         // PRODUCT_NAME
             (isDefault) ? 1 : 0,                    // IS_DEFAULT [d]
+            (o.BUILD_STATE == "Failed") ? 0 : 1,    // IS_SUCCESS
             o.BUILD_STATE,                          // BUILD_STATE
             (isDefault) ? null : o.BUILD_KEY.substring(17) // BRANCH_ID [d]
         ];

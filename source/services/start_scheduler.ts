@@ -2,7 +2,7 @@ import { IDataStorage } from "../datastorages/IDataStorage"
 import { Scheduler } from "./Scheduler"
 const schedules = require("../../config/schedules")
 
-export async function startscheduler(storage: IDataStorage): Promise<void>
+export async function start_scheduler(storage: IDataStorage): Promise<void>
 {
     console.log("\n\nScheduling data collection...");
     const scheduler: Scheduler = new Scheduler(storage);

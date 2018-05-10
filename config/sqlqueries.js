@@ -28,6 +28,7 @@ sqlqueries.setup =
         PLATFORM_NAME                   VARCHAR(50)     NOT NULL,
         PRODUCT_NAME                    VARCHAR(50)     NOT NULL,
         IS_DEFAULT                      TINYINT(1)      NOT NULL,
+        IS_SUCCESS                      TINYINT(1)      NOT NULL,
         BUILD_STATE                     VARCHAR(30)     NOT NULL,
         BRANCH_ID                       INT
     )`,
