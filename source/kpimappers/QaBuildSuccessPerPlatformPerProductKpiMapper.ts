@@ -9,17 +9,20 @@ const config = require("../../config/config")
  */
 export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
 {
+    public readonly Category: string = "QA";
+    public readonly Title: string = "QA Build Success Rate Per Platform Per Product";
+
     private _tablename: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
-    private _title: string = "QA Build Success Rate Per Platform Per Product";
 
     /**
      * Returns SQL query string given a date range.
      * @param {string} from date
      * @param {string} to date
+     * @param {number} dateRange between from and to dates
      * @returns {string} SQL query string
      * @override
      */
-    protected GetQueryString(from: string, to: string): string
+    protected getQueryString(from: string, to: string, dateRange: number): string
     {
         return `
             SELECT PLATFORM_NAME, PRODUCT_NAME, 
@@ -36,8 +39,9 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
      * Returns a KpiState or null given an array or single JSON object containing required data.
      * @param {Array<any>} jsonArray non-empty JSON array results containing data
      * @returns {IKpiState|null} IKpiState object or null when insufficient data
+     * @override
      */
-    protected MapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
+    protected mapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
     {
         // Contains the values (To plot the graph)
         var windows: Array<any> = [];
@@ -78,7 +82,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                 type: "bar"
             }],
             layout: {
-                title: this._title
+                title: this.Title
             },
             frames: [],
             config: {}

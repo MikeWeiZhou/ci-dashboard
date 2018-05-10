@@ -3,40 +3,44 @@ import { IKpiState } from "./IKpiState"
 const config = require("../../config/config")
 
 /**
- * UsersStoriesTeamVelocity
+ * UsersStoriesTeamVelocityKpiMapper
  * 
  * User Stories Team Velocity
  * Where it tracks story points per week
  */
 export class UsersStoriesTeamVelocityKpiMapper extends KpiMapper
 {
+    public readonly Category: string = "User Stories";
+    public readonly Title: string = "Team Velocity for User Stories";
+
     private _tablename: string = config.db.resolved_story_points;
-    private _title: string = "User Stories for Team Velocity";
 
     /**
-     * Returns SQL query string given a date range
+     * Returns SQL query string given a date range or null when insufficient data.
      * @param {string} from date
      * @param {string} to date
-     * @return {string} SQL query string
+     * @param {number} dateRange between from and to dates
+     * @returns {string} SQL query string
      * @override
      */
-    protected GetQueryString(from: string, to:string)
+    protected getQueryString(from: string, to: string, dateRange: number): string
     {
         return `
-        SELECT SUM(*) AS 'SUM',
-            STORY_POINTS
-        FROM ${this._tablename}
-        WHERE RESOLUTION_DATE between '${from}' AND '${to}'
-        GROUP BY STORY_POINTS
+            SELECT SUM(*) AS 'SUM',
+                   STORY_POINTS
+            FROM ${this._tablename}
+            WHERE RESOLUTION_DATE between '${from}' AND '${to}'
+            GROUP BY STORY_POINTS
         `;
     }
 
-/**
- * Returns a KpiState or null given an array or single JSON object containing required data.
+    /**
+     * Returns a KpiState or null given an array or single JSON object containing required data.
      * @param {Array<any>} jsonArray non-empty JSON array results containing data
      * @returns {IKpiState|null} IKpiState object or null when insufficient data
- */
-protected MapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
+     * @override
+     */
+    protected mapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
     {
         var values: Array<any> = [];
         var labels: Array<any> = [];
@@ -54,7 +58,7 @@ protected MapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
                 type:   "pie"
             }],
             layout: {
-                title: this._title
+                title: this.Title
             },
             frames: [],
             config: {}

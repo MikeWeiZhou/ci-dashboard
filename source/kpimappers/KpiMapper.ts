@@ -10,6 +10,9 @@ const config = require("../../config/config")
  */
 export abstract class KpiMapper
 {
+    public abstract readonly Category: string;
+    public abstract readonly Title: string;
+
     private _dataStorage: IDataStorage;
 
     /**
@@ -31,9 +34,10 @@ export abstract class KpiMapper
      */
     public async GetKpiStateOrNull(from: Date, to: Date): Promise<IKpiState|null>
     {
-        var fromDate: string = moment.utc(from).format(config.dateformat.mysql);
-        var toDate: string = moment.utc(to).format(config.dateformat.mysql);
-        var sql: string = this.GetQueryString(fromDate, toDate);
+        var fromDate: moment.Moment = moment.utc(from);
+        var toDate: moment.Moment = moment.utc(to);
+        var dateRange: number = fromDate.diff(toDate, "days");
+        var sql: string = this.getQueryString(fromDate.format(config.dateformat.mysql), toDate.format(config.dateformat.mysql),dateRange);
         var jsonArrayResults: Array<any>;
         try
         {
@@ -45,21 +49,22 @@ export abstract class KpiMapper
         }
         return (jsonArrayResults.length == 0)
             ? null
-            : this.MapToKpiStateOrNull(jsonArrayResults);
+            : this.mapToKpiStateOrNull(jsonArrayResults);
     }
 
     /**
-     * Returns SQL query string given a date range or null when insufficient data.
+     * Returns SQL query string given a date range.
      * @param {string} from date
      * @param {string} to date
+     * @param {number} dateRange between from and to dates
      * @returns {string} SQL query string
      */
-    protected abstract GetQueryString(from: string, to: string): string;
+    protected abstract getQueryString(from: string, to: string, dateRange: number): string;
 
     /**
      * Returns a KpiState or null given an array or single JSON object containing required data.
      * @param {Array<any>} jsonArray non-empty JSON array results containing data
      * @returns {IKpiState|null} IKpiState object or null when insufficient data
      */
-    protected abstract MapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null;
+    protected abstract mapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null;
 }
