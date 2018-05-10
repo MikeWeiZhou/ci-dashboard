@@ -1,3 +1,4 @@
+import * as moment from "moment"
 import { KpiMapper } from "./KpiMapper"
 import { IKpiState } from "./IKpiState"
 const config = require("../../config/config")
@@ -10,7 +11,13 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
     public readonly Category: string = "Product Delivery";
     public readonly Title: string = "Build Success Rate";
 
+    // Minimum number of data points preferred in chart
+    private _minNumOfDataPoints: number = 10;
+
     private readonly _tableName: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
+    private _daysInPeriod: number;
+    private _from: string;
+    private _to: string;
 
     /**
      * Returns SQL query string given a date range.
@@ -22,29 +29,28 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
      */
     protected getQueryString(from: string, to: string, dateRange: number): string
     {
+        this._from = from;
+        this._to = to;
+        this._minNumOfDataPoints = Math.min(dateRange, this._minNumOfDataPoints);
+        this._daysInPeriod = Math.floor(dateRange / this._minNumOfDataPoints);
+
         return `
-            SELECT COUNT(*) AS 'COUNT'
-                  ,IS_SUCCESS
-                  ,BUILD_STATE
-                  ,DATE_FORMAT(T.BUILD_COMPLETED_DATE, '%Y-%m') AS 'PERIOD'
+            SELECT COUNT(CASE WHEN IS_SUCCESS = 1 THEN IS_SUCCESS END)/COUNT(*) AS SUCCESS_RATE
+                  ,FLOOR(DATEDIFF('${to}', BUILD_COMPLETED_DATE) / ${this._daysInPeriod}) AS 'PERIOD'
             FROM ${this._tableName} T
             WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
             GROUP BY PERIOD
-                    ,IS_SUCCESS
-                    ,BUILD_STATE
-            ORDER BY PERIOD     ASC
-                    ,IS_SUCCESS DESC
+            ORDER BY PERIOD DESC;
         `;
-        /*+-------+------------+-------------+---------+
-          | COUNT | IS_SUCCESS | BUILD_STATE | PERIOD  |
-          +-------+------------+-------------+---------+
-          |   340 |          1 | Successful  | 2017-01 |
-          |   355 |          0 | Failed      | 2017-01 |
-          |   287 |          1 | Successful  | 2017-02 |
-          |   343 |          0 | Failed      | 2017-02 |
-          |   337 |          1 | Successful  | 2017-03 |
-          |   316 |          0 | Failed      | 2017-03 |
-          +-------+------------+-------------+---------+*/
+        /*
+        Bigger period values = older
+        +--------------+--------+
+        | SUCCESS_RATE | PERIOD |
+        +--------------+--------+
+        |       0.5911 |      2 |
+        |       0.4335 |      1 |
+        |       0.4492 |      0 |
+        +--------------+--------+*/
     }
 
     /**
@@ -55,34 +61,46 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
      */
     protected mapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
     {
+        var dateLowerBound: string = moment(this._from).format(config.dateformat.charts);
+        var dateUpperBound: string = moment(this._to).format(config.dateformat.charts);
+
         var x: Array<any> = [];
         var y: Array<any> = [];
-
-        // Assumes there's at least 2 records with identical periods
-        for (let i: number = 0; i < jsonArray.length; i += 2)
+        for (let i: number = 0; i < jsonArray.length; ++i)
         {
-            x.push(jsonArray[i].PERIOD);
-
-            // Assumes first one is always a count of IS_SUCCESS = 1
-            y.push(jsonArray[i].COUNT / (jsonArray[i+1].COUNT + jsonArray[i].COUNT));
+            x.push(moment(this._to)
+                .subtract(jsonArray[i].PERIOD * this._daysInPeriod, "days")
+                .format(config.dateformat.charts));
+            y.push(jsonArray[i].SUCCESS_RATE);
         }
 
         return {
             data: [{
-                x:    x,
-                y:    y,
+                x: x,
+                y: y,
                 type: "scatter",
                 mode: "lines",
                 line: {
-                    "shape":     "spline",
+                    "shape": "spline",
                     "smoothing": 1.3
                 }
             }],
             layout: {
-                title: this.Title
+                title: this.Title,
+                xaxis: {
+                    fixedrange: true,
+                    range: [dateLowerBound, dateUpperBound]
+                },
+                yaxis: {
+                    tickformat: ',.0%',
+                    fixedrange: true,
+                    range: [0,1]
+                }
             },
             frames: [],
-            config: {}
+            config: {
+                displayModeBar: false
+            }
         };
     }
 }
