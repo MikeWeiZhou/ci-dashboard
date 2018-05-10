@@ -18,6 +18,8 @@ body {
 
 .kpi {
   display: inline-block;
+  border-style: dotted;
+  border-width: thin;
 }
 /* ------------------------------------------------------------------- */
 

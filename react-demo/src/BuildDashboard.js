@@ -30,7 +30,7 @@ class BuildDashboard extends Component {
             <div className="dashboard">
                 <div className="dateSelectionButtons row justify-content-center">
                     <button type="button" className='btn btn-primary' onClick={() => this.changeDateRange("2018-03-26", "2018-04-01")}>7d</button>
-                    <button type="button" className='btn btn-primary' onClick={() => this.changeDateRange("2017-03-01", "2018-04-01")}>30d</button>
+                    <button type="button" className='btn btn-primary' onClick={() => this.changeDateRange("2018-03-01", "2018-04-01")}>30d</button>
                     <button type="button" className='btn btn-primary' onClick={() => this.changeDateRange("2017-11-01", "2018-04-01")}>6m</button>
                     <button type="button" className='btn btn-primary' onClick={() => this.changeDateRange("2017-04-01", "2018-04-01")}>1y</button>
                     <button type="button" className='btn btn-primary' onClick={() => this.changeDateRange("2018-01-01", "2018-04-01")}>ytd</button>
