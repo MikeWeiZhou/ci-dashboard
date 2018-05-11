@@ -24,35 +24,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
-<<<<<<< HEAD
         return [`
-            SELECT PRODUCT_NAME, 
-                  (SELECT COUNT(*) FROM ${this._tablename}
-                   WHERE BUILD_STATE = 'Successful'
-                   AND PRODUCT_CODE = a.PRODUCT_CODE AND
-                   BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}') / COUNT(*) as 'Success'
-            FROM ${this._tablename} a
-            WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-            GROUP BY PRODUCT_NAME
-        `];
-=======
-        // select platform_name, count(*) from qa_builds_and_runs_from_bamboo 
-        // WHERE BUILD_COMPLETED_DATE between '2018-03-26' AND '2018-04-01' 
-        // GROUP BY PLATFORM_NAME;
-        // 45,65,17
-
-        // select platform_name, count(*) from qa_builds_and_runs_from_bamboo 
-        // WHERE BUILD_COMPLETED_DATE between '2018-03-26' AND '2018-04-01' 
-        // AND BUILD_STATE = 'Successful' GROUP BY PLATFORM_NAME;
-        // 20, 38, 8
-
-        // Should return the followings
-        // 0.44, 0.58, 0.47
-
-        // Current returns (Using current count of total products / Count(*))
-        // 0.2889, 0.2000, 1.1176
-
-        return `
             SELECT PRODUCT_NAME, 
             DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") AS Date, 
             AVG(CASE WHEN  BUILD_STATE = "Successful" THEN 1 ELSE 0 END) as Success 
@@ -60,8 +32,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
             Where BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}' 
             GROUP BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d"), PRODUCT_NAME 
             ORDER BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d");
-        `;
->>>>>>> d4d12b2dbb1de0e0619429c737d79b4c9c24d8ec
+        `];
     }
 
     /**
@@ -72,11 +43,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
      */
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
-<<<<<<< HEAD
         var jsonArray: Array<any> = jsonArrays[0];
-        var values: Array<any> = [];
-        var labels: Array<any> = [];
-=======
         // Contains the values (The data to plot the graph)
         var dxValue: Array<any> = [];
         var dxLabel: Array<any> = [];
@@ -92,7 +59,6 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
 
         // Edit the stretch goal here
         const stretchGoal = 0.75;
->>>>>>> d4d12b2dbb1de0e0619429c737d79b4c9c24d8ec
 
         for (let i: number = 0; i < jsonArray.length; ++i)
         {

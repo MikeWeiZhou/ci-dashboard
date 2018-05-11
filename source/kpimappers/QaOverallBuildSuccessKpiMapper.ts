@@ -25,20 +25,13 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
         return [`
-            SELECT 
-                (SELECT COUNT(*)
-                FROM ${this._tablename} 
-                WHERE BUILD_STATE = 'Successful' AND 
-                BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}')
-                / COUNT(*) AS 'Success',
-                (SELECT COUNT(*)
-                FROM ${this._tablename} 
-                WHERE BUILD_STATE = 'Failed' AND 
-                BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}')
-                / COUNT(*) AS 'Failed'
-            FROM ${this._tablename}
-            WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-        `];
+        SELECT DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") AS Date, 
+        AVG(CASE WHEN  BUILD_STATE = "Successful" THEN 1 ELSE 0 END) as Success,
+        AVG(CASE WHEN  BUILD_STATE = "Successful" THEN 0 ELSE 1 END) as Failed 
+        FROM ${this._tablename} Where BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
+        GROUP BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") 
+        ORDER BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d");
+    `];
     }
 
     /**
@@ -50,24 +43,69 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
         var jsonArray: Array<any> = jsonArrays[0];
-        var values: Array<any> = [];
-        var labels: Array<any> = ["Overall Build Success","Overall Build Failure"];
+        var successValue: Array<any> = [];
+        var failedValue: Array<any> = [];
+
+        var overallLabel: Array<any> = [];
+
+        // Edit the stretch goal here
+        const stretchGoal = 0.75;
 
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
-            values.push(jsonArray[i].Success);
-            //labels.push(jsonArray[i].PLATFORM_NAME);
-            values.push(jsonArray[i].Failed);
+            successValue.push(jsonArray[i].Success);
+            failedValue.push(jsonArray[i].Failed);
+            overallLabel.push(jsonArray[i].Date);
         }
 
         return {
             data: [{
-                values: values,
-                labels: labels,
-                type:   "pie"
+                x: overallLabel,
+                y: successValue,
+                name: "Overall Build Success",
+                type: "scatter",
+                mode: "lines",
+                line: {
+                    "shape": "spline",
+                    "smoothing": 1.3
+                }
+            },
+            {
+                x: overallLabel,
+                y: failedValue,
+                name: "Overall Build Failure",
+                type: "scatter",
+                mode: "lines",
+                line: {
+                    "shape": "spline",
+                    "smoothing": 1.3
+                }
             }],
             layout: {
-                title: this.Title
+                title: this.Title,
+                xaxis: {
+                    title: "Date",
+                    fixedrange: true
+                },
+                yaxis: {
+                    title: 'Build Percentage',
+                    tickformat: ',.0%',
+                    fixedrange: true,
+                    range: [0,1]
+                },
+                shapes: [{
+                    type: 'line',
+                    xref: 'paper',
+                    x0: 0,
+                    y0: stretchGoal,
+                    x1: 1,
+                    y1: stretchGoal,
+                    line: {
+                        color: 'rgb(255, 0, 0)',
+                        width: 4,
+                        dash:'dot'
+                    }
+                }]
             },
             frames: [],
             config: {displayModeBar: false}
