@@ -30,9 +30,10 @@ describe("kpimappers/QaOverallBildSuccessKpiMapper", () =>
             IS_SUCCESS                      TINYINT(1)      NOT NULL,
             BRANCH_ID                       INT             NOT NULL
         )`;
-        
+
         storage = new MysqlDataStorage(config.db.connection);
-        mapper = new QaOverallBuildSuccessKpiMapper(storage);
+        mapper = new QaOverallBuildSuccessKpiMapper();
+        mapper.SetDataStorage(storage);
         const scheduler: Scheduler = new Scheduler(storage);
         await storage.Initialize();
         await storage.Query(createTable);

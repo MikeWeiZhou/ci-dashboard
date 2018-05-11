@@ -16,10 +16,10 @@ export abstract class KpiMapper
     private _dataStorage: IDataStorage;
 
     /**
-     * Constructor.
-     * @param {IDataStorage} dataStorage 
+     * Set storage medium to grab data from.
+     * @param {IDataStorage} dataStorage
      */
-    public constructor(dataStorage: IDataStorage)
+    public SetDataStorage(dataStorage: IDataStorage)
     {
         this._dataStorage = dataStorage;
     }
@@ -34,37 +34,42 @@ export abstract class KpiMapper
      */
     public async GetKpiStateOrNull(from: Date, to: Date): Promise<IKpiState|null>
     {
+        if (!this._dataStorage)
+        {
+            throw new Error("No storage medium set.");
+        }
         var fromDate: moment.Moment = moment.utc(from);
         var toDate: moment.Moment = moment.utc(to).hour(23).minute(59).second(59);
         var dateRange: number = toDate.diff(fromDate, "days");
-        var sql: string = this.getQueryString(fromDate.format(config.dateformat.mysql), toDate.format(config.dateformat.mysql),dateRange);
-        var jsonArrayResults: Array<any>;
+        var sqls: string[] = this.getQueryStrings(fromDate.format(config.dateformat.mysql), toDate.format(config.dateformat.mysql),dateRange);
+        var jsonArrayResults: Array<any>[] = [];
         try
         {
-            jsonArrayResults = await this._dataStorage.Query(sql);
+            for (let sql of sqls)
+            {
+                jsonArrayResults.push(await this._dataStorage.Query(sql));
+            }
         }
         catch (err)
         {
             throw err;
         }
-        return (jsonArrayResults.length == 0)
-            ? null
-            : this.mapToKpiStateOrNull(jsonArrayResults);
+        return this.mapToKpiStateOrNull(jsonArrayResults);
     }
 
     /**
-     * Returns SQL query string given a date range.
+     * Returns an array of SQL query strings given a date range.
      * @param {string} from date
      * @param {string} to date
      * @param {number} dateRange between from and to dates
-     * @returns {string} SQL query string
+     * @returns {string[]} an array of one or more SQL query string
      */
-    protected abstract getQueryString(from: string, to: string, dateRange: number): string;
+    protected abstract getQueryStrings(from: string, to: string, dateRange: number): string[];
 
     /**
-     * Returns a KpiState or null given an array or single JSON object containing required data.
-     * @param {Array<any>} jsonArray non-empty JSON array results containing data
+     * Returns a KpiState given multiple JSON arrays containing queried data.
+     * @param {Array<any>[]} jsonArrays One or more JSON array results (potentially empty arrays)
      * @returns {IKpiState|null} IKpiState object or null when insufficient data
      */
-    protected abstract mapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null;
+    protected abstract mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null;
 }

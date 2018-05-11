@@ -15,34 +15,36 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
     private _tablename: string = config.db.tablename.bug_resolution_dates;
 
     /**
-     * Returns SQL query string given a date range.
+     * Returns an array of SQL query strings given a date range.
      * @param {string} from date
      * @param {string} to date
-     * @returns {string} SQL query string
+     * @param {number} dateRange between from and to dates
+     * @returns {string[]} an array of one or more SQL query string
      * @override
      */
-    protected getQueryString(from: string, to: string): string
+    protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
-        return `
+        return [`
         SELECT COUNT(*) AS 'COUNT',
             resolution_date AS 'RESSTATUS'
             FROM ${this._tablename} 
             WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
             and PRIORITY = 'Critical'
             GROUP BY (CASE WHEN resolution_date IS NULL THEN 1 ELSE 0 END)
-        `;
+        `];
     }
 
     /**
-     * Returns a KpiState or null given an array or single JSON object containing required data.
-     * @param {Array<any>} jsonArray non-empty JSON array results containing data
+     * Returns a KpiState given multiple JSON arrays containing queried data.
+     * @param {Array<any>[]} jsonArrays One or more JSON array results (potentially empty arrays)
      * @returns {IKpiState|null} IKpiState object or null when insufficient data
+     * @override
      */
-    protected mapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
+    protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
+        var jsonArray: Array<any> = jsonArrays[0];
         var values: Array<any> = [];
         var labels: Array<any> = [];
-
 
         var totalCreated:number = 0;
         var totaCreatedLabel:string = "Created";

@@ -2,10 +2,10 @@
  * This will set up the required database tables.
  */
 
-import { IDataStorage } from "./datastorages/IDataStorage"
-import { MysqlDataStorage } from "./datastorages/MysqlDataStorage"
-const config = require("../config/config")
-const sqlqueries = require("../config/sqlqueries")
+import { IDataStorage } from "../datastorages/IDataStorage"
+import { MysqlDataStorage } from "../datastorages/MysqlDataStorage"
+const config = require("../../config/config")
+const sqlqueries = require("../../config/sqlqueries")
 
 SetupDatabase();
 async function SetupDatabase()

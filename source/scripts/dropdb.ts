@@ -2,9 +2,9 @@
  * This will drop used database tables.
  */
 
-import { IDataStorage } from "./datastorages/IDataStorage"
-import { MysqlDataStorage } from "./datastorages/MysqlDataStorage"
-const config = require("../config/config")
+import { IDataStorage } from "../datastorages/IDataStorage"
+import { MysqlDataStorage } from "../datastorages/MysqlDataStorage"
+const config = require("../../config/config")
 
 DropDatabase();
 async function DropDatabase()
