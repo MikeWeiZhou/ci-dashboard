@@ -1,7 +1,11 @@
 const JsonDataCollector = require("../build/datacollectors/JsonDataCollector");
+const PythonShellJsonDataCollector = require("../build/datacollectors/PythonShellJsonDataCollector");
+
+const SampleDataInterface = require("../build/datainterfaces/SampleDataInterface");
 const QaBuildsAndRunsFromBambooDataInterface = require("../build/datainterfaces/QaBuildsAndRunsFromBambooDataInterface");
 const BugResolutionDatesDataInterface = require("../build/datainterfaces/BugResolutionDatesDataInterface");
 const ResolvedStoryPointsDataInterface = require("../build/datainterfaces/ResolvedStoryPointsDataInterface");
+
 const config = require("./config")
 
 var schedules = {};
@@ -13,6 +17,12 @@ var schedules = {};
 // Format of schedules should match interface in source/scheduler/ISchedule.ts
 schedules =
 [
+    {
+        Title: "Sample Data Source",
+        DataCollector: new PythonShellJsonDataCollector.PythonShellJsonDataCollector("./data/sample_data_source.py"),
+        DataInterface: new SampleDataInterface.SampleDataInterface(),
+        RunIntervalInMinutes: .5
+    },
     {
         Title: "QA Builds and Runs from Bamboo",
         DataCollector: new JsonDataCollector.JsonDataCollector("./data/qa_builds_and_runs_from_bamboo.json"),
@@ -30,7 +40,7 @@ schedules =
         DataCollector: new JsonDataCollector.JsonDataCollector("./data/story_data.json"),
         DataInterface: new ResolvedStoryPointsDataInterface.ResolvedStoryPointsDataInterface(),
         RunIntervalInMinutes: 999
-    }
+    },
 ];
 
 module.exports = schedules;

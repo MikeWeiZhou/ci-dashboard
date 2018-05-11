@@ -1,4 +1,7 @@
+const config_db = require("./config.db")
+
 var config = {};
+config.db = config_db;
 
 
 /***********************
@@ -7,53 +10,16 @@ var config = {};
 
 config.webserver =
 {
-    port:               8080,
+    port:               80,
     public_directory:   __dirname.replace(/\\/g, '/').replace(/\/[\w-]+$/, '') + "/react-demo/build"
 };
 
 config.webserver.response =
 {
-    ok:         200,
-    error:      500,
-    no_data:    404,
-    no_exists:  404
-};
-
-/*******************
- * D A T A B A S E *
- *******************/
-
-config.db = {};
-
-config.db.connection =
-{
-    host:       "localhost",
-    port:       3306,
-    database:   "cidashboard",
-    user:       "root",
-    password:   "password"
-};
-
-config.db.tablename =
-{
-    // Stores meta info on each IDataInterface source
-    //      e.g. qa_builds_and_runs_from_bamboo
-    data_source_tracker:            "data_source_tracker",
-
-    qa_builds_and_runs_from_bamboo: "qa_builds_and_runs_from_bamboo",
-    bug_resolution_dates:           "bug_resolution_dates",
-    resolved_story_points:          "resolved_story_points"
-}
-
-/*********************
- * S C H E D U L E R *
- *********************/
-
-config.scheduler =
-{
-    // New data sources will start pulling records saved from this starting date
-    // Unless manually set when scheduling
-    starting_data_date: new Date("2010-01-01")
+    ok:         200, // everything is good
+    error:      500, // internal error, likely an exception
+    no_data:    404, // file exists, but no data to display (i.e. KPI)
+    no_exists:  404  // file does not exist
 };
 
 /*****************
@@ -95,14 +61,20 @@ config.log =
 */
 config.dateformat =
 {
+    // used for the Log.ts logger
+    log: "YYYY-MM-DD HH.mm.ss.SSS",
+
     // used for querying and inserting dates into MySQL database
     mysql: "YYYY-MM-DD HH:mm:ss",
 
     // used for communication with python scripts
-    python: "YYYY-MM-DD HH:mm:ss",
+    python: "YYYY-MM-DD",
 
     // used for date input for Plot.ly charts
-    charts: "YYYY-MM-DD"
+    charts: "YYYY-MM-DD",
+
+    // used for displaying dates to console
+    console: "YYYY-MM-DD HH:mm:ss"
 };
 
 module.exports = config;

@@ -8,16 +8,28 @@ var sqlqueries = {};
 
 sqlqueries.setup =
 [
-    // Create data source tracker table
-    `CREATE TABLE ${config.db.tablename.data_source_tracker}
+    // Keeps track of the date ranges the server has successfully
+    // downloaded from different data sources
+    //
+    // NOTE: the default key on FROM_DATE and TO_DATE determines
+    // the date from which new data sources will download from
+    `CREATE TABLE IF NOT EXISTS ${config.db.tablename.data_source_tracker}
     (
         TABLE_NAME  VARCHAR(255)    NOT NULL PRIMARY KEY,
-        FROM_DATE   DATETIME        NOT NULL DEFAULT '2000-01-10',
-        TO_DATE     DATETIME        NOT NULL DEFAULT '2000-01-10'
+        FROM_DATE   DATETIME        NOT NULL DEFAULT '2017-01-01',
+        TO_DATE     DATETIME        NOT NULL DEFAULT '2017-01-01'
     )`,
 
+    // Create Sample data table
+    `CREATE TABLE IF NOT EXISTS ${config.db.tablename.sample_data}
+    (
+        ID          INT             NOT NULL PRIMARY KEY
+    )`,
+    `INSERT INTO ${config.db.tablename.data_source_tracker} (TABLE_NAME)
+        VALUES ('${config.db.tablename.sample_data}')`,
+
     // Create QA Builds and Runs from Bamboo data table
-    `CREATE TABLE ${config.db.tablename.qa_builds_and_runs_from_bamboo}
+    `CREATE TABLE IF NOT EXISTS ${config.db.tablename.qa_builds_and_runs_from_bamboo}
     (
         BUILDRESULTSUMMARY_ID           INT             NOT NULL PRIMARY KEY,
         MINUTES_TOTAL_QUEUE_AND_BUILD   INT             NOT NULL,
@@ -36,7 +48,7 @@ sqlqueries.setup =
         VALUES ('${config.db.tablename.qa_builds_and_runs_from_bamboo}')`,
 
     // Create Bug Resolution Dates data table
-    `CREATE TABLE ${config.db.tablename.bug_resolution_dates}
+    `CREATE TABLE IF NOT EXISTS ${config.db.tablename.bug_resolution_dates}
     (
         BUG_ID          VARCHAR(15) NOT NULL PRIMARY KEY,
         PRODUCT         VARCHAR(15) NOT NULL,
@@ -48,7 +60,7 @@ sqlqueries.setup =
         VALUES ('${config.db.tablename.bug_resolution_dates}')`,
 
     // Create Resolved Story Points data table
-    `CREATE TABLE ${config.db.tablename.resolved_story_points}
+    `CREATE TABLE IF NOT EXISTS ${config.db.tablename.resolved_story_points}
     (
         STORY_ID        VARCHAR(15) NOT NULL PRIMARY KEY,
         CYCLE           CHAR(6)     NOT NULL,
