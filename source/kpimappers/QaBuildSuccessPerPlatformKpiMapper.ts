@@ -26,14 +26,12 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
     {
         return `
             SELECT PLATFORM_NAME, 
-                  (SELECT COUNT(*) FROM ${this._tablename}
-                   WHERE BUILD_STATE = 'Successful'
-                   AND PRODUCT_CODE = a.PRODUCT_CODE AND 
-                   BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}') 
-                   / COUNT(*) as 'Success'
-            FROM ${this._tablename} a
-            WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-            GROUP BY PLATFORM_NAME
+            DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") AS Date,
+            AVG(CASE WHEN  BUILD_STATE = "Successful" THEN 1 ELSE 0 END) as Success
+            FROM ${this._tablename}
+            Where BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
+            GROUP BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d"), PLATFORM_NAME 
+            ORDER BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d");
         `;
     }
 
@@ -45,29 +43,100 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
      */
     protected mapToKpiStateOrNull(jsonArray: Array<any>): IKpiState|null
     {
-        var values: Array<any> = [];
-        var labels: Array<any> = [];
+        // Contains the values (The data to plot the graph)
+        var windowsValue: Array<any> = [];
+        // Contains the labels (To fields to get a line chart)
+        var windowsLabel: Array<any> = [];
+
+        var linuxValue: Array<any> = [];
+        var linuxLabel: Array<any> = [];
+
+        var macValue: Array<any> = [];
+        var macLabel: Array<any> = [];
+
+        // Edit the stretch goal here
+        const stretchGoal = 0.75;
 
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
-            values.push(jsonArray[i].Success);
-            labels.push(jsonArray[i].PLATFORM_NAME);
+            // only insert the value the value is higher than 0%
+            // to prevent sudden drops
+            if (jsonArray[i].Success > 0) {
+                if (jsonArray[i].PLATFORM_NAME == "Windows") {
+                    windowsValue.push(jsonArray[i].Success);
+                    windowsLabel.push(jsonArray[i].Date);
+                } else if (jsonArray[i].PLATFORM_NAME == "Linux") {
+                    linuxValue.push(jsonArray[i].Success);
+                    linuxLabel.push(jsonArray[i].Date);
+                } else { // It is a mac system
+                    macValue.push(jsonArray[i].Success);
+                    macLabel.push(jsonArray[i].Date);
+                } // end inner if statement
+            } // end outer if statement
         }
 
         return {
             data: [{
-                // values represent the y axis
-                values: values,
-                // labels represent the x value
-                labels: labels,
-                type:   "pie"
+                x: windowsLabel,
+                y: windowsValue,
+                name: "Windows",
+                type: "scatter",
+                mode: "lines",
+                line: {
+                    "shape": "spline",
+                    "smoothing": 1.3
+                }
+            },
+            {
+                x: linuxLabel,
+                y: linuxValue,
+                name: "Linux",
+                type: "scatter",
+                mode: "lines",
+                line: {
+                    "shape": "spline",
+                    "smoothing": 1.3
+                }
+            },
+            {
+                x: macLabel,
+                y: macValue,
+                name: "Mac",
+                type: "scatter",
+                mode: "lines",
+                line: {
+                    "shape": "spline",
+                    "smoothing": 1.3
+                }
             }],
             layout: {
                 title: this.Title,
-                barmode: 'group'
+                xaxis: {
+                    title: "Date",
+                    fixedrange: true
+                },
+                yaxis: {
+                    title: 'Build Percentage',
+                    tickformat: ',.0%',
+                    fixedrange: true,
+                    range: [0,1]
+                },
+                shapes: [{
+                    type: 'line',
+                    xref: 'paper',
+                    x0: 0,
+                    y0: stretchGoal,
+                    x1: 1,
+                    y1: stretchGoal,
+                    line: {
+                        color: 'rgb(255, 0, 0)',
+                        width: 4,
+                        dash:'dot'
+                    }
+                }]
             },
             frames: [],
-            config: {}
+            config: {displayModeBar: false}
         };
     }
 }
