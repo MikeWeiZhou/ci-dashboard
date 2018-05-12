@@ -108,11 +108,6 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                     windowsValue.push(jsonArray[i].Success);
                     windowsLabel.push(jsonArray[i].Date);
                     windowFirstPush = true;
-                } else if (moment(this._to).diff(jsonArray[i].Date,'days') == 0 ){
-                    // Once all the points are exhausted add the last point in if it isn't 0
-                    // Need to figure out how to do it dynmically too
-                    windowsValue.push(jsonArray[i].Success);
-                    windowsLabel.push(jsonArray[i].Date);
                 } else {
                     // If there is more points than how many days left to plot
                     if (getDaysLeft < plottingPoints) {
@@ -127,7 +122,8 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                         windowsAverage.push(jsonArray[i].Success);
                         ++windowsPointsToAdd;
                         // once it meets the specific points then it'll add it to the value and label
-                        if (windowsPointsToAdd % this.dataPointsToPlot == 0) {
+                        // or if it is the final point
+                        if ((windowsPointsToAdd % this.dataPointsToPlot == 0) || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
                             var averageValue = avgFunctions.getAveragePercentage(windowsAverage);
                             windowsValue.push(averageValue);
                             windowsLabel.push(jsonArray[i].Date);
@@ -138,7 +134,6 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
 
                             // clean the data conained by popping from the array
                             avgFunctions.cleanAverageData(windowsAverage);
-
                         } // end if statement
                     } // end else statement
                 } // end crazy if statement
@@ -149,12 +144,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                     linuxValue.push(jsonArray[i].Success);
                     linuxLabel.push(jsonArray[i].Date);
                     linuxFirstPush = true;
-                    
-                } else if (i + 3 >= jsonArray.length) {
-                    // Once all the points are exhausted add the last point in if it isn't 0
-                    // Need to figure out how to do it dynmically too
-                    linuxValue.push(jsonArray[i].Success);
-                    linuxLabel.push(jsonArray[i].Date);
+
                 } else {
                     // If there is more points than how many days left to plot
                     if (getDaysLeft < plottingPoints) {
@@ -169,7 +159,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                         linuxAverage.push(jsonArray[i].Success);
                         ++linuxPointsToAdd;
                         // once it meets the specific points then it'll add it to the value and label
-                        if (linuxPointsToAdd % this.dataPointsToPlot == 0) {
+                        if (linuxPointsToAdd % this.dataPointsToPlot == 0 || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
                             var averageValue = avgFunctions.getAveragePercentage(linuxAverage);
                             linuxValue.push(averageValue);
                             linuxLabel.push(jsonArray[i].Date);
@@ -192,11 +182,6 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                     macValue.push(jsonArray[i].Success);
                     macLabel.push(jsonArray[i].Date);
                     macFirstPush = true;
-                } else if (i + 3 >= jsonArray.length) {
-                    // Once all the points are exhausted add the last point in if it isn't 0
-                    // Need to figure out how to do it dynmically too
-                    macValue.push(jsonArray[i].Success);
-                    macLabel.push(jsonArray[i].Date);
                 } else {
                     // If there is more points than how many days left to plot
                     if (getDaysLeft < plottingPoints) {
@@ -211,7 +196,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                         macAverage.push(jsonArray[i].Success);
                         ++macPointsToAdd;
                         // once it meets the specific points then it'll add it to the value and label
-                        if (macPointsToAdd % this.dataPointsToPlot == 0) {
+                        if (macPointsToAdd % this.dataPointsToPlot == 0 || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
                             var averageValue = avgFunctions.getAveragePercentage(macAverage);
                             macValue.push(averageValue);
                             macLabel.push(jsonArray[i].Date);
