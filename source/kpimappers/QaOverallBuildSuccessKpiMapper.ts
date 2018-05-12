@@ -10,7 +10,7 @@ const config = require("../../config/config")
 export class QaOverallBuildSuccessKpiMapper extends KpiMapper
 {
     public readonly Category: string = "Quality Assurance";
-    public readonly Title: string = "QA Overall Build Success vs Fail";
+    public readonly Title: string = "QA Overall Build Success";
 
     private _tablename: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
 
@@ -26,8 +26,7 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
     {
         return [`
         SELECT DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") AS Date, 
-        AVG(CASE WHEN  BUILD_STATE = "Successful" THEN 1 ELSE 0 END) as Success,
-        AVG(CASE WHEN  BUILD_STATE = "Successful" THEN 0 ELSE 1 END) as Failed 
+        AVG(CASE WHEN  BUILD_STATE = "Successful" THEN 1 ELSE 0 END) as Success
         FROM ${this._tablename} Where BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
         GROUP BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") 
         ORDER BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d");
@@ -44,8 +43,6 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
     {
         var jsonArray: Array<any> = jsonArrays[0];
         var successValue: Array<any> = [];
-        var failedValue: Array<any> = [];
-
         var overallLabel: Array<any> = [];
 
         // Edit the stretch goal here
@@ -54,7 +51,6 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
             successValue.push(jsonArray[i].Success);
-            failedValue.push(jsonArray[i].Failed);
             overallLabel.push(jsonArray[i].Date);
         }
 
@@ -63,17 +59,6 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
                 x: overallLabel,
                 y: successValue,
                 name: "Overall Build Success",
-                type: "scatter",
-                mode: "lines",
-                line: {
-                    "shape": "spline",
-                    "smoothing": 1.3
-                }
-            },
-            {
-                x: overallLabel,
-                y: failedValue,
-                name: "Overall Build Failure",
                 type: "scatter",
                 mode: "lines",
                 line: {
