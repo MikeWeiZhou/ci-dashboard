@@ -1,3 +1,5 @@
+import * as moment from "moment"
+import { avgPointsFunctions } from "./Functions/avgPointsFunctions"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
 const config = require("../../../config/config")
@@ -13,6 +15,12 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
 
     private _tablename: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
 
+    private _from: string;
+    private _to: string;
+
+    // Start with splitting data points by how many days 
+    private dataPointsToPlot = 0;
+
     /**
      * Returns an array of SQL query strings given a date range.
      * @param {string} from date
@@ -23,6 +31,9 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
+        this._from = from;
+        this._to = to;
+
         return [`
             SELECT PRODUCT_NAME, 
             DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") AS Date, 
@@ -43,42 +54,186 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
         var jsonArray: Array<any> = jsonArrays[0];
+        var avgFunctions = new avgPointsFunctions();
+
+        // Invalid; One data point on a scatter chart shows nothing
+        if (jsonArray.length == 1)
+        {
+            return null;
+        }
+
+        // Declare how many points to plot
+        // Will always plot the first and last and in between will be
+        // a number that is equal to or lower than points specified
+        var plottingPoints = 30;
+
+        var dxPointsToAdd = 0;
+        var fxPointsToAdd = 0;
+        var icPointsToAdd = 0;
+        var mxPointsToAdd = 0;
+
         // Contains the values (The data to plot the graph)
         var dxValue: Array<any> = [];
         var dxLabel: Array<any> = [];
+        var dxAverage: Array<any> = [];
 
         var fxValue: Array<any> = [];
         var fxLabel: Array<any> = [];
+        var fxAverage: Array<any> = [];
 
         var icValue: Array<any> = [];
         var icLabel: Array<any> = [];
+        var icAverage: Array<any> = [];
 
-        var mxValue : Array<any> = [];
-        var mxLabel : Array<any> = [];
+        var mxValue: Array<any> = [];
+        var mxLabel: Array<any> = [];
+        var mxAverage: Array <any> = []
 
         // Edit the stretch goal here
         const stretchGoal = 0.75;
 
+        // 30 day difference example
+        var getDaysLeft = avgFunctions.getHowManyDaysLeft(this._from, this._to);
+
+        // Find out how many data points to split across using Math.Floor
+        this.dataPointsToPlot = Math.floor((getDaysLeft/plottingPoints));
+
+        var dxFirstPush = false;
+        var fxFirstPush = false;
+        var icFirstPush = false;
+        var mxFirstPush = false;
+        
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
-            // only insert the value the value is higher than 0%
-            // to prevent sudden drops
-            if (jsonArray[i].Success > 0) {
-                if (jsonArray[i].PRODUCT_NAME == "***REMOVED***") {
+            if (jsonArray[i].PRODUCT_NAME == "***REMOVED***") {
+                // get the starting point of the graph and add it in
+                if (!dxFirstPush) {
                     dxValue.push(jsonArray[i].Success);
                     dxLabel.push(jsonArray[i].Date);
-                } else if (jsonArray[i].PRODUCT_NAME == "***REMOVED***") {
+                    dxFirstPush = true;
+                } else {
+                     // If there is more points than how many days left to plot
+                     if (getDaysLeft < plottingPoints) {
+                         // Plot it normally
+                         dxValue.push(jsonArray[i].Success);
+                         dxLabel.push(jsonArray[i].Success);
+                         dxFirstPush = true;
+                     } else {
+                        dxAverage.push(jsonArray[i].Success);
+                        ++dxPointsToAdd;
+                        // once it meets the specific points then it'll add it to the value and label
+                        // or if it is the final point
+                        if ((dxPointsToAdd % this.dataPointsToPlot == 0) || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
+                            var averageValue = avgFunctions.getAveragePercentage(dxAverage);
+                            dxValue.push(averageValue);
+                            dxLabel.push(jsonArray[i].Date);
+
+                            // clean everything up once it's over
+                            // resets the points to 0
+                            dxPointsToAdd = 0;
+
+                            // clean data conained by popping from the array
+                            avgFunctions.cleanAverageData(dxAverage);
+                        }
+                     }
+                }
+            } else if (jsonArray[i].PRODUCT_NAME == "***REMOVED***") {
+                 // get the starting point of the graph and add it in
+                 if (!fxFirstPush) {
                     fxValue.push(jsonArray[i].Success);
                     fxLabel.push(jsonArray[i].Date);
-                } else if (jsonArray[i].PRODUCT_NAME == "***REMOVED***") {
+                    fxFirstPush = true;
+                } else {
+                     // If there is more points than how many days left to plot
+                     if (getDaysLeft < plottingPoints) {
+                         // Plot it normally
+                         fxValue.push(jsonArray[i].Success);
+                         fxLabel.push(jsonArray[i].Success);
+                         fxFirstPush = true;
+                     } else {
+                        fxAverage.push(jsonArray[i].Success);
+                        ++fxPointsToAdd;
+                        // once it meets the specific points then it'll add it to the value and label
+                        // or if it is the final point
+                        if ((fxPointsToAdd % this.dataPointsToPlot == 0) || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
+                            var averageValue = avgFunctions.getAveragePercentage(fxAverage);
+                            fxValue.push(averageValue);
+                            fxLabel.push(jsonArray[i].Date);
+
+                            // clean everything up once it's over
+                            // resets the points to 0
+                            fxPointsToAdd = 0;
+
+                            // clean data conained by popping from the array
+                            avgFunctions.cleanAverageData(fxAverage);
+                        }
+                     }
+                }
+            } else if (jsonArray[i].PRODUCT_NAME == "***REMOVED***") {
+                // get the starting point of the graph and add it in
+                if (!icFirstPush) {
                     icValue.push(jsonArray[i].Success);
                     icLabel.push(jsonArray[i].Date);
-                } else if (jsonArray[i].PRODUCT_NAME == "***REMOVED***") {
+                    icFirstPush = true;
+                } else {
+                     // If there is more points than how many days left to plot
+                     if (getDaysLeft < plottingPoints) {
+                         // Plot it normally
+                         icValue.push(jsonArray[i].Success);
+                         icLabel.push(jsonArray[i].Success);
+                         icFirstPush = true;
+                     } else {
+                        icAverage.push(jsonArray[i].Success);
+                        ++icPointsToAdd;
+                        // once it meets the specific points then it'll add it to the value and label
+                        // or if it is the final point
+                        if ((icPointsToAdd % this.dataPointsToPlot == 0) || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
+                            var averageValue = avgFunctions.getAveragePercentage(icAverage);
+                            icValue.push(averageValue);
+                            icLabel.push(jsonArray[i].Date);
+
+                            // clean everything up once it's over
+                            // resets the points to 0
+                            icPointsToAdd = 0;
+
+                            // clean data conained by popping from the array
+                            avgFunctions.cleanAverageData(icAverage);
+                        }
+                     }
+                }
+            } else if (jsonArray[i].PRODUCT_NAME == "***REMOVED***") {
+                 // get the starting point of the graph and add it in
+                 if (!mxFirstPush) {
                     mxValue.push(jsonArray[i].Success);
                     mxLabel.push(jsonArray[i].Date);
-                } // end inner if statement
-                // Or else ignore everything else that isn't those product names
-            } // end outer if statement
+                    mxFirstPush = true;
+                } else {
+                     // If there is more points than how many days left to plot
+                     if (getDaysLeft < plottingPoints) {
+                         // Plot it normally
+                         mxValue.push(jsonArray[i].Success);
+                         mxLabel.push(jsonArray[i].Success);
+                         mxFirstPush = true;
+                     } else {
+                        mxAverage.push(jsonArray[i].Success);
+                        ++mxPointsToAdd;
+                        // once it meets the specific points then it'll add it to the value and label
+                        // or if it is the final point
+                        if ((mxPointsToAdd % this.dataPointsToPlot == 0) || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
+                            var averageValue = avgFunctions.getAveragePercentage(mxAverage);
+                            mxValue.push(averageValue);
+                            mxLabel.push(jsonArray[i].Date);
+
+                            // clean everything up once it's over
+                            // resets the points to 0
+                            mxPointsToAdd = 0;
+
+                            // clean data conained by popping from the array
+                            avgFunctions.cleanAverageData(mxAverage);
+                        }
+                     }
+                }
+            } // end inner if statement
         }
 
         return {
