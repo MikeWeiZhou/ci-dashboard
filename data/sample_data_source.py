@@ -34,4 +34,4 @@ if fromdate == "2017-01-01":
 else:
     # print("invalid json object")
     # print(1/0)
-    sys.exit(10)    
+    sys.exit(10)

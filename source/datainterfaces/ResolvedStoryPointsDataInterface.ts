@@ -30,10 +30,10 @@ export class ResolvedStoryPointsDataInterface implements IDataInterface
      * Returns a data record derrived from a JSON object ready to be consumed by IDataStorage.
      * Array order must match TableColumns.
      * @param {any} o original JSON object
-     * @returns {Array<any>} data record as an array
+     * @returns {Array<any>|null} data record as an array or null if discarding data
      * @override
      */
-    public Transform(o: any): Array<any>
+    public Transform(o: any): Array<any>|null
     {
         return [
             o.key,                  // STORY_ID

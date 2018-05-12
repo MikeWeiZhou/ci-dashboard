@@ -14,6 +14,10 @@ const config = require("../../config/config")
  */
 export class Scheduler
 {
+    // 9999 is the absolute max, anything more and you'll have a buffer overflow
+    private readonly _MAX_RUN_INTERVAL_MINUTES = 9999;
+    private readonly _MIN_RUN_INTERVAL_MINUTES = 0;
+
     private _dataStorage: IDataStorage;
 
     /**
@@ -60,6 +64,9 @@ export class Scheduler
             return;
         }
 
+        // Keeps track of whether stream has errored
+        var isStreamErrored: boolean = false;
+
         var from: string = moment(validSchedule.DataFromDate).format(config.dateformat.console);
         var to: string = moment(validSchedule.DataToDate).format(config.dateformat.console);
         console.log(`Running schedule: ${validSchedule.Title} with date ranges between ${from} and ${to}`);
@@ -68,7 +75,6 @@ export class Scheduler
         var _this: Scheduler = this;
         var transformStream: TransformStream = new TransformStream(validSchedule.DataInterface);
         var writeStream: WriteStream = new WriteStream(this._dataStorage, validSchedule.DataInterface);
-
         validSchedule.DataCollector.Initialize(validSchedule.DataFromDate as Date, validSchedule.DataToDate as Date);
         validSchedule.DataCollector.GetStream()
             .on("error", (err: Error) => { transformStream.emit("error", err) })
@@ -77,16 +83,25 @@ export class Scheduler
             .pipe(writeStream)
             .on("error", (err: Error) =>
             {
+                isStreamErrored = true;
                 console.log(`Error running schedule ${validSchedule.Title}. Error has been logged.`);
                 Log(err, `Error with pipeline while running schedule ${validSchedule.Title}`);
             })
             .on("finish", async () =>
             {
-                console.log(`Finished running data collection for schedule ${validSchedule.Title}`);
-                if (!await _this.updateDataToDateInDb(validSchedule))
+                // "finish" event always fire before "error" event, if there is an error
+                // so we must gurantee there isn't any "error" event thrown immediately after
+                setTimeout(async () =>
                 {
-                    console.log("BUT FAILED TO update dates info in data source tracking table");
-                }
+                    if (!isStreamErrored)
+                    {
+                        console.log(`Finished running data collection for schedule ${validSchedule.Title}`);
+                        if (!await _this.updateDataToDateInDb(validSchedule))
+                        {
+                            console.log("BUT FAILED TO update dates info in data source tracking table");
+                        }
+                    }
+                }, 1000);
             });
 
         // Set schedule to run again
@@ -114,7 +129,7 @@ export class Scheduler
      */
     private async makeValidScheduleOrNull(schedule: ISchedule): Promise<ISchedule|null>
     {
-        if (!(0 <= schedule.RunIntervalInMinutes && schedule.RunIntervalInMinutes <= 9999))
+        if (!(this._MIN_RUN_INTERVAL_MINUTES <= schedule.RunIntervalInMinutes && schedule.RunIntervalInMinutes <= this._MAX_RUN_INTERVAL_MINUTES))
         {
             return null;
         }
