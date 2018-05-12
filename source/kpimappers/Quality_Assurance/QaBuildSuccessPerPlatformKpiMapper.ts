@@ -1,4 +1,5 @@
 import * as moment from "moment"
+import { avgPointsFunctions } from "./Functions/avgPointsFunctions"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
 const config = require("../../../config/config")
@@ -16,6 +17,8 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
 
     private _from: string;
     private _to: string;
+    // Start with splitting data points by 1 days 
+    private dataPointsToPlot = 0;
 
     /**
      * Returns an array of SQL query strings given a date range.
@@ -42,16 +45,6 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
     }
 
     /**
-     * Returns how many days are remaining in between two dates
-     * @returns {var} a value on how many days left on an integer
-     */
-    protected getHowManyDaysLeft()
-    {        
-        var daysRemaining = moment(this._to).diff(this._from,'days');
-        return daysRemaining;
-    }
-
-    /**
      * Returns a KpiState given multiple JSON arrays containing queried data.
      * @param {Array<any>[]} jsonArrays One or more JSON array results (potentially empty arrays)
      * @returns {IKpiState|null} IKpiState object or null when insufficient data
@@ -60,6 +53,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
         var jsonArray: Array<any> = jsonArrays[0];
+        var avgFunctions = new avgPointsFunctions();
 
         // Invalid; One data point on a scatter chart shows nothing
         if (jsonArray.length == 1)
@@ -68,60 +62,173 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
         }
 
         // Declare how many points to plot
-        var windowPoints = 15;
-        var linuxPoints = 15;
-        var macPoints = 15;
+        // Will always plot the first and last and in between will be
+        // a number that is equal to or lower than points specified
+        var plottingPoints = 30;
+
+        var windowsPointsToAdd = 0;
+        var linuxPointsToAdd = 0;
+        var macPointsToAdd = 0;
 
         // Contains the values (The data to plot the graph)
         var windowsValue: Array<any> = [];
         // Contains the labels (To fields to get a line chart)
         var windowsLabel: Array<any> = [];
+        // To help contain the values and spit out an average
+        var windowsAverage: Array<any> = [];
 
         var linuxValue: Array<any> = [];
         var linuxLabel: Array<any> = [];
+        var linuxAverage: Array<any> = [];
 
         var macValue: Array<any> = [];
         var macLabel: Array<any> = [];
+        var macAverage: Array<any> = [];
 
         // Edit the stretch goal here
         const stretchGoal = 0.75;
 
+        // 30 day difference example
+        var getDaysLeft = avgFunctions.getHowManyDaysLeft(this._from, this._to);
+
+        // Find out how many data points to split across using Math.Floor
+        this.dataPointsToPlot = Math.floor((getDaysLeft/plottingPoints));
+
+        var windowFirstPush = false;
+        var linuxFirstPush = false;
+        var macFirstPush = false;
+
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
             if (jsonArray[i].PLATFORM_NAME == "Windows") {
-                // get the starting point of the graph and add itin
-                if (windowPoints != 0 && i-3 <= 0) {
+                // get the starting point of the graph and add it in
+
+                // Need to figure out how to do it dynamically
+                if (!windowFirstPush) {
                     windowsValue.push(jsonArray[i].Success);
                     windowsLabel.push(jsonArray[i].Date);
-                } else if (windowPoints != 0) {
+                    windowFirstPush = true;
+                } else if (moment(this._to).diff(jsonArray[i].Date,'days') == 0 ){
+                    // Once all the points are exhausted add the last point in if it isn't 0
+                    // Need to figure out how to do it dynmically too
+                    windowsValue.push(jsonArray[i].Success);
+                    windowsLabel.push(jsonArray[i].Date);
+                } else {
                     // If there is more points than how many days left to plot
-                    if (this.getHowManyDaysLeft() < windowPoints) {
+                    if (getDaysLeft < plottingPoints) {
                         // plot it normally
                         windowsValue.push(jsonArray[i].Success);
                         windowsLabel.push(jsonArray[i].Date);
                     } else {
                         // implement crazy logic here
-                        // do nothing for now
-                    }
-                } else if (windowPoints == 0 && i+3 >= jsonArray.length) {
-                    // Once all the points are exhausted add the last point in
-                    windowsValue.push(jsonArray[i].Success);
-                    windowsLabel.push(jsonArray[i].Date);
-                }
+                        // what the crazy logic should do is it'll get the average of the dataPointsToPlot
+                        // and plot that as the date that's the 1 over the middle date if dataPointsToPlot is even IDEALLY
+                        // otherwise plot at exactly the middle date if dataPointsToPlot is odd IDEALLY
+                        windowsAverage.push(jsonArray[i].Success);
+                        ++windowsPointsToAdd;
+                        // once it meets the specific points then it'll add it to the value and label
+                        if (windowsPointsToAdd % this.dataPointsToPlot == 0) {
+                            var averageValue = avgFunctions.getAveragePercentage(windowsAverage);
+                            windowsValue.push(averageValue);
+                            windowsLabel.push(jsonArray[i].Date);
+
+                            // clean everything up once it's over
+                            // resets the points to 0
+                            windowsPointsToAdd = 0;
+
+                            // clean the data conained by popping from the array
+                            avgFunctions.cleanAverageData(windowsAverage);
+
+                        } // end if statement
+                    } // end else statement
+                } // end crazy if statement
+
             } else if (jsonArray[i].PLATFORM_NAME == "Linux") {
-                if (linuxPoints != 0) {
+                // get the starting point of the graph and add it in
+                if (!linuxFirstPush) {
                     linuxValue.push(jsonArray[i].Success);
                     linuxLabel.push(jsonArray[i].Date);
-                    --linuxPoints;
-                }
-            } else { // It is a mac system
-                if (macPoints != 0) {
+                    linuxFirstPush = true;
+                    
+                } else if (i + 3 >= jsonArray.length) {
+                    // Once all the points are exhausted add the last point in if it isn't 0
+                    // Need to figure out how to do it dynmically too
+                    linuxValue.push(jsonArray[i].Success);
+                    linuxLabel.push(jsonArray[i].Date);
+                } else {
+                    // If there is more points than how many days left to plot
+                    if (getDaysLeft < plottingPoints) {
+                        // plot it normally
+                        linuxValue.push(jsonArray[i].Success);
+                        linuxLabel.push(jsonArray[i].Date);
+                    } else {
+                        // implement crazy logic here
+                        // what the crazy logic should do is it'll get the average of the dataPointsToPlot
+                        // and plot that as the date that's the 1 over the middle date if dataPointsToPlot is even IDEALLY
+                        // otherwise plot at exactly the middle date if dataPointsToPlot is odd IDEALLY
+                        linuxAverage.push(jsonArray[i].Success);
+                        ++linuxPointsToAdd;
+                        // once it meets the specific points then it'll add it to the value and label
+                        if (linuxPointsToAdd % this.dataPointsToPlot == 0) {
+                            var averageValue = avgFunctions.getAveragePercentage(linuxAverage);
+                            linuxValue.push(averageValue);
+                            linuxLabel.push(jsonArray[i].Date);
+
+                            // clean everything up once it's over
+                            // resets the points to 0
+                            linuxPointsToAdd = 0;
+
+                            // clean the data conained by popping from the array
+                            avgFunctions.cleanAverageData(linuxAverage);
+
+                        } // end if statement
+                    } // end else statement
+                } // end crazy if statement
+            } else {
+                // get the starting point of the graph and add it in
+
+                // Need to figure out how to do it dynamically
+                if (!macFirstPush) {
                     macValue.push(jsonArray[i].Success);
                     macLabel.push(jsonArray[i].Date);
-                    --macPoints;
-                }
+                    macFirstPush = true;
+                } else if (i + 3 >= jsonArray.length) {
+                    // Once all the points are exhausted add the last point in if it isn't 0
+                    // Need to figure out how to do it dynmically too
+                    macValue.push(jsonArray[i].Success);
+                    macLabel.push(jsonArray[i].Date);
+                } else {
+                    // If there is more points than how many days left to plot
+                    if (getDaysLeft < plottingPoints) {
+                        // plot it normally
+                        macValue.push(jsonArray[i].Success);
+                        macLabel.push(jsonArray[i].Date);
+                    } else {
+                        // implement crazy logic here
+                        // what the crazy logic should do is it'll get the average of the dataPointsToPlot
+                        // and plot that as the date that's the 1 over the middle date if dataPointsToPlot is even IDEALLY
+                        // otherwise plot at exactly the middle date if dataPointsToPlot is odd IDEALLY
+                        macAverage.push(jsonArray[i].Success);
+                        ++macPointsToAdd;
+                        // once it meets the specific points then it'll add it to the value and label
+                        if (macPointsToAdd % this.dataPointsToPlot == 0) {
+                            var averageValue = avgFunctions.getAveragePercentage(macAverage);
+                            macValue.push(averageValue);
+                            macLabel.push(jsonArray[i].Date);
+
+                            // clean everything up once it's over
+                            // resets the points to 0
+                            macPointsToAdd = 0;
+
+                            // clean the data conained by popping from the array
+                            avgFunctions.cleanAverageData(macAverage);
+
+                        } // end if statement
+                    } // end else statement
+                } // end crazy if statement
             } // end inner if statement
-        }
+
+        } // end for statement
 
         return {
             data: [{

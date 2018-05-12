@@ -7,7 +7,7 @@ class BuildDashboard extends Component {
         routes: [
             "Quality_Assurance/QaOverallBuildSuccess"
             ,"Quality_Assurance/QaBuildSuccessPerPlatformPerProduct"
-            ,"Quality_Assurance/QaBuildSuccessPerPlatformPerProduct"
+            ,"Quality_Assurance/QaBuildSuccessPerPlatform"
             ,"Quality_Assurance/QaBuildSuccessPerProduct"
             ,"Defects/DefectsMajorCreatedResolved"
             ,"Defects/DefectsCriticalCreatedResolved"
