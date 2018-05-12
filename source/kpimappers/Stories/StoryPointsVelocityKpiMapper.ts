@@ -144,7 +144,7 @@ export class StoryPointsVelocityKpiMapper extends KpiMapper
                         y0: this._annualStretchGoal/365,
                         y1: this._annualStretchGoal/365,
                         line: {
-                            color: 'rgb(255, 0, 0)',
+                            color: 'gold',
                             width: 4,
                             dash:'dot'
                         }

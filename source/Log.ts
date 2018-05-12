@@ -11,7 +11,7 @@ const logDirectory: string = "./" + config.log.directory;
  */
 export function Log(error: Error, additionalInfo: string)
 {
-    var datestamp: string = moment().format(config.dateformat.log);
+    var datestamp: string = moment().format("YYYY-MM-DD HH.mm.ss.SSS");
     var filename: string = `${logDirectory}/${datestamp}.log`;
     var metadata: string = `TIMESTAMP: ${datestamp}\n\n${additionalInfo}`;
 

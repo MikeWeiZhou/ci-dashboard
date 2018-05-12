@@ -2,10 +2,6 @@ const config = require("./config")
 
 var sqlqueries = {};
 
-/*************
- * S E T U P *
- *************/
-
 sqlqueries.setup =
 [
     // Keeps track of the date ranges the server has successfully

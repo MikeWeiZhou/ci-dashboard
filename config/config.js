@@ -60,9 +60,6 @@ config.log =
 */
 config.dateformat =
 {
-    // used for the Log.ts logger
-    log: "YYYY-MM-DD HH.mm.ss.SSS",
-
     // used for querying and inserting dates into MySQL database
     mysql: "YYYY-MM-DD HH:mm:ss",
 

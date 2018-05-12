@@ -1,21 +1,14 @@
-const JsonDataCollector = require("../build/datacollectors/JsonDataCollector");
-const PythonShellJsonDataCollector = require("../build/datacollectors/PythonShellJsonDataCollector");
-
-const SampleDataInterface = require("../build/datainterfaces/SampleDataInterface");
-const QaBuildsAndRunsFromBambooDataInterface = require("../build/datainterfaces/QaBuildsAndRunsFromBambooDataInterface");
-const BugResolutionDatesDataInterface = require("../build/datainterfaces/BugResolutionDatesDataInterface");
-const ResolvedStoryPointsDataInterface = require("../build/datainterfaces/ResolvedStoryPointsDataInterface");
+const JsonDataCollector = require("../build/datacollectors/JsonDataCollector")
+const PythonShellJsonDataCollector = require("../build/datacollectors/PythonShellJsonDataCollector")
+const SampleDataInterface = require("../build/datainterfaces/SampleDataInterface")
+const QaBuildsAndRunsFromBambooDataInterface = require("../build/datainterfaces/QaBuildsAndRunsFromBambooDataInterface")
+const BugResolutionDatesDataInterface = require("../build/datainterfaces/BugResolutionDatesDataInterface")
+const ResolvedStoryPointsDataInterface = require("../build/datainterfaces/ResolvedStoryPointsDataInterface")
 
 const config = require("./config")
 
-var schedules = {};
-
-/*************
- * S E T U P *
- *************/
-
 // Format of schedules should match interface in source/scheduler/ISchedule.ts
-schedules =
+var schedules =
 [
     // {
     //     Title: "Sample Data Source",

@@ -143,7 +143,7 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
                         y0: this._stretchGoal,
                         y1: this._stretchGoal,
                         line: {
-                            color: 'rgb(255, 0, 0)',
+                            color: 'gold',
                             width: 4,
                             dash:'dot'
                         }

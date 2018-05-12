@@ -9,6 +9,11 @@ import { IDataStorage } from "./IDataStorage"
 export class MysqlDataStorage implements IDataStorage
 {
     /**
+     * If true, any new records with an existing primary key in database will be replaced.
+     */
+    private readonly _REPLACE_EXISTING_RECORDS = true;
+
+    /**
      * Node.js MySQL connector requires insert statements with separate values parameter
      * be wrapped with this many array layers.
      */
@@ -121,8 +126,10 @@ export class MysqlDataStorage implements IDataStorage
      */
     private getInsertQuery(tablename: string, columns: string[]): string
     {
-        // e.g. INSERT INTO Test (name,email,n) VALUES ?
-        var query: string = `INSERT INTO ${tablename} (`;
+        var insertOrReplace: string = (this._REPLACE_EXISTING_RECORDS)
+            ? "REPLACE"
+            : "INSERT";
+        var query: string = `${insertOrReplace} INTO ${tablename} (`;
         for (let i: number = 0; i < columns.length; ++i)
         {
             query += columns[i] + ",";

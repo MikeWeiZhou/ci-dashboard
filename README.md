@@ -37,43 +37,28 @@ These commands are mainly for easier development and testing. **DB Note**: If da
 * **npm run setup-front** setup front-end only
 * **npm run setup-back** setup back-end only, including the database
 ***
+* **npm run setup-db** will re-run all setup queries in config/sqlqueries.js
+* **npm run reset-db** deletes all tables and re-runs *setup-db* command
+***
 * **npm run build** builds front and back-end
 * **npm run build-front** builds front-end only
 * **npm run build-back** builds back-end only
 ***
 * **npm run start** runs the built version of dashboard
 ***
-* **npm run dev-back** runs the back-end in dev-mode without needing to build
-* **npm run dev-front** runs the front-end in dev-mode without needing to build
+* **npm run react** runs the development version of front-end only
 ***
 * **npm run test** builds the back-end and runs unit tests on the back-end
 
 
 ## 3. Directory Structure
 
-### build
-Javascript compiled from Typescript. Includes react front-end and unit tests.
-
-### source
-Typescript source. Includes unit tests.
-
-### data
-Sample data files.
-
-### config
-Configuration files.
-
-### docs
-Holds all the documentation and how-to's.
-
-### logs
-Server error logs organized by date and time.
-
-### plotly-demo
-Plotly.js experimentation. Front-end library.
-
-### react-demo
-React experimentation. Front-end view server.
-
-### codesnippets
-Code snippets/experiments. This is purely for developers.
+* **build** Javascript compiled from Typescript. Includes react front-end and unit tests.
+* **codesnippets** Code snippets/experiments. This is purely for developers.
+* **config** Configuration files.
+* **data** Sample data files.
+* **docs** Holds all the documentation and how-to's.
+* **logs** Server error logs organized by date and time.
+* **plotly-demo** Plotly.js experimentation. Front-end library.
+* **react-demo** React experimentation. Front-end view server.
+* **source** Typescript source. Includes unit tests.

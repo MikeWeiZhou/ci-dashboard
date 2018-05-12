@@ -26,16 +26,16 @@ export class TransformStream extends Transform
      * Called automatically when used in a pipe.
      * @param {object} jsonObj a JSON object from the stream
      * @param {string} encoding not used
-     * @param {Function} callback callback when finished transforming jsonObj
+     * @param {Function} done callback when finished transforming jsonObj or error
      * @override
      */
-    public _transform(jsonObj: object, encoding: string, callback: Function): void
+    public _transform(jsonObj: object, encoding: string, done: Function): void
     {
-        this.push(this._dataInterface.Transform(jsonObj));
-
-        // callback signals successful writing of jsonObj,
-        // ommit callback() to signal error,
-        // or pass a parameter with any object/message to signal with an error
-        callback();
+        var transformed: Array<any>|null = this._dataInterface.Transform(jsonObj);
+        if (transformed != null)
+        {
+            this.push(transformed);
+        }
+        done();
     }
 }

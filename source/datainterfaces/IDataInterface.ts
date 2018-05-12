@@ -20,7 +20,7 @@ export interface IDataInterface
      * Returns a data record derrived from a JSON object ready to be consumed by IDataStorage.
      * Array order must match TableColumns.
      * @param {any} o original JSON object
-     * @returns {Array<any>} data record as an array
+     * @returns {Array<any>|null} data record as an array or null if discarding data
      */
-    Transform(o: any): Array<any>;
+    Transform(o: any): Array<any>|null;
 }

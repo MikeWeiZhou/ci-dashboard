@@ -1,5 +1,4 @@
 import { Writable } from "stream"
-import { Log } from "../Log"
 import { IDataStorage } from "../datastorages/IDataStorage";
 import { IDataInterface } from "../datainterfaces/IDataInterface"
 
@@ -29,45 +28,43 @@ export class WriteStream extends Writable
     /**
      * Writes stream data to storage using a StorageWriter.
      * Called automatically when used in a pipe.
-     * @param {Array<any>} data from the stream
+     * @param {Array<any>|null} data from the stream
      * @param {string} encoding not used
-     * @param {Function} callback callback when finished writing data
+     * @param {Function} done callback when finished writing data or error
      * @throws {Error} when data storage write fails
      * @override
      */
-    public _write(data: Array<any>, encoding: string, callback: Function): void
+    public _write(data: Array<any>|null, encoding: string, done: Function): void
     {
-        // Uses a little hack to ensure callback() is not called too early
-        // or it will signal the end of stream before data is finished writing
-        this.writeAsync(data, callback);
+        if (data == null)
+        {
+            done();
+        }
+        else
+        {
+            // Uses a little hack to ensure done() is not called too early
+            // or it will signal the end of stream before data is finished writing
+            this.writeAsync(data, done);
+        }
     }
 
     /**
      * Writes stream data to storage using StorageWriter asynchronously.
      * @async
      * @param {Array<any>} data from the stream
-     * @param {Function} callback callback when finished writing data
+     * @param {Function} done callback when finished writing data or error
      * @throws {Error} when data storage write fails
      */
-    private async writeAsync(data: Array<any>, callback: Function): Promise<void>
+    private async writeAsync(data: Array<any>, done: Function): Promise<void>
     {
         try
         {
             await this._dataStorage.Write(this._dataInterface.TableName, this._dataInterface.TableColumns, data);
+            done();
         }
         catch (err)
         {
-            // ignore duplicate entries when writing in a stream
-            if (!err.code || err.code != "ER_DUP_ENTRY")
-            {
-                Log(err, `Failed write to ${this._dataInterface.TableName}\n\nData: ${data}`);
-                throw err;
-            }
+            done(err);
         }
-
-        // callback signals successful writing of data,
-        // ommit callback() to signal error,
-        // or pass a parameter with any object/message to signal with an error
-        callback();
     }
 }
