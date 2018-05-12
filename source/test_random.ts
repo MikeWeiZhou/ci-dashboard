@@ -4,9 +4,35 @@
  * to saving transformed data into a MySQL database.
  */
 
-import * as moment from "moment"
-const config = require("../config/config")
+import * as fs from "fs"
 
-var mydate: Date = new Date("2018-01-01");
-console.log(mydate);
-console.log(moment.utc(new Date(mydate)).format(config.dateformat.python));
+// var st: any;
+
+var kpilist: object = {};
+
+generateKpiList();
+function generateKpiList()
+{
+    var dirs: string[] = fs.readdirSync("./source/kpimappers");
+    for (let dirname of dirs)
+    {
+        if (/\.ts$/.test(dirname))
+        {
+            continue;
+        }
+
+        kpilist[dirname] = {};
+        let kpifilenames: string[] = fs.readdirSync(`./source/kpimappers/${dirname}`);
+        for (let filename of kpifilenames)
+        {
+            if (!/\.ts$/.test(filename))
+            {
+                continue;
+            }
+
+            let name = filename.slice(0, -3); // remove extension
+            let req = require(`./kpimappers/${dirname}/${name}`);
+            kpilist[dirname][name] = new req[name]();
+        }
+    }
+}

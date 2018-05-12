@@ -10,16 +10,14 @@ const config = require("../../config/config")
  */
 export abstract class KpiMapper
 {
-    public abstract readonly Category: string;
     public abstract readonly Title: string;
-
     private _dataStorage: IDataStorage;
 
     /**
-     * Set storage medium to grab data from.
+     * Constructor.
      * @param {IDataStorage} dataStorage
      */
-    public SetDataStorage(dataStorage: IDataStorage)
+    public constructor(dataStorage: IDataStorage)
     {
         this._dataStorage = dataStorage;
     }
@@ -34,14 +32,10 @@ export abstract class KpiMapper
      */
     public async GetKpiStateOrNull(from: Date, to: Date): Promise<IKpiState|null>
     {
-        if (!this._dataStorage)
-        {
-            throw new Error("No storage medium set.");
-        }
         var fromDate: moment.Moment = moment.utc(from);
         var toDate: moment.Moment = moment.utc(to).hour(23).minute(59).second(59);
-        var dateRange: number = toDate.diff(fromDate, "days");
-        var sqls: string[] = this.getQueryStrings(fromDate.format(config.dateformat.mysql), toDate.format(config.dateformat.mysql),dateRange);
+        var dateRange: number = toDate.diff(fromDate, "days") + 1;
+        var sqls: string[] = this.getQueryStrings(fromDate.format(config.dateformat.mysql), toDate.format(config.dateformat.mysql), dateRange);
         var jsonArrayResults: Array<any>[] = [];
         try
         {

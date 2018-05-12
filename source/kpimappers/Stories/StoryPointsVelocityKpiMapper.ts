@@ -1,26 +1,24 @@
 import * as moment from "moment"
-import { KpiMapper } from "./KpiMapper"
-import { IKpiState } from "./IKpiState"
-const config = require("../../config/config")
+import { KpiMapper } from "../KpiMapper"
+import { IKpiState } from "../IKpiState"
+const kpigoals = require("../../../config/kpigoals")
+const config = require("../../../config/config")
 
 /**
  * StoryPointsVelocityKpiMapper.
  */
 export class StoryPointsVelocityKpiMapper extends KpiMapper
 {
-    public readonly Category: string = "Development";
     public readonly Title: string = "Story Points Velocity";
 
     // Minimum number of data points preferred in chart
-    private readonly _preferredMinNumOfDataPoints: number = 10;
-
-    // Target for number of story points to be completed annually
-    private _annualTarget: number = 1088;
-
-    // Stretch goal for number of story points to be completed annually
-    private _annualStretchGoal: number = 1137;
+    // # of data points on actual chart will always be greater than this
+    private readonly _preferredMinNumOfDataPoints: number = 15;
 
     private readonly _tableName: string = config.db.tablename.resolved_story_points;
+    private _annualTarget: number = kpigoals.story_points_velocity.target_annual;
+    private _annualStretchGoal: number = kpigoals.story_points_velocity.stretch_annual;
+
     private _minNumOfDataPoints: number;
     private _daysInPeriod: number;
     private _from: string;
@@ -41,8 +39,19 @@ export class StoryPointsVelocityKpiMapper extends KpiMapper
         this._minNumOfDataPoints = Math.min(dateRange, this._preferredMinNumOfDataPoints);
         this._daysInPeriod = Math.floor(dateRange / this._minNumOfDataPoints);
 
+        // If date range is not fully divisible by the number of days in a period,
+        // more days need to be added to ensure each data point has exactly this._daysInPeriod days.
+        // Also, more data data points may be added to ensure the starting date plotted <= from date
+        var numDaysInOldestDataPoint = dateRange % this._daysInPeriod;
+        var numDaysToAdd = (numDaysInOldestDataPoint == 1)
+            ? this._daysInPeriod - numDaysInOldestDataPoint // correct start date, period not full
+            : 2 * this._daysInPeriod - numDaysInOldestDataPoint; // wrong start date or period not full
+        from = moment(from)
+            .subtract(numDaysToAdd, "days")
+            .format(config.dateformat.mysql);
+
         return [`
-            SELECT COUNT(*) AS 'COUNT'
+            SELECT SUM(STORY_POINTS) AS 'POINTS'
                   ,FLOOR(DATEDIFF('${to}', RESOLUTION_DATE) / ${this._daysInPeriod}) AS 'PERIOD'
             FROM ${this._tableName}
             WHERE RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
@@ -51,14 +60,14 @@ export class StoryPointsVelocityKpiMapper extends KpiMapper
         `];
         /*
         Bigger period values = older
-        +-------+--------+
-        | COUNT | PERIOD |
-        +-------+--------+
-        |    43 |      4 |
-        |     7 |      3 |
-        |     4 |      2 |
-        |     9 |      1 |
-        +-------+--------+*/
+        +--------+--------+
+        | POINTS | PERIOD |
+        +--------+--------+
+        |    43  |      4 |
+        |     7  |      3 |
+        |     4  |      2 |
+        |     9  |      1 |
+        +--------+--------+*/
     }
 
     /**
@@ -87,7 +96,7 @@ export class StoryPointsVelocityKpiMapper extends KpiMapper
             x.push(moment(this._to)
                 .subtract(jsonArray[i].PERIOD * this._daysInPeriod, "days")
                 .format(config.dateformat.charts));
-            y.push(jsonArray[i].COUNT / this._daysInPeriod);
+            y.push(jsonArray[i].POINTS / this._daysInPeriod);
         }
 
         return {
@@ -109,7 +118,7 @@ export class StoryPointsVelocityKpiMapper extends KpiMapper
                     range: [dateLowerBound, dateUpperBound]
                 },
                 yaxis: {
-                    title: "Average points/day",
+                    title: "Average points / day",
                     fixedrange: true,
                     range: [0, this._annualStretchGoal/365 + 1]
                 },

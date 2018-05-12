@@ -1,16 +1,15 @@
-import { KpiMapper } from "./KpiMapper"
-import { IKpiState } from "./IKpiState"
-const config = require("../../config/config")
+import { KpiMapper } from "../KpiMapper"
+import { IKpiState } from "../IKpiState"
+const config = require("../../../config/config")
 
 /**
- * DefectsTotalNumberOfBugs.
+ * DefectsCreatedResolvedKpiMapper.
  * 
- * Defects - Total Number of Bugs
+ * Defects - Created vs Resolved.
  */
-export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
+export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
 {
-    public readonly Category: string = "";
-    public readonly Title: string = "Defects - Total Number of Bugs";
+    public readonly Title: string = "Defects (Critical) - Created vs Resolved";
 
     private _tablename: string = config.db.tablename.bug_resolution_dates;
 
@@ -25,11 +24,12 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
         return [`
-            SELECT COUNT(*) AS 'COUNT',
-            PRIORITY as 'PRIORITY'
-            FROM ${this._tablename}
+        SELECT COUNT(*) AS 'COUNT',
+            resolution_date AS 'RESSTATUS'
+            FROM ${this._tablename} 
             WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-            GROUP BY PRIORITY
+            and PRIORITY = 'Critical'
+            GROUP BY (CASE WHEN resolution_date IS NULL THEN 1 ELSE 0 END)
         `];
     }
 
@@ -45,11 +45,21 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
         var values: Array<any> = [];
         var labels: Array<any> = [];
 
-        for (let i: number = 0; i < jsonArray.length; ++i)
-        {
-            values.push(jsonArray[i].COUNT);
-            labels.push(jsonArray[i].PRIORITY);
+        var totalCreated:number = 0;
+        var totaCreatedLabel:string = "Created";
+        var resolvedLabel:string = "Resolved";
+
+        if(jsonArray[0].RESSTATUS != "NULL") {
+            totalCreated = jsonArray[0].COUNT;
+            if(jsonArray.length > 1) {
+                totalCreated = jsonArray[0].COUNT + jsonArray[1].COUNT;
+            }
+            values.push(totalCreated);
+            labels.push(totaCreatedLabel);
         }
+
+            values.push(jsonArray[0].COUNT);
+            labels.push(resolvedLabel);
 
         return {
             data: [{
@@ -61,7 +71,7 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
             layout: {
                 title: this.Title,
                 xaxis:{
-                    title: "Defect Type",
+                    title: "Defect Status",
                     fixedrange: true
                 },
                 yaxis: {

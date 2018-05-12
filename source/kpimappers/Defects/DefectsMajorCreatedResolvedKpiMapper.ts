@@ -1,6 +1,6 @@
-import { KpiMapper } from "./KpiMapper"
-import { IKpiState } from "./IKpiState"
-const config = require("../../config/config")
+import { KpiMapper } from "../KpiMapper"
+import { IKpiState } from "../IKpiState"
+const config = require("../../../config/config")
 
 /**
  * DefectsCreatedResolvedKpiMapper.
@@ -9,7 +9,6 @@ const config = require("../../config/config")
  */
 export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
 {
-    public readonly Category: string = "Defects";
     public readonly Title: string = "Defects (Major) - Created vs Resolved";
 
     private _tablename: string = config.db.tablename.bug_resolution_dates;

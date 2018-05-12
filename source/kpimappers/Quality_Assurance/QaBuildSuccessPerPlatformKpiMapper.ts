@@ -1,7 +1,7 @@
 import * as moment from "moment"
-import { KpiMapper } from "./KpiMapper"
-import { IKpiState } from "./IKpiState"
-const config = require("../../config/config")
+import { KpiMapper } from "../KpiMapper"
+import { IKpiState } from "../IKpiState"
+const config = require("../../../config/config")
 
 /**
  * QaBuildSuccessPerPlatformPerProduct.
@@ -10,7 +10,6 @@ const config = require("../../config/config")
  */
 export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
 {
-    public readonly Category: string = "";
     public readonly Title: string = "QA Build Success Rate Per Platform";
 
     private _tablename: string = config.db.tablename.qa_builds_and_runs_from_bamboo;

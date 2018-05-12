@@ -5,15 +5,15 @@ class BuildDashboard extends Component {
     state = {
         // Define API routes here for testing
         routes: [
-            "qa/overall_builds_success"
-            ,"qa/build_success_rate_per_platform_per_product"
-            ,"qa/build_success_rate_per_platform"
-            ,"qa/build_success_rate_per_product"
-            ,"defects/major_defects_created"
-            ,"defects/critical_defects_created"
-            ,"defects/total_defects"
-            ,"qa/build_success_rate"
-            ,"dev/story_points_velocity"
+            "Quality_Assurance/QaOverallBuildSuccess"
+            ,"Quality_Assurance/QaBuildSuccessPerPlatformPerProduct"
+            ,"Quality_Assurance/QaBuildSuccessPerPlatformPerProduct"
+            ,"Quality_Assurance/QaBuildSuccessPerProduct"
+            ,"Defects/DefectsMajorCreatedResolved"
+            ,"Defects/DefectsCriticalCreatedResolved"
+            ,"Defects/DefectsTotalNumberOfBugs"
+            ,"Quality_Assurance/BuildSuccessRate"
+            ,"Stories/StoryPointsVelocity"
         ],
         startDate: "2017-05-01",
         endDate: "2018-05-01"

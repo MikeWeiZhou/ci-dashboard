@@ -1,18 +1,17 @@
-import { KpiMapper } from "./KpiMapper"
-import { IKpiState } from "./IKpiState"
-const config = require("../../config/config")
+import { KpiMapper } from "../KpiMapper"
+import { IKpiState } from "../IKpiState"
+const config = require("../../../config/config")
 
 /**
- * DefectsAverageDaysToResolution.
+ * DefectsTotalNumberOfBugs.
  * 
- * Defects - Average Days to resolution for bugs completed
+ * Defects - Total Number of Bugs
  */
-export class DefectsAverageDaysToResolutionKpiMapper extends KpiMapper
+export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
 {
-    public readonly Category: string = "";
-    public readonly Title: string = "Defects - Average Days to resolve bugs";
+    public readonly Title: string = "Defects - Total Number of Bugs";
 
-    private _tablename: string = config.db.tablename.resolved_story_points;
+    private _tablename: string = config.db.tablename.bug_resolution_dates;
 
     /**
      * Returns an array of SQL query strings given a date range.
@@ -26,10 +25,10 @@ export class DefectsAverageDaysToResolutionKpiMapper extends KpiMapper
     {
         return [`
             SELECT COUNT(*) AS 'COUNT',
-                   IS_DEFAULT
+            PRIORITY as 'PRIORITY'
             FROM ${this._tablename}
-            WHERE BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-            GROUP BY IS_DEFAULT
+            WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+            GROUP BY PRIORITY
         `];
     }
 
@@ -48,17 +47,26 @@ export class DefectsAverageDaysToResolutionKpiMapper extends KpiMapper
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
             values.push(jsonArray[i].COUNT);
-            labels.push(jsonArray[i].IS_DEFAULT);
+            labels.push(jsonArray[i].PRIORITY);
         }
 
         return {
             data: [{
-                values: values,
-                labels: labels,
-                type:   "pie"
+                x: labels,
+                y: values,
+                type:   "bar",
+                name: this.Title
             }],
             layout: {
-                title: this.Title
+                title: this.Title,
+                xaxis:{
+                    title: "Defect Type",
+                    fixedrange: true
+                },
+                yaxis: {
+                    title: "Count",
+                    fixedrange: true
+                }
             },
             frames: [],
             config: {}

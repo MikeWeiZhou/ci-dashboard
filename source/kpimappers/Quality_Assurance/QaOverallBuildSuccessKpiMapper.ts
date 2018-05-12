@@ -1,6 +1,6 @@
-import { KpiMapper } from "./KpiMapper"
-import { IKpiState } from "./IKpiState"
-const config = require("../../config/config")
+import { KpiMapper } from "../KpiMapper"
+import { IKpiState } from "../IKpiState"
+const config = require("../../../config/config")
 
 /**
  * QaOverallBuildSuccessKpiMapper.
@@ -9,8 +9,7 @@ const config = require("../../config/config")
  */
 export class QaOverallBuildSuccessKpiMapper extends KpiMapper
 {
-    public readonly Category: string = "Quality Assurance";
-    public readonly Title: string = "QA Overall Build Success";
+    public readonly Title: string = "QA Overall Build Success vs Fail";
 
     private _tablename: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
 

@@ -1,26 +1,23 @@
 import * as moment from "moment"
-import { KpiMapper } from "./KpiMapper"
-import { IKpiState } from "./IKpiState"
-const config = require("../../config/config")
+import { KpiMapper } from "../KpiMapper"
+import { IKpiState } from "../IKpiState"
+const kpigoals = require("../../../config/kpigoals")
+const config = require("../../../config/config")
 
 /**
  * BuildSuccessRateKpiMapper.
  */
 export class BuildSuccessRateKpiMapper extends KpiMapper
 {
-    public readonly Category: string = "Product Delivery";
     public readonly Title: string = "Build Success Rate (all branches)";
 
     // Minimum number of data points preferred in chart
-    private readonly _preferredMinNumOfDataPoints: number = 10;
-
-    // Target for build success rate in decimal
-    private _target: number = .75;
-
-    // Stretch goal for build success rate in decimal
-    private _stretchGoal: number = .90;
+    // # of data points on actual chart will always be greater than this
+    private readonly _preferredMinNumOfDataPoints: number = 15;
 
     private readonly _tableName: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
+    private _target: number = kpigoals.build_success_rate.target_rate;
+    private _stretchGoal: number = kpigoals.build_success_rate.stretch_rate;
     private _minNumOfDataPoints: number;
     private _daysInPeriod: number;
     private _from: string;
@@ -41,6 +38,17 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
         this._minNumOfDataPoints = Math.min(dateRange, this._preferredMinNumOfDataPoints);
         this._daysInPeriod = Math.floor(dateRange / this._minNumOfDataPoints);
 
+        // If date range is not fully divisible by the number of days in a period,
+        // more days need to be added to ensure each data point has exactly this._daysInPeriod days.
+        // Also, more data data points may be added to ensure the starting date plotted <= from date
+        var numDaysInOldestDataPoint = dateRange % this._daysInPeriod;
+        var numDaysToAdd = (numDaysInOldestDataPoint == 1)
+            ? this._daysInPeriod - numDaysInOldestDataPoint // correct start date, period not full
+            : 2 * this._daysInPeriod - numDaysInOldestDataPoint; // wrong start date or period not full
+        from = moment(from)
+            .subtract(numDaysToAdd, "days")
+            .format(config.dateformat.mysql);
+
         return [`
             SELECT COUNT(CASE WHEN IS_SUCCESS = 1 THEN IS_SUCCESS END)/COUNT(*) AS 'SUCCESS_RATE'
                   ,FLOOR(DATEDIFF('${to}', BUILD_COMPLETED_DATE) / ${this._daysInPeriod}) AS 'PERIOD'
@@ -54,9 +62,9 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
         +--------------+--------+
         | SUCCESS_RATE | PERIOD |
         +--------------+--------+
-        |       0.5911 |      2 |
-        |       0.4335 |      1 |
-        |       0.4492 |      0 |
+        |       0.5256 |      2 |
+        |       0.4444 |      1 |
+        |       0.5085 |      0 |
         +--------------+--------+*/
     }
 
@@ -108,7 +116,7 @@ export class BuildSuccessRateKpiMapper extends KpiMapper
                     range: [dateLowerBound, dateUpperBound]
                 },
                 yaxis: {
-                    title: "Average success rate/day",
+                    title: "Average success rate / day",
                     tickformat: ',.0%',
                     fixedrange: true,
                     range: [0,1]

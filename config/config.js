@@ -3,14 +3,13 @@ const config_db = require("./config.db")
 var config = {};
 config.db = config_db;
 
-
 /***********************
  * W E B   S E R V E R *
  ***********************/
 
 config.webserver =
 {
-    port:               80,
+    port:               8080,
     public_directory:   __dirname.replace(/\\/g, '/').replace(/\/[\w-]+$/, '') + "/react-demo/build"
 };
 

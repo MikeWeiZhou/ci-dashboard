@@ -1,11 +1,8 @@
-var config = {};
-
+var db = {};
 
 /*******************
  * D A T A B A S E *
  *******************/
-
-db = {};
 
 db.connection =
 {
