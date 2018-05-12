@@ -5,7 +5,7 @@ import * as moment from "moment"
  * 
  * Contains functions that will be used globally
  */
-export class avgPointsFunctions
+export class AvgPointsFunctions
 {
     /**
      * Returns how many days are remaining in between two dates

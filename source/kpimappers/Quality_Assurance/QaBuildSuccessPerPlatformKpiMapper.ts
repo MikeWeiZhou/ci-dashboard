@@ -1,5 +1,5 @@
 import * as moment from "moment"
-import { avgPointsFunctions } from "./Functions/avgPointsFunctions"
+import { AvgPointsFunctions } from "./Functions/AvgPointsFunctions"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
 const config = require("../../../config/config")
@@ -17,7 +17,8 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
 
     private _from: string;
     private _to: string;
-    // Start with splitting data points by 1 days 
+
+    // Start with splitting data points by how many days 
     private dataPointsToPlot = 0;
 
     /**
@@ -53,7 +54,11 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
         var jsonArray: Array<any> = jsonArrays[0];
-        var avgFunctions = new avgPointsFunctions();
+        var avgFunctions = new AvgPointsFunctions();
+
+        // Edit the target and stretch goals here in decimal percantages
+        const targetGoal = 0.70
+        const stretchGoal = 0.90;
 
         // Invalid; One data point on a scatter chart shows nothing
         if (jsonArray.length == 1)
@@ -85,9 +90,6 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
         var macLabel: Array<any> = [];
         var macAverage: Array<any> = [];
 
-        // Edit the stretch goal here
-        const stretchGoal = 0.75;
-
         // 30 day difference example
         var getDaysLeft = avgFunctions.getHowManyDaysLeft(this._from, this._to);
 
@@ -102,8 +104,6 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
         {
             if (jsonArray[i].PLATFORM_NAME == "Windows") {
                 // get the starting point of the graph and add it in
-
-                // Need to figure out how to do it dynamically
                 if (!windowFirstPush) {
                     windowsValue.push(jsonArray[i].Success);
                     windowsLabel.push(jsonArray[i].Date);
@@ -132,7 +132,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                             // resets the points to 0
                             windowsPointsToAdd = 0;
 
-                            // clean the data conained by popping from the array
+                            // clean data conained by popping from the array
                             avgFunctions.cleanAverageData(windowsAverage);
                         } // end if statement
                     } // end else statement
@@ -265,11 +265,24 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                     type: 'line',
                     xref: 'paper',
                     x0: 0,
+                    y0: targetGoal,
+                    x1: 1,
+                    y1: targetGoal,
+                    line: {
+                        color: 'rgb(0, 255, 0)',
+                        width: 4,
+                        dash:'dot'
+                    }
+                },
+                {
+                    type: 'line',
+                    xref: 'paper',
+                    x0: 0,
                     y0: stretchGoal,
                     x1: 1,
                     y1: stretchGoal,
                     line: {
-                        color: 'rgb(255, 0, 0)',
+                        color: 'gold',
                         width: 4,
                         dash:'dot'
                     }

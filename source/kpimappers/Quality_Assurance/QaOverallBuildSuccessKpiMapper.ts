@@ -1,5 +1,5 @@
 import * as moment from "moment"
-import { avgPointsFunctions } from "./Functions/avgPointsFunctions"
+import { AvgPointsFunctions } from "./Functions/AvgPointsFunctions"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
 const config = require("../../../config/config")
@@ -52,7 +52,11 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
         var jsonArray: Array<any> = jsonArrays[0];
-        var avgFunctions = new avgPointsFunctions();
+        var avgFunctions = new AvgPointsFunctions();
+
+        // Edit the target and stretch goals here in decimal percantages
+        const targetGoal = 0.70
+        const stretchGoal = 0.90;
 
          // Invalid; One data point on a scatter chart shows nothing
          if (jsonArray.length == 1)
@@ -70,9 +74,6 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
         var successValue: Array<any> = [];
         var overallLabel: Array<any> = [];
         var overallAverage: Array<any> = [];
-
-        // Edit the stretch goal here
-        const stretchGoal = 0.75;
 
          // 30 day difference example
          var getDaysLeft = avgFunctions.getHowManyDaysLeft(this._from, this._to);
@@ -146,11 +147,24 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
                     type: 'line',
                     xref: 'paper',
                     x0: 0,
+                    y0: targetGoal,
+                    x1: 1,
+                    y1: targetGoal,
+                    line: {
+                        color: 'rgb(0, 255, 0)',
+                        width: 4,
+                        dash:'dot'
+                    }
+                },
+                {
+                    type: 'line',
+                    xref: 'paper',
+                    x0: 0,
                     y0: stretchGoal,
                     x1: 1,
                     y1: stretchGoal,
                     line: {
-                        color: 'rgb(255, 0, 0)',
+                        color: 'gold',
                         width: 4,
                         dash:'dot'
                     }
