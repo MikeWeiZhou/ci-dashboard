@@ -13,6 +13,11 @@ kpigoals =
     {
         target_rate: 0.75,
         stretch_rate: 0.9
+    },
+    bugs_per_day:
+    {
+        target: 1,
+        stretch: 0.75
     }
 };
 

@@ -23,13 +23,23 @@ export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
-        return [`
-        SELECT COUNT(*) AS 'COUNT',
-            resolution_date AS 'RESSTATUS'
-            FROM ${this._tablename} 
+        return [`select
+            CAST(CREATION_DATE AS DATE) AS Date,
+            Count(CREATION_DATE) as Count
+            FROM ${this._tablename}
             WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-            and PRIORITY = 'Major'
-            GROUP BY (CASE WHEN resolution_date IS NULL THEN 1 ELSE 0 END)
+            and priority = 'Major'
+            group by CAST(CREATION_DATE AS DATE)
+            order by CREATION_DATE asc;     
+        `,
+        `select
+            CAST(RESOLUTION_DATE AS DATE) AS Date,
+            Count(RESOLUTION_DATE) as Count
+            FROM ${this._tablename}
+            WHERE RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
+            and priority = 'Major'
+            group by CAST(RESOLUTION_DATE AS DATE)
+            order by RESOLUTION_DATE asc;    
         `];
     }
 

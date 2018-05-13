@@ -9,6 +9,7 @@ const config = require("../../../config/config")
  */
 export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
 {
+   // private counter:number = 0;
     public readonly Title: string = "Defects (Critical) - Created vs Resolved";
 
     private _tablename: string = config.db.tablename.bug_resolution_dates;
@@ -23,14 +24,58 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
-        return [`
-        SELECT COUNT(*) AS 'COUNT',
-            resolution_date AS 'RESSTATUS'
-            FROM ${this._tablename} 
-            WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-            and PRIORITY = 'Critical'
-            GROUP BY (CASE WHEN resolution_date IS NULL THEN 1 ELSE 0 END)
-        `];
+        return [
+            `select tbl.date as Date,
+            tbl.value as Count,
+            avg(pasttbl.value) as Average
+            from (
+                select
+                CAST(CREATION_DATE AS DATE) as date,
+                count(CREATION_DATE) as value,
+                priority
+                from ${this._tablename}
+                WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+                and priority = 'Critical'
+                group by 1
+            ) as tbl
+            inner join (
+                select
+                CAST(CREATION_DATE AS DATE) as date,
+                count(CREATION_DATE) as value,
+                priority
+                from ${this._tablename}
+                group by 1
+            ) as pasttbl
+            on pasttbl.date between tbl.date - 6 and tbl.date
+            group by 1, 2
+            order by CAST(tbl.date AS DATE) asc
+            `,
+            `select tbl.date as Date,
+            tbl.value as Count,
+            avg(pasttbl.value) as Average
+            from (
+                select
+                CAST(CREATION_DATE AS DATE) as date,
+                count(CREATION_DATE) as value,
+                priority
+                from ${this._tablename}
+                WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+                and priority = 'Major'
+                group by 1
+            ) as tbl
+            inner join (
+                select
+                CAST(CREATION_DATE AS DATE) as date,
+                count(CREATION_DATE) as value,
+                priority
+                from ${this._tablename}
+                group by 1
+            ) as pasttbl
+            on pasttbl.date between tbl.date - 6 and tbl.date
+            group by 1, 2
+            order by CAST(tbl.date AS DATE) asc
+            `
+    ];
     }
 
     /**
@@ -41,41 +86,53 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
      */
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
-        var jsonArray: Array<any> = jsonArrays[0];
-        var values: Array<any> = [];
-        var labels: Array<any> = [];
+        var values: Array<any>[] =[];
+        var labels: Array<any>[]= [];
+        var values2: Array<any>[] =[];
+        var labels2: Array<any>[]= [];
 
-        var totalCreated:number = 0;
-        var totaCreatedLabel:string = "Created";
-        var resolvedLabel:string = "Resolved";
-
-        if(jsonArray[0].RESSTATUS != "NULL") {
-            totalCreated = jsonArray[0].COUNT;
-            if(jsonArray.length > 1) {
-                totalCreated = jsonArray[0].COUNT + jsonArray[1].COUNT;
-            }
-            values.push(totalCreated);
-            labels.push(totaCreatedLabel);
-        }
-
-            values.push(jsonArray[0].COUNT);
-            labels.push(resolvedLabel);
+        jsonArrays[0].forEach(function(a){
+            values.push(a.Average);
+            labels.push(a.Date);
+        });
+        jsonArrays[1].forEach(function(a){
+            values2.push(a.Count);
+            labels2.push(a.Date);
+        });
 
         return {
             data: [{
                 x: labels,
                 y: values,
-                type:   "bar",
-                name: this.Title
-            }],
+                name: "Created",
+                type: "scatter",
+                mode: "lines",
+                line: {
+                    "shape": "spline",
+                    "smoothing": .8
+                }
+            }
+            ,
+            {
+                x: labels2,
+                y: values2,
+                name: "Resolved",
+                type: "scatter",
+                mode: "lines",
+                line: {
+                    "shape": "spline",
+                    "smoothing": .8
+                }
+            }
+        ],
             layout: {
                 title: this.Title,
                 xaxis:{
-                    title: "Defect Status",
-                    fixedrange: true
+                    title: "Date",
+                    fixedrange: true,
                 },
                 yaxis: {
-                    title: "Count",
+                    title: "Bugs/Day",
                     fixedrange: true
                 }
             },
