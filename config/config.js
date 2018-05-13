@@ -3,6 +3,15 @@ const config_db = require("./config.db")
 var config = {};
 config.db = config_db;
 
+/*******************
+ * P I P E L I N E *
+ *******************/
+
+config.pipeline =
+{
+    write_buffer_limit: 1000 // Number of items to buffer before writing to database
+};
+
 /***********************
  * W E B   S E R V E R *
  ***********************/

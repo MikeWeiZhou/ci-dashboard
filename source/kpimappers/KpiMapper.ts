@@ -35,7 +35,10 @@ export abstract class KpiMapper
         var fromDate: moment.Moment = moment.utc(from);
         var toDate: moment.Moment = moment.utc(to).hour(23).minute(59).second(59);
         var dateRange: number = toDate.diff(fromDate, "days") + 1;
-        var sqls: string[] = this.getQueryStrings(fromDate.format(config.dateformat.mysql), toDate.format(config.dateformat.mysql), dateRange);
+        var sqls: string[] = this.getQueryStrings
+            (fromDate.format(config.dateformat.mysql)
+            ,toDate.format(config.dateformat.mysql)
+            ,dateRange);
         var jsonArrayResults: Array<any>[] = [];
         try
         {

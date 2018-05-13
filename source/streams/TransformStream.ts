@@ -31,11 +31,18 @@ export class TransformStream extends Transform
      */
     public _transform(jsonObj: object, encoding: string, done: Function): void
     {
-        var transformed: Array<any>|null = this._dataInterface.Transform(jsonObj);
-        if (transformed != null)
+        try
         {
-            this.push(transformed);
+            var transformed: Array<any>|null = this._dataInterface.Transform(jsonObj);
+            if (transformed != null)
+            {
+                this.push(transformed);
+            }
+            done();
         }
-        done();
+        catch (err)
+        {
+            done(err);
+        }
     }
 }

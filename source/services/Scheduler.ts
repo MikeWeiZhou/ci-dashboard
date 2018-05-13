@@ -4,6 +4,7 @@ import { ISchedule } from "./ISchedule"
 import { IDataInterface } from "../datainterfaces/IDataInterface"
 import { TransformStream } from "../streams/TransformStream"
 import { WriteStream } from "../streams/WriteStream"
+import { Readable } from "stream"
 import { Log } from "../Log"
 const config = require("../../config/config")
 
@@ -58,25 +59,38 @@ export class Scheduler
     private async runSchedule(schedule: ISchedule): Promise<void>
     {
         var validSchedule: any = await this.makeValidScheduleOrNull(schedule);
-        if (!validSchedule)
+        if (validSchedule == null)
         {
             console.log(`Attempt to run ${schedule.Title} failed. Invalid schedule.`);
             return;
         }
 
-        // Keeps track of whether stream has errored
-        var isStreamErrored: boolean = false;
-
         var from: string = moment(validSchedule.DataFromDate).format(config.dateformat.console);
         var to: string = moment(validSchedule.DataToDate).format(config.dateformat.console);
         console.log(`Running schedule: ${validSchedule.Title} with date ranges between ${from} and ${to}`);
 
+        var isStreamErrored: boolean = false;
+        console.time("Schedule: " + schedule.Title);
+
         // Run schedule
         var _this: Scheduler = this;
+        var readStream: Readable;
         var transformStream: TransformStream = new TransformStream(validSchedule.DataInterface);
         var writeStream: WriteStream = new WriteStream(this._dataStorage, validSchedule.DataInterface);
-        validSchedule.DataCollector.Initialize(validSchedule.DataFromDate as Date, validSchedule.DataToDate as Date);
-        validSchedule.DataCollector.GetStream()
+
+        try
+        {
+            validSchedule.DataCollector.Initialize(validSchedule.DataFromDate as Date, validSchedule.DataToDate as Date);
+            readStream = validSchedule.DataCollector.GetStream();
+        }
+        catch (err)
+        {
+            console.log(`Error running schedule ${validSchedule.Title}. DataCollector error. Error has been logged`);
+            Log(err, `Error running schedule ${validSchedule.Title}. DataCollector initialization or get stream`);
+            return;
+        }
+
+        readStream
             .on("error", (err: Error) => { transformStream.emit("error", err) })
             .pipe(transformStream)
             .on("error", (err: Error) => { writeStream.emit("error", err) })
@@ -85,10 +99,11 @@ export class Scheduler
             {
                 isStreamErrored = true;
                 console.log(`Error running schedule ${validSchedule.Title}. Error has been logged.`);
-                Log(err, `Error with pipeline while running schedule ${validSchedule.Title}`);
+                Log(err, `Error running schedule ${validSchedule.Title}`);
             })
             .on("finish", async () =>
             {
+                console.timeEnd("Schedule: " + schedule.Title);
                 // "finish" event always fire before "error" event, if there is an error
                 // so we must gurantee there isn't any "error" event thrown immediately after
                 setTimeout(async () =>
@@ -114,7 +129,7 @@ export class Scheduler
                 DataCollector: validSchedule.DataCollector,
                 DataInterface: validSchedule.DataInterface,
                 RunIntervalInMinutes: validSchedule.RunIntervalInMinutes,
-                DataFromDate: await _this.getLastDataToDateFromDb(validSchedule.DataInterface)
+                DataFromDate: await _this.getLastDataToDateFromDbOrNull(validSchedule.DataInterface) as Date
             };
             _this.runSchedule(newSchedule);
         }, schedule.RunIntervalInMinutes * 1000 * 60);
@@ -125,7 +140,6 @@ export class Scheduler
      * @async
      * @param {ISchedule} schedule to validate
      * @returns {ISchedule|null} a valid ISchedule or null
-     * @throws {Error} error if errored
      */
     private async makeValidScheduleOrNull(schedule: ISchedule): Promise<ISchedule|null>
     {
@@ -134,7 +148,12 @@ export class Scheduler
             return null;
         }
 
-        var lastDataToDate: any = await this.getLastDataToDateFromDb(schedule.DataInterface);
+        var lastDataToDate: Date|null = await this.getLastDataToDateFromDbOrNull(schedule.DataInterface);
+        if (lastDataToDate == null)
+        {
+            return null;
+        }
+
         var newSchedule: ISchedule =
         {
             Title: schedule.Title,
@@ -204,9 +223,9 @@ export class Scheduler
      * Returns the last TO_DATE of the given IDataInterface from the database.
      * @async
      * @param {IDataInterface} dataInterface table to get latest To Date info from
-     * @throws {Error} error if errored
+     * @returns {Promise<Date|null>} last TO_DATE of the given IDataInterface or null
      */
-    private async getLastDataToDateFromDb(dataInterface: IDataInterface): Promise<Date>
+    private async getLastDataToDateFromDbOrNull(dataInterface: IDataInterface): Promise<Date|null>
     {
         var results: any;
         var query: string = `SELECT TO_DATE
@@ -220,7 +239,7 @@ export class Scheduler
         {
             console.log("Failed to get TO_DATE from tracking table. Error has been logged.");
             Log(err, `Errored when calling getLastDataToDateFromDb in Scheduler\n\nSQL Query: ${query}`);
-            throw err;
+            return null;
         }
 
         // No results; table is not tracked
@@ -233,7 +252,7 @@ export class Scheduler
                 Error has been logged
             `);
             Log(err, `SQL Query: ${query}`);
-            throw err;
+            return null;
         }
 
         return new Date(results[0].TO_DATE);

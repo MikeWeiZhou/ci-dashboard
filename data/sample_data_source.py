@@ -24,10 +24,10 @@ def print_sample_data(iterations):
 fromdate = sys.stdin.readline().strip()
 todate = sys.stdin.readline().strip()
 
-# first run, print data for 1000 iterations
+# first run, print data for 10000 iterations
 # 2017-01-01 is the default from date inside the tracker table
 if fromdate == "2017-01-01":
-    print_sample_data(1000)
+    print_sample_data(10000)
 
 # second run, different types of crashes
 # uncomment only one per run

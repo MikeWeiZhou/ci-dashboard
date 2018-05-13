@@ -35,9 +35,12 @@ export class SampleDataInterface implements IDataInterface
         // value is the json object
         o = o.value;
 
-        // do not save object to database
         if (o.iteration_num == 1)
         {
+            // throw error and see if it crashes
+            // throw new Error("test throw error");
+
+            // do not save object to database
             return null;
         }
 

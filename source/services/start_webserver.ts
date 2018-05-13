@@ -56,7 +56,7 @@ export function start_webserver(storage: IDataStorage): void
         }
         catch (err)
         {
-            err.name = `${kpilist[request.params.category][request.params.kpi].Title}: ${err.name}`;
+            err.name = `${kpilist[request.params.category][request.params.kpi].Title}: Server: ${err.name}`;
             response.status(config.webserver.response.error).send(err);
         }
     });

@@ -13,5 +13,5 @@ async function startservices()
     await storage.Initialize();
 
     start_webserver(storage);
-    await start_scheduler(storage);
+    start_scheduler(storage);
 }

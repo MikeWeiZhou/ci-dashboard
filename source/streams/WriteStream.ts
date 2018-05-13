@@ -1,16 +1,20 @@
 import { Writable } from "stream"
 import { IDataStorage } from "../datastorages/IDataStorage";
 import { IDataInterface } from "../datainterfaces/IDataInterface"
+const config = require("../../config/config")
 
 /**
  * WriteStream.
  * 
- * Writes JSON objects using a given Storage medium and pushes it down the pipeline.
+ * Writes JSON objects using a given Storage medium.
  */
 export class WriteStream extends Writable
 {
+    private readonly _BUFFER_LIMIT: number = config.pipeline.write_buffer_limit;
     private _dataStorage: IDataStorage;
     private _dataInterface: IDataInterface;
+    private _buffer: Array<any>;
+    private _bufferCount: number;
 
     /**
      * Constructor.
@@ -23,6 +27,8 @@ export class WriteStream extends Writable
         super({objectMode: true});
         this._dataStorage = dataStorage;
         this._dataInterface = dataInterface;
+        this._buffer = [];
+        this._bufferCount = 0;
     }
 
     /**
@@ -39,13 +45,34 @@ export class WriteStream extends Writable
         if (data == null)
         {
             done();
+            return;
+        }
+
+        this._buffer.push(data);
+
+        if (++this._bufferCount == this._BUFFER_LIMIT)
+        {
+            this._bufferCount = 0;
+            this.writeBuffer(done);
         }
         else
         {
-            // Uses a little hack to ensure done() is not called too early
-            // or it will signal the end of stream before data is finished writing
-            this.writeAsync(data, done);
+            done();
         }
+    }
+
+    /**
+     * Automatically called when read stream ends.
+     * @param {Function} cb Callback function
+     * @override
+     */
+    public _final(cb: Function): void
+    {
+        if (this._bufferCount != 0)
+        {
+            this.writeBuffer(() => {});
+        }
+        cb();
     }
 
     /**
@@ -55,11 +82,16 @@ export class WriteStream extends Writable
      * @param {Function} done callback when finished writing data or error
      * @throws {Error} when data storage write fails
      */
-    private async writeAsync(data: Array<any>, done: Function): Promise<void>
+    private async writeBuffer(done: Function): Promise<void>
     {
         try
         {
-            await this._dataStorage.Write(this._dataInterface.TableName, this._dataInterface.TableColumns, data);
+            await this._dataStorage.Write
+            (
+                this._dataInterface.TableName,
+                this._dataInterface.TableColumns,
+                this._buffer
+            );
             done();
         }
         catch (err)
