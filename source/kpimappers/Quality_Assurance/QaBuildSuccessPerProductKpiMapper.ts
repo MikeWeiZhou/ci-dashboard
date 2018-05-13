@@ -99,6 +99,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
         // Find out how many data points to split across using Math.Floor
         this.dataPointsToPlot = Math.floor((getDaysLeft/plottingPoints));
 
+        // Don't edit these values
         var dxFirstPush = false;
         var fxFirstPush = false;
         var icFirstPush = false;
