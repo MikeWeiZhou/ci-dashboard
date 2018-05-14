@@ -1,6 +1,9 @@
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
+const kpigoals = require("../../../config/kpigoals")
 const config = require("../../../config/config")
+import * as moment from "moment"
+
 
 /**
  * DefectsCreatedResolvedKpiMapper.
@@ -9,9 +12,15 @@ const config = require("../../../config/config")
  */
 export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
 {
-    public readonly Title: string = "Defects (Major) - Created vs Resolved";
-
+    public readonly Title: string = "Defects (Major) - Resolved/Created Difference";
+    private _dateRange: number;
     private _tablename: string = config.db.tablename.bug_resolution_dates;
+
+    private _annualTarget: number = kpigoals.bugs_rc_difference.target;
+    private _annualStretchGoal: number = kpigoals.bugs_rc_difference.stretch;
+
+    private _from: string;
+    private _to: string;
 
     /**
      * Returns an array of SQL query strings given a date range.
@@ -23,23 +32,53 @@ export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
-        return [`select
-            CAST(CREATION_DATE AS DATE) AS Date,
-            Count(CREATION_DATE) as Count
-            FROM ${this._tablename}
-            WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-            and priority = 'Major'
-            group by CAST(CREATION_DATE AS DATE)
-            order by CREATION_DATE asc;     
-        `,
-        `select
-            CAST(RESOLUTION_DATE AS DATE) AS Date,
-            Count(RESOLUTION_DATE) as Count
-            FROM ${this._tablename}
-            WHERE RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
-            and priority = 'Major'
-            group by CAST(RESOLUTION_DATE AS DATE)
-            order by RESOLUTION_DATE asc;    
+        this._from = from;
+        this._to = to;
+
+        this._dateRange = dateRange;
+        return [
+            `select 
+                NULL, NULL as CheckDups,
+                (case when resolutiondate is null then creationdate else resolutiondate end) as Date,
+                (case when numresolved is null then 0 else numresolved end)
+                - (case when numcreated is null then 0 else numcreated end) as Diff
+                from
+                    (SELECT 
+                    CAST(CREATION_DATE AS DATE) as CreationDate,
+                    Count(CREATION_DATE) as 'NumCreated'
+                    FROM ${this._tablename}
+                    WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+                    and priority = 'Major'
+                    group by CAST(CREATION_DATE AS DATE)) as a
+                left join
+                    (SELECT 
+                    CAST(resolution_date AS DATE) as 'ResolutionDate',
+                    Count(resolution_date) as 'NumResolved'
+                    FROM ${this._tablename}
+                    WHERE resolution_date BETWEEN '${from}' AND '${to}'
+                    and priority = 'Major'
+                    group by CAST(resolution_date AS DATE)) as b
+                on a.creationdate = b.resolutiondate 
+			union all
+			select * from
+                (SELECT 
+                    CAST(CREATION_DATE AS DATE) as CreationDate,
+                    Count(CREATION_DATE) as 'NumCreated'
+                    FROM ${this._tablename}
+                    WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+                    and priority = 'Major'
+                    group by CAST(CREATION_DATE AS DATE)) as a
+                right join
+                (SELECT 
+                    CAST(resolution_date AS DATE) as 'ResolutionDate',
+                    Count(resolution_date) as 'NumResolved'
+                    FROM ${this._tablename}
+                    WHERE resolution_date BETWEEN '${from}' AND '${to}'
+                    and priority = 'Major'
+                    group by CAST(resolution_date AS DATE)) as b
+                on a.creationdate = b.resolutiondate
+                order by Date
+            
         `];
     }
 
@@ -51,46 +90,113 @@ export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
      */
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
+
+        var dateLowerBound: string = moment(this._from).format(config.dateformat.charts);
+        var dateUpperBound: string = moment(this._to).format(config.dateformat.charts);
+
         var jsonArray: Array<any> = jsonArrays[0];
-        var values: Array<any> = [];
+        var values: Array<any> =[];
         var labels: Array<any> = [];
+        var values2: Array<any> =[];
+        var labels2: Array<any>= [];
 
-        var totalCreated:number = 0;
-        var totaCreatedLabel:string = "Created";
-        var resolvedLabel:string = "Resolved";
+        var maxYVal:number = jsonArray[0].Diff;
+        var minYVal:number = 0;
 
-        if(jsonArray[0].RESSTATUS != "NULL") {
-            totalCreated = jsonArray[0].COUNT;
-            if(jsonArray.length > 1) {
-                totalCreated = jsonArray[0].COUNT + jsonArray[1].COUNT;
+        for (let i: number = 0; i < jsonArray.length; i++)
+        {
+            if(jsonArray[i].CheckDups == null) {
+                 values.push(jsonArray[i].Diff);
+                 labels.push(jsonArray[i].Date);
             }
-            values.push(totalCreated);
-            labels.push(totaCreatedLabel);
         }
 
-            values.push(jsonArray[0].COUNT);
-            labels.push(resolvedLabel);
+        var sectionLen = Math.floor(this._dateRange/values.length);
+        // console.log(sectionLen);
 
-            return {
-                data: [{
-                    x: labels,
-                    y: values,
-                    type:   "bar",
-                    name: this.Title
-                }],
-                layout: {
-                    title: this.Title,
-                    xaxis:{
-                        title: "Defect Status",
-                        fixedrange: true
-                    },
-                    yaxis: {
-                        title: "Count",
-                        fixedrange: true
-                    }
+        for (let i: number = 0; i < labels.length; i++)
+        {
+            var tempArr:Array<any> =[];
+
+            var runningSum:number = 0;
+            tempArr.push(values[i]);
+            if(i % sectionLen == 0) {
+                runningSum = tempArr.reduce(function(cur, val){
+                    return cur+val;
+                });
+                //console.log(runningSum);
+                values2.push(runningSum/sectionLen);
+                labels2.push(labels[i]); 
+
+                if(maxYVal < runningSum/sectionLen) {
+                    maxYVal = runningSum/sectionLen;
+                }
+
+                if(minYVal > runningSum/sectionLen) {
+                    minYVal = runningSum/sectionLen;
+                }
+            }
+        }
+
+        //console.log(values2);
+        //console.log(labels2);
+
+        return {
+            data: [{
+                x: labels2,
+                y: values2,
+                name: "R-C",
+                type: "scatter",
+                mode: "lines",
+                line: {
+                    "shape": "spline",
+                    "smoothing": .8
+                }
+            }
+        ],
+            layout: {
+                title: this.Title,
+                xaxis:{
+                    title: "Date",
+                    fixedrange: true,
+                    range: [dateLowerBound, dateUpperBound]
                 },
-                frames: [],
-                config: {}
-            };
+                yaxis: {
+                    title: "R-C",
+                    fixedrange: true,
+                    range: [-2, maxYVal + 1]
+                },
+                shapes: [
+                    {
+                        type: 'line',
+                        xref: 'paper',
+                        x0: 0,
+                        y0: this._annualTarget/365,
+                        x1: 1,
+                        y1: this._annualTarget/365,
+                        line: {
+                            color: 'rgb(0, 255, 0)',
+                            width: 4,
+                            dash:'dot'
+                        }
+                    },
+                    {
+                        type: 'line',
+                        xref: 'paper',
+                        x0: 0,
+                        y0: this._annualStretchGoal/365,
+                        x1: 1,
+                        y1: this._annualStretchGoal/365,
+                        line: {
+                            color: 'gold',
+                            width: 4,
+                            dash:'dot'
+                        }
+                    }
+                ]
+            },
+            frames: [],
+            config: {}
+        };
     }
 }

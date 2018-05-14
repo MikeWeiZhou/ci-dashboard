@@ -1,6 +1,10 @@
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
+import { isNull } from "util";
+const kpigoals = require("../../../config/kpigoals")
 const config = require("../../../config/config")
+import * as moment from "moment"
+
 
 /**
  * DefectsCreatedResolvedKpiMapper.
@@ -10,9 +14,15 @@ const config = require("../../../config/config")
 export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
 {
    // private counter:number = 0;
-    public readonly Title: string = "Defects (Critical) - Created vs Resolved";
+    public readonly Title: string = "Defects (Critical) - Resolved/Created Difference";
 
     private _tablename: string = config.db.tablename.bug_resolution_dates;
+    private _dateRange: number;
+    private _annualTarget: number = kpigoals.bugs_rc_difference.target;
+    private _annualStretchGoal: number = kpigoals.bugs_rc_difference.stretch;
+
+    private _from: string;
+    private _to: string;
 
     /**
      * Returns an array of SQL query strings given a date range.
@@ -24,56 +34,52 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
+        this._from = from;
+        this._to = to;
+
+        this._dateRange = dateRange;
         return [
-            `select tbl.date as Date,
-            tbl.value as Count,
-            avg(pasttbl.value) as Average
-            from (
-                select
-                CAST(CREATION_DATE AS DATE) as date,
-                count(CREATION_DATE) as value,
-                priority
-                from ${this._tablename}
-                WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                and priority = 'Critical'
-                group by 1
-            ) as tbl
-            inner join (
-                select
-                CAST(CREATION_DATE AS DATE) as date,
-                count(CREATION_DATE) as value,
-                priority
-                from ${this._tablename}
-                group by 1
-            ) as pasttbl
-            on pasttbl.date between tbl.date - 6 and tbl.date
-            group by 1, 2
-            order by CAST(tbl.date AS DATE) asc
-            `,
-            `select tbl.date as Date,
-            tbl.value as Count,
-            avg(pasttbl.value) as Average
-            from (
-                select
-                CAST(CREATION_DATE AS DATE) as date,
-                count(CREATION_DATE) as value,
-                priority
-                from ${this._tablename}
-                WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                and priority = 'Major'
-                group by 1
-            ) as tbl
-            inner join (
-                select
-                CAST(CREATION_DATE AS DATE) as date,
-                count(CREATION_DATE) as value,
-                priority
-                from ${this._tablename}
-                group by 1
-            ) as pasttbl
-            on pasttbl.date between tbl.date - 6 and tbl.date
-            group by 1, 2
-            order by CAST(tbl.date AS DATE) asc
+            `select 
+                NULL, NULL as CheckDups,
+                (case when resolutiondate is null then creationdate else resolutiondate end) as Date,
+                (case when numresolved is null then 0 else numresolved end)
+                - (case when numcreated is null then 0 else numcreated end) as Diff
+                from
+                    (SELECT 
+                    CAST(CREATION_DATE AS DATE) as CreationDate,
+                    Count(CREATION_DATE) as 'NumCreated'
+                    FROM ${this._tablename}
+                    WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+                    and priority = 'Critical'
+                    group by CAST(CREATION_DATE AS DATE)) as a
+                left join
+                    (SELECT 
+                    CAST(resolution_date AS DATE) as 'ResolutionDate',
+                    Count(resolution_date) as 'NumResolved'
+                    FROM ${this._tablename}
+                    WHERE resolution_date BETWEEN '${from}' AND '${to}'
+                    and priority = 'Critical'
+                    group by CAST(resolution_date AS DATE)) as b
+                on a.creationdate = b.resolutiondate 
+			union all
+			select * from
+                (SELECT 
+                    CAST(CREATION_DATE AS DATE) as CreationDate,
+                    Count(CREATION_DATE) as 'NumCreated'
+                    FROM ${this._tablename}
+                    WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+                    and priority = 'Critical'
+                    group by CAST(CREATION_DATE AS DATE)) as a
+                right join
+                (SELECT 
+                    CAST(resolution_date AS DATE) as 'ResolutionDate',
+                    Count(resolution_date) as 'NumResolved'
+                    FROM ${this._tablename}
+                    WHERE resolution_date BETWEEN '${from}' AND '${to}'
+                    and priority = 'Critical'
+                    group by CAST(resolution_date AS DATE)) as b
+                on a.creationdate = b.resolutiondate
+                order by Date
             `
     ];
     }
@@ -86,37 +92,56 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
      */
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
-        var values: Array<any>[] =[];
-        var labels: Array<any>[]= [];
-        var values2: Array<any>[] =[];
-        var labels2: Array<any>[]= [];
+        var dateLowerBound: string = moment(this._from).format(config.dateformat.charts);
+        var dateUpperBound: string = moment(this._to).format(config.dateformat.charts);
 
-        jsonArrays[0].forEach(function(a){
-            values.push(a.Average);
-            labels.push(a.Date);
-        });
-        jsonArrays[1].forEach(function(a){
-            values2.push(a.Count);
-            labels2.push(a.Date);
-        });
+        var jsonArray: Array<any> = jsonArrays[0];
+        var values: Array<any> =[];
+        var labels: Array<any> = [];
+        var values2: Array<any> =[];
+        var labels2: Array<any>= [];
+
+        var maxYVal:number = jsonArray[0].Diff;
+        var minYVal:number = 0;
+
+        for (let i: number = 0; i < jsonArray.length; i++)
+        {
+            if(jsonArray[i].CheckDups == null) {
+                 values.push(jsonArray[i].Diff);
+                 labels.push(jsonArray[i].Date);
+            }
+        }
+
+        var sectionLen = Math.floor(this._dateRange/values.length);
+
+        for (let i: number = 0; i < labels.length; i++)
+        {
+            var tempArr:Array<any> =[];
+
+            var runningSum:number = 0;
+            tempArr.push(values[i]);
+            if(i % sectionLen == 0) {
+                runningSum = tempArr.reduce(function(cur, val){
+                    return cur+val;
+                });
+                values2.push(runningSum/sectionLen);
+                labels2.push(labels[i]); 
+
+                if(maxYVal < runningSum/sectionLen) {
+                    maxYVal = runningSum/sectionLen;
+                }
+
+                if(minYVal > runningSum/sectionLen) {
+                    minYVal = runningSum/sectionLen;
+                }
+            }
+        }
 
         return {
             data: [{
-                x: labels,
-                y: values,
-                name: "Created",
-                type: "scatter",
-                mode: "lines",
-                line: {
-                    "shape": "spline",
-                    "smoothing": .8
-                }
-            }
-            ,
-            {
                 x: labels2,
                 y: values2,
-                name: "Resolved",
+                name: "R-C",
                 type: "scatter",
                 mode: "lines",
                 line: {
@@ -130,11 +155,41 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
                 xaxis:{
                     title: "Date",
                     fixedrange: true,
+                    range: [dateLowerBound, dateUpperBound]
                 },
                 yaxis: {
-                    title: "Bugs/Day",
-                    fixedrange: true
-                }
+                    title: "R-C",
+                    fixedrange: true,
+                    range: [-2, maxYVal + 1]
+                },
+                shapes: [
+                    {
+                        type: 'line',
+                        xref: 'paper',
+                        x0: 0,
+                        y0: this._annualTarget/365,
+                        x1: 1,
+                        y1: this._annualTarget/365,
+                        line: {
+                            color: 'rgb(0, 255, 0)',
+                            width: 4,
+                            dash:'dot'
+                        }
+                    },
+                    {
+                        type: 'line',
+                        xref: 'paper',
+                        x0: 0,
+                        y0: this._annualStretchGoal/365,
+                        x1: 1,
+                        y1: this._annualStretchGoal/365,
+                        line: {
+                            color: 'gold',
+                            width: 4,
+                            dash:'dot'
+                        }
+                    }
+                ]
             },
             frames: [],
             config: {}

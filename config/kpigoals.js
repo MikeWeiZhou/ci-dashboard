@@ -18,6 +18,11 @@ kpigoals =
     {
         target: 1,
         stretch: 0.75
+    },
+    bugs_rc_difference:
+    {
+        target: 100,
+        stretch: 200
     }
 };
 
