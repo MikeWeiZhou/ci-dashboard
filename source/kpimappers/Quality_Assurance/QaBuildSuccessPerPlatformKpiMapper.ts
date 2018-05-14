@@ -116,9 +116,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                         windowsLabel.push(jsonArray[i].Date);
                     } else {
                         // implement crazy logic here
-                        // what the crazy logic should do is it'll get the average of the dataPointsToPlot
-                        // and plot that as the date that's the 1 over the middle date if dataPointsToPlot is even IDEALLY
-                        // otherwise plot at exactly the middle date if dataPointsToPlot is odd IDEALLY
+
                         windowsAverage.push(jsonArray[i].Success);
                         ++windowsPointsToAdd;
                         // once it meets the specific points then it'll add it to the value and label
@@ -133,7 +131,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                             windowsPointsToAdd = 0;
 
                             // clean data conained by popping from the array
-                            windowsAverage = avgFunctions.cleanAverageData(windowsAverage);
+                            windowsAverage = [];
                         } // end if statement
                     } // end else statement
                 } // end crazy if statement
@@ -153,9 +151,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                         linuxLabel.push(jsonArray[i].Date);
                     } else {
                         // implement crazy logic here
-                        // what the crazy logic should do is it'll get the average of the dataPointsToPlot
-                        // and plot that as the date that's the 1 over the middle date if dataPointsToPlot is even IDEALLY
-                        // otherwise plot at exactly the middle date if dataPointsToPlot is odd IDEALLY
+
                         linuxAverage.push(jsonArray[i].Success);
                         ++linuxPointsToAdd;
                         // once it meets the specific points then it'll add it to the value and label
@@ -169,7 +165,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                             linuxPointsToAdd = 0;
 
                             // clean the data conained by popping from the array
-                            linuxAverage = avgFunctions.cleanAverageData(linuxAverage);
+                            linuxAverage = [];
 
                         } // end if statement
                     } // end else statement
@@ -190,9 +186,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                         macLabel.push(jsonArray[i].Date);
                     } else {
                         // implement crazy logic here
-                        // what the crazy logic should do is it'll get the average of the dataPointsToPlot
-                        // and plot that as the date that's the 1 over the middle date if dataPointsToPlot is even IDEALLY
-                        // otherwise plot at exactly the middle date if dataPointsToPlot is odd IDEALLY
+
                         macAverage.push(jsonArray[i].Success);
                         ++macPointsToAdd;
                         // once it meets the specific points then it'll add it to the value and label
@@ -206,7 +200,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                             macPointsToAdd = 0;
 
                             // clean the data conained by popping from the array
-                            macAverage = avgFunctions.cleanAverageData(macAverage);
+                            macAverage = [];
 
                         } // end if statement
                     } // end else statement

@@ -134,7 +134,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
                             dxPointsToAdd = 0;
 
                             // clean data conained by popping from the array
-                            dxAverage = avgFunctions.cleanAverageData(dxAverage);
+                            dxAverage = [];
                         }
                      }
                 }
@@ -165,7 +165,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
                             fxPointsToAdd = 0;
 
                             // clean data conained by popping from the array
-                            fxAverage = avgFunctions.cleanAverageData(fxAverage);
+                            fxAverage = [];
                         }
                      }
                 }
@@ -196,7 +196,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
                             icPointsToAdd = 0;
 
                             // clean data conained by popping from the array
-                            icAverage = avgFunctions.cleanAverageData(icAverage);
+                            icAverage = [];
                         }
                      }
                 }
@@ -227,7 +227,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
                             mxPointsToAdd = 0;
 
                             // clean data conained by popping from the array
-                            mxAverage = avgFunctions.cleanAverageData(mxAverage);
+                            mxAverage = [];
                         }
                      }
                 }

@@ -98,10 +98,14 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
                     overallLabel.push(jsonArray[i].Date);
                 } else {
                     // Implement crazy logic here
+                    // Add the date to a seperate array
                     overallAverage.push(jsonArray[i].Success);
+                    // Increment the points
                     ++overallPointsToAdd;
                     // Once it meets the specific points then it'll add to the value and label
                     // or if it is the final point
+                    // For example if overallPointsToAdd = 2 and dataPointsToPlot = 2
+                    // 2 % 2 = 0 
                     if ((overallPointsToAdd % this.dataPointsToPlot == 0) || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
                         var averageValue = avgFunctions.getAveragePercentage(overallAverage);
                         successValue.push(averageValue);
@@ -112,7 +116,7 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
                         overallPointsToAdd = 0;
 
                         // clean data conained by popping from the array
-                        overallAverage = avgFunctions.cleanAverageData(overallAverage);
+                        overallAverage = [];
 
                     } // end if statement
                 } // end else statement

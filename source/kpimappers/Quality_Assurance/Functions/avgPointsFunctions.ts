@@ -34,15 +34,4 @@ export class AvgPointsFunctions
         }
         return sum / divideCounter
     }
-
-    /**
-     * With the data that is stored to find out the average of the points
-     * Cleans it up by popping all the values stored
-     * @param {Array<any>[]} avgArrayData
-     */
-    public cleanAverageData(avgArrayData: Array<any>)
-    {
-        avgArrayData = [];
-        return avgArrayData;
-    }
 }

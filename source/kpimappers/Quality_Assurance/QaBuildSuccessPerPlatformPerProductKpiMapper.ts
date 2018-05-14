@@ -203,7 +203,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                                 dxWinPointsToAdd = 0;
 
                                 // clean data conained by popping from the array
-                                dxWindowsAverage = avgFunctions.cleanAverageData(dxWindowsAverage);
+                                dxWindowsAverage = [];
                             } // end inner if
                         } // end inner else statment
                     } // end outer else statement 
@@ -236,7 +236,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                                 fxWinPointsToAdd = 0;
 
                                 // clean data conained by popping from the array
-                                fxWindowsAverage = avgFunctions.cleanAverageData(fxWindowsAverage);
+                                fxWindowsAverage = [];
                             } // end inner if
                         } // end inner else statment
                     } // end outer else statement 
@@ -269,7 +269,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                                icWinPointsToAdd = 0;
    
                                // clean data conained by popping from the array
-                               icWindowsAverage = avgFunctions.cleanAverageData(icWindowsAverage);
+                               icWindowsAverage = [];
                             } // end inner if
                         } // end inner else statment
                     } // end outer else statement 
@@ -302,7 +302,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                                mxWinPointsToAdd = 0;
    
                                // clean data conained by popping from the array
-                               mxWindowsAverage = avgFunctions.cleanAverageData(mxWindowsAverage);
+                               mxWindowsAverage = [];
                             } // end inner if
                         } // end inner else statment
                     } // end outer else statement 
@@ -339,7 +339,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                                 dxLinPointsToAdd = 0;
 
                                 // clean data conained by popping from the array
-                                dxLinuxAverage = avgFunctions.cleanAverageData(dxLinuxAverage);
+                                dxLinuxAverage = [];
                             } // end inner if
                         } // end inner else statment
                     } // end outer else statement 
@@ -372,7 +372,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                                 fxLinPointsToAdd = 0;
 
                                 // clean data conained by popping from the array
-                                fxLinuxAverage = avgFunctions.cleanAverageData(fxLinuxAverage);
+                                fxLinuxAverage = [];
                             } // end inner if
                         } // end inner else statment
                     } // end outer else statement 
@@ -405,7 +405,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                                icLinPointsToAdd = 0;
    
                                // clean data conained by popping from the array
-                               icLinuxAverage = avgFunctions.cleanAverageData(icLinuxAverage);
+                               icLinuxAverage = [];
                             } // end inner if
                         } // end inner else statment
                     } // end outer else statement 
@@ -438,7 +438,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                                mxLinPointsToAdd = 0;
    
                                // clean data conained by popping from the array
-                               mxLinuxAverage = avgFunctions.cleanAverageData(mxLinuxAverage);
+                               mxLinuxAverage = [];
                             } // end inner if
                         } // end inner else statment
                     } // end outer else statement 
@@ -475,7 +475,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                                 dxMacPointsToAdd = 0;
 
                                 // clean data conained by popping from the array
-                                dxMacAverage = avgFunctions.cleanAverageData(dxMacAverage);
+                                dxMacAverage = [];
                             } // end inner if
                         } // end inner else statment
                     } // end outer else statement 
@@ -508,7 +508,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                                 fxMacPointsToAdd = 0;
 
                                 // clean data conained by popping from the array
-                                fxMacAverage = avgFunctions.cleanAverageData(fxMacAverage);
+                                fxMacAverage = [];
                             } // end inner if
                         } // end inner else statment
                     } // end outer else statement 
@@ -541,7 +541,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                                icMacPointsToAdd = 0;
    
                                // clean data conained by popping from the array
-                               icMacAverage = avgFunctions.cleanAverageData(icMacAverage);
+                               icMacAverage = [];
                             } // end inner if
                         } // end inner else statment
                     } // end outer else statement 
@@ -574,7 +574,7 @@ export class QaBuildSuccessPerPlatformPerProductKpiMapper extends KpiMapper
                                mxMacPointsToAdd = 0;
    
                                // clean data conained by popping from the array
-                               mxMacAverage = avgFunctions.cleanAverageData(mxMacAverage);
+                               mxMacAverage = [];
                             } // end inner if
                         } // end inner else statment
                     } // end outer else statement 
