@@ -2,6 +2,7 @@ import * as express from "express"
 import * as fs from "fs"
 import { IDataStorage } from "../datastorages/IDataStorage"
 import { IKpiState } from "../kpimappers/IKpiState"
+import { Log } from "../Log"
 const config = require("../../config/config")
 
 export function start_webserver(storage: IDataStorage): void
@@ -57,6 +58,8 @@ export function start_webserver(storage: IDataStorage): void
         catch (err)
         {
             err.name = `${kpilist[request.params.category][request.params.kpi].Title}: Server: ${err.name}`;
+            console.log(`Error when serving KPI ${err.name}. Error has been logged.`);
+            Log(err, "Error when serving KPI from web server.");;
             response.status(config.webserver.response.error).send(err);
         }
     });

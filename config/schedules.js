@@ -10,12 +10,12 @@ const config = require("./config")
 // Format of schedules should match interface in source/scheduler/ISchedule.ts
 var schedules =
 [
-    {
-        Title: "Sample Data Source",
-        DataCollector: new PythonShellJsonDataCollector.PythonShellJsonDataCollector("./data/sample_data_source.py"),
-        DataInterface: new SampleDataInterface.SampleDataInterface(),
-        RunIntervalInMinutes: .5
-    },
+    // {
+    //     Title: "Sample Data Source",
+    //     DataCollector: new PythonShellJsonDataCollector.PythonShellJsonDataCollector("./data/sample_data_source.py"),
+    //     DataInterface: new SampleDataInterface.SampleDataInterface(),
+    //     RunIntervalInMinutes: 999
+    // },
     {
         Title: "QA Builds and Runs from Bamboo",
         DataCollector: new JsonDataCollector.JsonDataCollector("./data/qa_builds_and_runs_from_bamboo.json"),
