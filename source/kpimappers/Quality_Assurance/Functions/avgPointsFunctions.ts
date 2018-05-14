@@ -42,8 +42,7 @@ export class AvgPointsFunctions
      */
     public cleanAverageData(avgArrayData: Array<any>)
     {
-        for (let i: number = 0; i < avgArrayData.length; i++) {
-            avgArrayData.pop;
-        }
+        avgArrayData = [];
+        return avgArrayData;
     }
 }

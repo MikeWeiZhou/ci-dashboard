@@ -37,7 +37,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
         return [`
             SELECT PLATFORM_NAME, 
             DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") AS Date,
-            AVG(CASE WHEN  BUILD_STATE = "Successful" THEN 1 ELSE 0 END) as Success
+            AVG(IS_SUCCESS) as Success
             FROM ${this._tablename}
             Where BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
             GROUP BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d"), PLATFORM_NAME 
@@ -133,7 +133,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                             windowsPointsToAdd = 0;
 
                             // clean data conained by popping from the array
-                            avgFunctions.cleanAverageData(windowsAverage);
+                            windowsAverage = avgFunctions.cleanAverageData(windowsAverage);
                         } // end if statement
                     } // end else statement
                 } // end crazy if statement
@@ -169,7 +169,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                             linuxPointsToAdd = 0;
 
                             // clean the data conained by popping from the array
-                            avgFunctions.cleanAverageData(linuxAverage);
+                            linuxAverage = avgFunctions.cleanAverageData(linuxAverage);
 
                         } // end if statement
                     } // end else statement
@@ -206,7 +206,7 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
                             macPointsToAdd = 0;
 
                             // clean the data conained by popping from the array
-                            avgFunctions.cleanAverageData(macAverage);
+                            macAverage = avgFunctions.cleanAverageData(macAverage);
 
                         } // end if statement
                     } // end else statement

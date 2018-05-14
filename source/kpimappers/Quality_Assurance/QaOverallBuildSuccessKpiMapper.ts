@@ -36,7 +36,7 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
 
         return [`
         SELECT DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") AS Date, 
-        AVG(CASE WHEN  BUILD_STATE = "Successful" THEN 1 ELSE 0 END) as Success
+        AVG(IS_SUCCESS) as Success
         FROM ${this._tablename} Where BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
         GROUP BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") 
         ORDER BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d");
@@ -112,7 +112,8 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
                         overallPointsToAdd = 0;
 
                         // clean data conained by popping from the array
-                        avgFunctions.cleanAverageData(overallAverage); 
+                        overallAverage = avgFunctions.cleanAverageData(overallAverage);
+
                     } // end if statement
                 } // end else statement
             } // end crazy if statement

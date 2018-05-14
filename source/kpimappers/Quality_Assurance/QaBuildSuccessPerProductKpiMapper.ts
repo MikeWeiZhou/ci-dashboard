@@ -37,7 +37,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
         return [`
             SELECT PRODUCT_NAME, 
             DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") AS Date, 
-            AVG(CASE WHEN  BUILD_STATE = "Successful" THEN 1 ELSE 0 END) as Success 
+            AVG(IS_SUCCESS) as Success 
             FROM ${this._tablename} 
             Where BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}' 
             GROUP BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d"), PRODUCT_NAME 
@@ -119,7 +119,6 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
                          // Plot it normally
                          dxValue.push(jsonArray[i].Success);
                          dxLabel.push(jsonArray[i].Date);
-                         dxFirstPush = true;
                      } else {
                         dxAverage.push(jsonArray[i].Success);
                         ++dxPointsToAdd;
@@ -135,7 +134,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
                             dxPointsToAdd = 0;
 
                             // clean data conained by popping from the array
-                            avgFunctions.cleanAverageData(dxAverage);
+                            dxAverage = avgFunctions.cleanAverageData(dxAverage);
                         }
                      }
                 }
@@ -151,7 +150,6 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
                          // Plot it normally
                          fxValue.push(jsonArray[i].Success);
                          fxLabel.push(jsonArray[i].Date);
-                         fxFirstPush = true;
                      } else {
                         fxAverage.push(jsonArray[i].Success);
                         ++fxPointsToAdd;
@@ -167,7 +165,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
                             fxPointsToAdd = 0;
 
                             // clean data conained by popping from the array
-                            avgFunctions.cleanAverageData(fxAverage);
+                            fxAverage = avgFunctions.cleanAverageData(fxAverage);
                         }
                      }
                 }
@@ -183,7 +181,6 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
                          // Plot it normally
                          icValue.push(jsonArray[i].Success);
                          icLabel.push(jsonArray[i].Date);
-                         icFirstPush = true;
                      } else {
                         icAverage.push(jsonArray[i].Success);
                         ++icPointsToAdd;
@@ -199,7 +196,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
                             icPointsToAdd = 0;
 
                             // clean data conained by popping from the array
-                            avgFunctions.cleanAverageData(icAverage);
+                            icAverage = avgFunctions.cleanAverageData(icAverage);
                         }
                      }
                 }
@@ -215,7 +212,6 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
                          // Plot it normally
                          mxValue.push(jsonArray[i].Success);
                          mxLabel.push(jsonArray[i].Date);
-                         mxFirstPush = true;
                      } else {
                         mxAverage.push(jsonArray[i].Success);
                         ++mxPointsToAdd;
@@ -231,7 +227,7 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
                             mxPointsToAdd = 0;
 
                             // clean data conained by popping from the array
-                            avgFunctions.cleanAverageData(mxAverage);
+                            mxAverage = avgFunctions.cleanAverageData(mxAverage);
                         }
                      }
                 }
