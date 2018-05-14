@@ -37,47 +37,47 @@ export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
 
         this._dateRange = dateRange;
         return [
-            `select 
+            `SELECT 
                 NULL, NULL as CheckDups,
-                (case when resolutiondate is null then creationdate else resolutiondate end) as Date,
-                (case when numresolved is null then 0 else numresolved end)
-                - (case when numcreated is null then 0 else numcreated end) as Diff
-                from
+                (CASE WHEN ResolutionDate IS NULL THEN CreationDate ELSE ResolutionDate END) AS Date,
+                (CASE WHEN NumResolved IS NULL THEN 0 ELSE NumResolved END)
+                - (CASE WHEN NumCreated IS NULL THEN 0 ELSE NumCreated END) AS Diff
+                FROM
                     (SELECT 
-                    CAST(CREATION_DATE AS DATE) as CreationDate,
-                    Count(CREATION_DATE) as 'NumCreated'
+                    CAST(CREATION_DATE AS DATE) AS CreationDate,
+                    COUNT(CREATION_DATE) AS NumCreated
                     FROM ${this._tablename}
                     WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                    and priority = 'Major'
-                    group by CAST(CREATION_DATE AS DATE)) as a
-                left join
+                    AND PRIORITY = 'Major'
+                    GROUP BY CAST(CREATION_DATE AS DATE)) AS a
+                LEFT JOIN
                     (SELECT 
-                    CAST(resolution_date AS DATE) as 'ResolutionDate',
-                    Count(resolution_date) as 'NumResolved'
+                    CAST(RESOLUTION_DATE AS DATE) AS ResolutionDate,
+                    COUNT(RESOLUTION_DATE) AS NumResolved
                     FROM ${this._tablename}
-                    WHERE resolution_date BETWEEN '${from}' AND '${to}'
-                    and priority = 'Major'
-                    group by CAST(resolution_date AS DATE)) as b
-                on a.creationdate = b.resolutiondate 
-			union all
-			select * from
+                    WHERE RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
+                    AND PRIORITY = 'Major'
+                    GROUP BY CAST(RESOLUTION_DATE AS DATE)) AS b
+                ON a.CreationDate = b.ResolutionDate 
+            UNION ALL
+            SELECT * FROM
                 (SELECT 
-                    CAST(CREATION_DATE AS DATE) as CreationDate,
-                    Count(CREATION_DATE) as 'NumCreated'
+                    CAST(CREATION_DATE AS DATE) AS CreationDate,
+                    COUNT(CREATION_DATE) AS NumCreated
                     FROM ${this._tablename}
                     WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                    and priority = 'Major'
-                    group by CAST(CREATION_DATE AS DATE)) as a
+                    AND PRIORITY = 'Major'
+                    GROUP BY CAST(CREATION_DATE AS DATE)) AS a
                 right join
                 (SELECT 
-                    CAST(resolution_date AS DATE) as 'ResolutionDate',
-                    Count(resolution_date) as 'NumResolved'
+                    CAST(RESOLUTION_DATE AS DATE) AS ResolutionDate,
+                    COUNT(RESOLUTION_DATE) AS NumResolved
                     FROM ${this._tablename}
-                    WHERE resolution_date BETWEEN '${from}' AND '${to}'
-                    and priority = 'Major'
-                    group by CAST(resolution_date AS DATE)) as b
-                on a.creationdate = b.resolutiondate
-                order by Date
+                    WHERE RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
+                    AND PRIORITY = 'Major'
+                    GROUP BY CAST(RESOLUTION_DATE AS DATE)) AS b
+                ON a.CreationDate = b.ResolutionDate
+                ORDER BY Date
             
         `];
     }
@@ -150,7 +150,7 @@ export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
                 mode: "lines",
                 line: {
                     "shape": "spline",
-                    "smoothing": .8
+                    "smoothing": 1.3
                 }
             }
         ],

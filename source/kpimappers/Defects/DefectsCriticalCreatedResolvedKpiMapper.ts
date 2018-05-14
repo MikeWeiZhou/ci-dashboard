@@ -39,49 +39,49 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
 
         this._dateRange = dateRange;
         return [
-            `select 
-                NULL, NULL as CheckDups,
-                (case when resolutiondate is null then creationdate else resolutiondate end) as Date,
-                (case when numresolved is null then 0 else numresolved end)
-                - (case when numcreated is null then 0 else numcreated end) as Diff
-                from
-                    (SELECT 
-                    CAST(CREATION_DATE AS DATE) as CreationDate,
-                    Count(CREATION_DATE) as 'NumCreated'
-                    FROM ${this._tablename}
-                    WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                    and priority = 'Critical'
-                    group by CAST(CREATION_DATE AS DATE)) as a
-                left join
-                    (SELECT 
-                    CAST(resolution_date AS DATE) as 'ResolutionDate',
-                    Count(resolution_date) as 'NumResolved'
-                    FROM ${this._tablename}
-                    WHERE resolution_date BETWEEN '${from}' AND '${to}'
-                    and priority = 'Critical'
-                    group by CAST(resolution_date AS DATE)) as b
-                on a.creationdate = b.resolutiondate 
-			union all
-			select * from
+            `SELECT 
+            NULL, NULL as CheckDups,
+            (CASE WHEN ResolutionDate IS NULL THEN CreationDate ELSE ResolutionDate END) AS Date,
+            (CASE WHEN NumResolved IS NULL THEN 0 ELSE NumResolved END)
+            - (CASE WHEN NumCreated IS NULL THEN 0 ELSE NumCreated END) AS Diff
+            FROM
                 (SELECT 
-                    CAST(CREATION_DATE AS DATE) as CreationDate,
-                    Count(CREATION_DATE) as 'NumCreated'
-                    FROM ${this._tablename}
-                    WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                    and priority = 'Critical'
-                    group by CAST(CREATION_DATE AS DATE)) as a
-                right join
+                CAST(CREATION_DATE AS DATE) AS CreationDate,
+                COUNT(CREATION_DATE) AS NumCreated
+                FROM ${this._tablename}
+                WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+                AND PRIORITY = 'Critical'
+                GROUP BY CAST(CREATION_DATE AS DATE)) AS a
+            LEFT JOIN
                 (SELECT 
-                    CAST(resolution_date AS DATE) as 'ResolutionDate',
-                    Count(resolution_date) as 'NumResolved'
-                    FROM ${this._tablename}
-                    WHERE resolution_date BETWEEN '${from}' AND '${to}'
-                    and priority = 'Critical'
-                    group by CAST(resolution_date AS DATE)) as b
-                on a.creationdate = b.resolutiondate
-                order by Date
-            `
-    ];
+                CAST(RESOLUTION_DATE AS DATE) AS ResolutionDate,
+                COUNT(RESOLUTION_DATE) AS NumResolved
+                FROM ${this._tablename}
+                WHERE RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
+                AND PRIORITY = 'Critical'
+                GROUP BY CAST(RESOLUTION_DATE AS DATE)) AS b
+            ON a.CreationDate = b.ResolutionDate 
+        UNION ALL
+        SELECT * FROM
+            (SELECT 
+                CAST(CREATION_DATE AS DATE) AS CreationDate,
+                COUNT(CREATION_DATE) AS NumCreated
+                FROM ${this._tablename}
+                WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+                AND PRIORITY = 'Critical'
+                GROUP BY CAST(CREATION_DATE AS DATE)) AS a
+            right join
+            (SELECT 
+                CAST(RESOLUTION_DATE AS DATE) AS ResolutionDate,
+                COUNT(RESOLUTION_DATE) AS NumResolved
+                FROM ${this._tablename}
+                WHERE RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
+                AND PRIORITY = 'Critical'
+                GROUP BY CAST(RESOLUTION_DATE AS DATE)) AS b
+            ON a.CreationDate = b.ResolutionDate
+            ORDER BY Date
+        `
+        ];
     }
 
     /**
@@ -146,7 +146,7 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
                 mode: "lines",
                 line: {
                     "shape": "spline",
-                    "smoothing": .8
+                    "smoothing": 1.3
                 }
             }
         ],
