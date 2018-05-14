@@ -34,57 +34,57 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
         this._to = to;
 
         return [
-            `select tbl.date as Date,
-            tbl.value as Count,
-            avg(pasttbl.value) as Average
-            from (
-                select
-                CAST(CREATION_DATE AS DATE) as date,
-                count(CREATION_DATE) as value,
-                priority
-                from ${this._tablename}
+            `SELECT a.DATE AS Date,
+            a.VALUE AS Count,
+            AVG(b.VALUE) AS Average
+            FROM (
+                SELECT
+                CAST(CREATION_DATE AS DATE) AS Date,
+                COUNT(CREATION_DATE) AS Value,
+                PRIORITY
+                FROM ${this._tablename}
                 WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                and priority = 'Critical'
-                group by 1
-            ) as tbl
-            inner join (
-                select
-                CAST(CREATION_DATE AS DATE) as date,
-                count(CREATION_DATE) as value,
-                priority
-                from ${this._tablename}
-                where priority = 'Critical'
-                group by 1
-            ) as pasttbl
-            on pasttbl.date between tbl.date - ${dateRange} and tbl.date
-            group by 1, 2
-            order by CAST(tbl.date AS DATE) asc
+                AND PRIORITY = 'Critical'
+                GROUP BY 1
+            ) AS a
+            INNER JOIN (
+                SELECT
+                CAST(CREATION_DATE AS DATE) AS Date,
+                COUNT(CREATION_DATE) AS Value,
+                PRIORITY
+                FROM ${this._tablename}
+                WHERE PRIORITY = 'Critical'
+                GROUP BY 1
+            ) AS b
+            ON b.Date BETWEEN a.Date - ${dateRange} AND a.Date
+            GROUP BY 1, 2
+            ORDER BY CAST(a.Date AS DATE) ASC
             `,
-            `select tbl.date as Date,
-            tbl.value as Count,
-            avg(pasttbl.value) as Average
-            from (
-                select
-                CAST(CREATION_DATE AS DATE) as date,
-                count(CREATION_DATE) as value,
-                priority
-                from ${this._tablename}
+            `SELECT a.DATE AS Date,
+            a.Value AS Count,
+            AVG(b.Value) AS Average
+            FROM (
+                SELECT
+                CAST(CREATION_DATE AS DATE) AS Date,
+                COUNT(CREATION_DATE) AS Value,
+                PRIORITY
+                FROM ${this._tablename}
                 WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                and priority = 'Major'
-                group by 1
-            ) as tbl
-            inner join (
-                select
-                CAST(CREATION_DATE AS DATE) as date,
-                count(CREATION_DATE) as value,
-                priority
-                from ${this._tablename}
-                where priority = 'Major'
-                group by 1
-            ) as pasttbl
-            on pasttbl.date between tbl.date - ${dateRange}  and tbl.date
-            group by 1, 2
-            order by CAST(tbl.date AS DATE) asc
+                AND PRIORITY = 'Major'
+                GROUP BY 1
+            ) AS a
+            INNER JOIN (
+                SELECT
+                CAST(CREATION_DATE AS DATE) AS Date,
+                COUNT(CREATION_DATE) AS Value,
+                PRIORITY
+                FROM ${this._tablename}
+                WHERE PRIORITY = 'Major'
+                GROUP BY 1
+            ) AS b
+            ON b.Date BETWEEN a.Date - ${dateRange}  AND a.Date
+            GROUP BY 1, 2
+            ORDER BY CAST(a.Date AS DATE) ASC
             `
         ];
 
@@ -135,10 +135,10 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
                 y: values,
                 name: "Critical",
                 type: "scatter",
-                mode: "lines+markers",
+                mode: "lines",
                 line: {
                     "shape": "spline",
-                    "smoothing": 1
+                    "smoothing": 1.3
                 }
             }
             ,
@@ -147,10 +147,10 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
                 y: values2,
                 name: "Major",
                 type: "scatter",
-                mode: "lines+markers",
+                mode: "lines",
                 line: {
                     "shape": "spline",
-                    "smoothing": 1
+                    "smoothing": 1.3
                 }
             }
         ],
