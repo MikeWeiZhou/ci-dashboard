@@ -4,16 +4,27 @@ var kpigoals = {};
 
 kpigoals =
 {
+    // kpimappers/AverageLineExamples/BuildTimeFromQueueKpiMapper
+    build_time_from_queue:
+    {
+        target_minutes: 60,
+        stretch_minutes: 30
+    },
+
+    // kpimappers/AverageLineExamples/StoryPointsVelocityKpiMapper
     story_points_velocity:
     {
         target_annual:  1088,
         stretch_annual: 1137
     },
+
+    // kpimappers/AverageLineExamples/BuildSuccessRateKpiMapper
     build_success_rate:
     {
         target_rate: 0.75,
         stretch_rate: 0.9
     },
+
     bugs_per_day:
     {
         target: 1,

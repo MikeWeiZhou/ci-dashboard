@@ -15,6 +15,7 @@ class BuildDashboard extends Component {
             ,"AverageLineExamples/BuildSuccessRate"
             ,"AverageLineExamples/StoryPointsVelocity"
             ,"AverageLineExamples/StoryPointsOnBugsResolution"
+            ,"AverageLineExamples/BuildTimeFromQueue"
         ],
         startDate: "2017-05-01",
         endDate: "2018-05-01"
