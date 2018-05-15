@@ -6,7 +6,6 @@ class BuildDashboard extends Component {
         // Define API routes here for testing
         routes: [
             "Quality_Assurance/QaOverallBuildSuccess"
-            ,"Quality_Assurance/QaBuildSuccessPerPlatformPerProduct"
             ,"Quality_Assurance/QaBuildSuccessPerPlatform"
             ,"Quality_Assurance/QaBuildSuccessPerProduct"
             ,"Defects/DefectsMajorCreatedResolved"

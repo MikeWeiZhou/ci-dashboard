@@ -1,5 +1,3 @@
-import * as moment from "moment"
-import { AvgPointsFunctions } from "./Functions/AvgPointsFunctions"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
 const config = require("../../../config/config")
@@ -11,15 +9,11 @@ const config = require("../../../config/config")
  */
 export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
 {
+    // Title name for graph
     public readonly Title: string = "QA Build Success Rate Per Product";
 
+    // Table name for SQL calling
     private _tablename: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
-
-    private _from: string;
-    private _to: string;
-
-    // Start with splitting data points by how many days 
-    private dataPointsToPlot = 0;
 
     /**
      * Returns an array of SQL query strings given a date range.
@@ -31,17 +25,27 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
-        this._from = from;
-        this._to = to;
-
         return [`
-            SELECT PRODUCT_NAME, 
-            DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") AS Date, 
-            AVG(IS_SUCCESS) as Success 
-            FROM ${this._tablename} 
-            Where BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}' 
-            GROUP BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d"), PRODUCT_NAME 
-            ORDER BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d");
+        WITH DAILY_AVG_SUCCESS_RATE AS
+        (
+            SELECT PRODUCT_NAME, Date_format(build_completed_date, "%Y-%m-%d") AS 'BUILD_DATE'
+                ,AVG(IS_SUCCESS) AS 'SUCCESS_RATE'
+            FROM ${this._tablename}
+            WHERE BUILD_COMPLETED_DATE BETWEEN DATE_ADD('${from}', INTERVAL -29 DAY) AND '${to}' 
+            GROUP BY BUILD_DATE, PRODUCT_NAME
+            ORDER BY BUILD_DATE
+        )
+        
+        SELECT T1.PRODUCT_NAME, T1.BUILD_DATE AS 'DATE'
+            ,AVG(T2.SUCCESS_RATE) AS 'SUCCESS_RATE'
+        FROM DAILY_AVG_SUCCESS_RATE T1
+        LEFT JOIN DAILY_AVG_SUCCESS_RATE T2
+        ON T1.PRODUCT_NAME = T2.PRODUCT_NAME AND T2.BUILD_DATE BETWEEN
+            DATE_ADD(T1.BUILD_DATE, INTERVAL -29 DAY) AND T1.BUILD_DATE
+        WHERE T1.BUILD_DATE BETWEEN '${from}' AND '${to}'
+        GROUP BY DATE, PRODUCT_NAME
+        ORDER BY DATE
+        ;
         `];
     }
 
@@ -54,7 +58,6 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
         var jsonArray: Array<any> = jsonArrays[0];
-        var avgFunctions = new AvgPointsFunctions();
 
         // Edit the target and stretch goals here in decimal percantages
         const targetGoal = 0.70
@@ -66,173 +69,43 @@ export class QaBuildSuccessPerProductKpiMapper extends KpiMapper
             return null;
         }
 
-        // Declare how many points to plot
-        // Will always plot the first and last and in between will be
-        // a number that is equal to or lower than points specified
-        var plottingPoints = 30;
-
-        var dxPointsToAdd = 0;
-        var fxPointsToAdd = 0;
-        var icPointsToAdd = 0;
-        var mxPointsToAdd = 0;
-
         // Contains the values (The data to plot the graph)
         var dxValue: Array<any> = [];
+        // Contains the labels (To fields to get a line chart)
         var dxLabel: Array<any> = [];
-        var dxAverage: Array<any> = [];
 
         var fxValue: Array<any> = [];
         var fxLabel: Array<any> = [];
-        var fxAverage: Array<any> = [];
 
         var icValue: Array<any> = [];
         var icLabel: Array<any> = [];
-        var icAverage: Array<any> = [];
 
         var mxValue: Array<any> = [];
         var mxLabel: Array<any> = [];
-        var mxAverage: Array <any> = []
-
-        // 30 day difference example
-        var getDaysLeft = avgFunctions.getHowManyDaysLeft(this._from, this._to);
-
-        // Find out how many data points to split across using Math.Floor
-        this.dataPointsToPlot = Math.floor((getDaysLeft/plottingPoints));
-
-        // Don't edit these values
-        var dxFirstPush = false;
-        var fxFirstPush = false;
-        var icFirstPush = false;
-        var mxFirstPush = false;
         
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
             if (jsonArray[i].PRODUCT_NAME == "***REMOVED***") {
-                // get the starting point of the graph and add it in
-                if (!dxFirstPush) {
-                    dxValue.push(jsonArray[i].Success);
-                    dxLabel.push(jsonArray[i].Date);
-                    dxFirstPush = true;
-                } else {
-                     // If there is more points than how many days left to plot
-                     if (getDaysLeft < plottingPoints) {
-                         // Plot it normally
-                         dxValue.push(jsonArray[i].Success);
-                         dxLabel.push(jsonArray[i].Date);
-                     } else {
-                        dxAverage.push(jsonArray[i].Success);
-                        ++dxPointsToAdd;
-                        // once it meets the specific points then it'll add it to the value and label
-                        // or if it is the final point
-                        if ((dxPointsToAdd % this.dataPointsToPlot == 0) || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
-                            var averageValue = avgFunctions.getAveragePercentage(dxAverage);
-                            dxValue.push(averageValue);
-                            dxLabel.push(jsonArray[i].Date);
-
-                            // clean everything up once it's over
-                            // resets the points to 0
-                            dxPointsToAdd = 0;
-
-                            // clean data conained by popping from the array
-                            dxAverage = [];
-                        }
-                     }
-                }
+                // Add the value and labels from the query and push it in the array
+                dxValue.push(jsonArray[i].SUCCESS_RATE);
+                dxLabel.push(jsonArray[i].DATE);
+                
             } else if (jsonArray[i].PRODUCT_NAME == "***REMOVED***") {
-                 // get the starting point of the graph and add it in
-                 if (!fxFirstPush) {
-                    fxValue.push(jsonArray[i].Success);
-                    fxLabel.push(jsonArray[i].Date);
-                    fxFirstPush = true;
-                } else {
-                     // If there is more points than how many days left to plot
-                     if (getDaysLeft < plottingPoints) {
-                         // Plot it normally
-                         fxValue.push(jsonArray[i].Success);
-                         fxLabel.push(jsonArray[i].Date);
-                     } else {
-                        fxAverage.push(jsonArray[i].Success);
-                        ++fxPointsToAdd;
-                        // once it meets the specific points then it'll add it to the value and label
-                        // or if it is the final point
-                        if ((fxPointsToAdd % this.dataPointsToPlot == 0) || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
-                            var averageValue = avgFunctions.getAveragePercentage(fxAverage);
-                            fxValue.push(averageValue);
-                            fxLabel.push(jsonArray[i].Date);
 
-                            // clean everything up once it's over
-                            // resets the points to 0
-                            fxPointsToAdd = 0;
-
-                            // clean data conained by popping from the array
-                            fxAverage = [];
-                        }
-                     }
-                }
+                fxValue.push(jsonArray[i].SUCCESS_RATE);
+                fxLabel.push(jsonArray[i].DATE);
+                
             } else if (jsonArray[i].PRODUCT_NAME == "***REMOVED***") {
-                // get the starting point of the graph and add it in
-                if (!icFirstPush) {
-                    icValue.push(jsonArray[i].Success);
-                    icLabel.push(jsonArray[i].Date);
-                    icFirstPush = true;
-                } else {
-                     // If there is more points than how many days left to plot
-                     if (getDaysLeft < plottingPoints) {
-                         // Plot it normally
-                         icValue.push(jsonArray[i].Success);
-                         icLabel.push(jsonArray[i].Date);
-                     } else {
-                        icAverage.push(jsonArray[i].Success);
-                        ++icPointsToAdd;
-                        // once it meets the specific points then it'll add it to the value and label
-                        // or if it is the final point
-                        if ((icPointsToAdd % this.dataPointsToPlot == 0) || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
-                            var averageValue = avgFunctions.getAveragePercentage(icAverage);
-                            icValue.push(averageValue);
-                            icLabel.push(jsonArray[i].Date);
 
-                            // clean everything up once it's over
-                            // resets the points to 0
-                            icPointsToAdd = 0;
-
-                            // clean data conained by popping from the array
-                            icAverage = [];
-                        }
-                     }
-                }
+                icValue.push(jsonArray[i].SUCCESS_RATE);
+                icLabel.push(jsonArray[i].DATE);
+                
             } else if (jsonArray[i].PRODUCT_NAME == "***REMOVED***") {
-                 // get the starting point of the graph and add it in
-                 if (!mxFirstPush) {
-                    mxValue.push(jsonArray[i].Success);
-                    mxLabel.push(jsonArray[i].Date);
-                    mxFirstPush = true;
-                } else {
-                     // If there is more points than how many days left to plot
-                     if (getDaysLeft < plottingPoints) {
-                         // Plot it normally
-                         mxValue.push(jsonArray[i].Success);
-                         mxLabel.push(jsonArray[i].Date);
-                     } else {
-                        mxAverage.push(jsonArray[i].Success);
-                        ++mxPointsToAdd;
-                        // once it meets the specific points then it'll add it to the value and label
-                        // or if it is the final point
-                        if ((mxPointsToAdd % this.dataPointsToPlot == 0) || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
-                            var averageValue = avgFunctions.getAveragePercentage(mxAverage);
-                            mxValue.push(averageValue);
-                            mxLabel.push(jsonArray[i].Date);
+                mxValue.push(jsonArray[i].SUCCESS_RATE);
+                mxLabel.push(jsonArray[i].DATE);
+            }
 
-                            // clean everything up once it's over
-                            // resets the points to 0
-                            mxPointsToAdd = 0;
-
-                            // clean data conained by popping from the array
-                            mxAverage = [];
-                        }
-                     }
-                }
-            } // end inner if statement
-        }
+        } // end for statement
 
         return {
             data: [{

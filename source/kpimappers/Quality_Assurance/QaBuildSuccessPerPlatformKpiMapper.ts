@@ -1,5 +1,3 @@
-import * as moment from "moment"
-import { AvgPointsFunctions } from "./Functions/AvgPointsFunctions"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
 const config = require("../../../config/config")
@@ -11,15 +9,11 @@ const config = require("../../../config/config")
  */
 export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
 {
+    // Title name for graph
     public readonly Title: string = "QA Build Success Rate Per Platform";
 
+    // Table name for SQL calling
     private _tablename: string = config.db.tablename.qa_builds_and_runs_from_bamboo;
-
-    private _from: string;
-    private _to: string;
-
-    // Start with splitting data points by how many days 
-    private dataPointsToPlot = 0;
 
     /**
      * Returns an array of SQL query strings given a date range.
@@ -31,17 +25,27 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
-        this._from = from;
-        this._to = to;
-
         return [`
-            SELECT PLATFORM_NAME, 
-            DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d") AS Date,
-            AVG(IS_SUCCESS) as Success
+        WITH DAILY_AVG_SUCCESS_RATE AS
+        (
+            SELECT PLATFORM_NAME, Date_format(build_completed_date, "%Y-%m-%d") AS 'BUILD_DATE'
+                ,AVG(IS_SUCCESS) AS 'SUCCESS_RATE'
             FROM ${this._tablename}
-            Where BUILD_COMPLETED_DATE BETWEEN '${from}' AND '${to}'
-            GROUP BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d"), PLATFORM_NAME 
-            ORDER BY DATE_FORMAT(BUILD_COMPLETED_DATE, "%Y-%m-%d");
+            WHERE BUILD_COMPLETED_DATE BETWEEN DATE_ADD('${from}', INTERVAL -29 DAY) AND '${to}' 
+            GROUP BY BUILD_DATE, PLATFORM_NAME
+            ORDER BY BUILD_DATE
+        )
+
+        SELECT T1.PLATFORM_NAME, T1.BUILD_DATE AS 'DATE'
+            ,AVG(T2.SUCCESS_RATE) AS 'SUCCESS_RATE'
+        FROM DAILY_AVG_SUCCESS_RATE T1
+        LEFT JOIN DAILY_AVG_SUCCESS_RATE T2
+        ON T1.PLATFORM_NAME = T2.PLATFORM_NAME AND T2.BUILD_DATE BETWEEN
+            DATE_ADD(T1.BUILD_DATE, INTERVAL -29 DAY) AND T1.BUILD_DATE
+        WHERE T1.BUILD_DATE BETWEEN '${from}' AND '${to}'
+        GROUP BY DATE, PLATFORM_NAME
+        ORDER BY DATE
+        ;
         `];
     }
 
@@ -54,7 +58,6 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
         var jsonArray: Array<any> = jsonArrays[0];
-        var avgFunctions = new AvgPointsFunctions();
 
         // Edit the target and stretch goals here in decimal percantages
         const targetGoal = 0.70
@@ -66,147 +69,35 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
             return null;
         }
 
-        // Declare how many points to plot
-        // Will always plot the first and last and in between will be
-        // a number that is equal to or lower than points specified
-        var plottingPoints = 30;
-
-        var windowsPointsToAdd = 0;
-        var linuxPointsToAdd = 0;
-        var macPointsToAdd = 0;
-
         // Contains the values (The data to plot the graph)
         var windowsValue: Array<any> = [];
         // Contains the labels (To fields to get a line chart)
         var windowsLabel: Array<any> = [];
-        // To help contain the values and spit out an average
-        var windowsAverage: Array<any> = [];
 
         var linuxValue: Array<any> = [];
         var linuxLabel: Array<any> = [];
-        var linuxAverage: Array<any> = [];
 
         var macValue: Array<any> = [];
         var macLabel: Array<any> = [];
-        var macAverage: Array<any> = [];
-
-        // 30 day difference example
-        var getDaysLeft = avgFunctions.getHowManyDaysLeft(this._from, this._to);
-
-        // Find out how many data points to split across using Math.Floor
-        this.dataPointsToPlot = Math.floor((getDaysLeft/plottingPoints));
-
-        var windowFirstPush = false;
-        var linuxFirstPush = false;
-        var macFirstPush = false;
 
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
             if (jsonArray[i].PLATFORM_NAME == "Windows") {
-                // get the starting point of the graph and add it in
-                if (!windowFirstPush) {
-                    windowsValue.push(jsonArray[i].Success);
-                    windowsLabel.push(jsonArray[i].Date);
-                    windowFirstPush = true;
-                } else {
-                    // If there is more points than how many days left to plot
-                    if (getDaysLeft < plottingPoints) {
-                        // plot it normally
-                        windowsValue.push(jsonArray[i].Success);
-                        windowsLabel.push(jsonArray[i].Date);
-                    } else {
-                        // implement crazy logic here
-
-                        windowsAverage.push(jsonArray[i].Success);
-                        ++windowsPointsToAdd;
-                        // once it meets the specific points then it'll add it to the value and label
-                        // or if it is the final point
-                        if ((windowsPointsToAdd % this.dataPointsToPlot == 0) || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
-                            var averageValue = avgFunctions.getAveragePercentage(windowsAverage);
-                            windowsValue.push(averageValue);
-                            windowsLabel.push(jsonArray[i].Date);
-
-                            // clean everything up once it's over
-                            // resets the points to 0
-                            windowsPointsToAdd = 0;
-
-                            // clean data conained by popping from the array
-                            windowsAverage = [];
-                        } // end if statement
-                    } // end else statement
-                } // end crazy if statement
+                // Add the value and labels from the query and push it in the array
+                windowsValue.push(jsonArray[i].SUCCESS_RATE);
+                windowsLabel.push(jsonArray[i].DATE);
 
             } else if (jsonArray[i].PLATFORM_NAME == "Linux") {
-                // get the starting point of the graph and add it in
-                if (!linuxFirstPush) {
-                    linuxValue.push(jsonArray[i].Success);
-                    linuxLabel.push(jsonArray[i].Date);
-                    linuxFirstPush = true;
 
-                } else {
-                    // If there is more points than how many days left to plot
-                    if (getDaysLeft < plottingPoints) {
-                        // plot it normally
-                        linuxValue.push(jsonArray[i].Success);
-                        linuxLabel.push(jsonArray[i].Date);
-                    } else {
-                        // implement crazy logic here
+                linuxValue.push(jsonArray[i].SUCCESS_RATE);
+                linuxLabel.push(jsonArray[i].DATE);
 
-                        linuxAverage.push(jsonArray[i].Success);
-                        ++linuxPointsToAdd;
-                        // once it meets the specific points then it'll add it to the value and label
-                        if (linuxPointsToAdd % this.dataPointsToPlot == 0 || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
-                            var averageValue = avgFunctions.getAveragePercentage(linuxAverage);
-                            linuxValue.push(averageValue);
-                            linuxLabel.push(jsonArray[i].Date);
+            } else if (jsonArray[i].PLATFORM_NAME == "Mac") {
+                macValue.push(jsonArray[i].SUCCESS_RATE);
+                macLabel.push(jsonArray[i].DATE);
 
-                            // clean everything up once it's over
-                            // resets the points to 0
-                            linuxPointsToAdd = 0;
-
-                            // clean the data conained by popping from the array
-                            linuxAverage = [];
-
-                        } // end if statement
-                    } // end else statement
-                } // end crazy if statement
-            } else {
-                // get the starting point of the graph and add it in
-
-                // Need to figure out how to do it dynamically
-                if (!macFirstPush) {
-                    macValue.push(jsonArray[i].Success);
-                    macLabel.push(jsonArray[i].Date);
-                    macFirstPush = true;
-                } else {
-                    // If there is more points than how many days left to plot
-                    if (getDaysLeft < plottingPoints) {
-                        // plot it normally
-                        macValue.push(jsonArray[i].Success);
-                        macLabel.push(jsonArray[i].Date);
-                    } else {
-                        // implement crazy logic here
-
-                        macAverage.push(jsonArray[i].Success);
-                        ++macPointsToAdd;
-                        // once it meets the specific points then it'll add it to the value and label
-                        if (macPointsToAdd % this.dataPointsToPlot == 0 || (moment(this._to).diff(jsonArray[i].Date,'days') == 0)) {
-                            var averageValue = avgFunctions.getAveragePercentage(macAverage);
-                            macValue.push(averageValue);
-                            macLabel.push(jsonArray[i].Date);
-
-                            // clean everything up once it's over
-                            // resets the points to 0
-                            macPointsToAdd = 0;
-
-                            // clean the data conained by popping from the array
-                            macAverage = [];
-
-                        } // end if statement
-                    } // end else statement
-                } // end crazy if statement
-            } // end inner if statement
-
+            }
+            
         } // end for statement
 
         return {
