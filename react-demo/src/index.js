@@ -6,8 +6,8 @@ import registerServiceWorker from './registerServiceWorker';
 import 'bootstrap';
 import 'jquery';
 import 'popper.js';
-import BuildDashboard from './BuildDashboard';
+// import BuildDashboard from './BuildDashboard';
 
-// ReactDOM.render(<App />, document.getElementById('root'));
-ReactDOM.render(<BuildDashboard />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));
+// ReactDOM.render(<BuildDashboard />, document.getElementById('root'));
 registerServiceWorker();
