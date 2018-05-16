@@ -60,5 +60,5 @@ These commands are mainly for easier development and testing. **DB Note**: If da
 * **docs** Holds all the documentation and how-to's.
 * **logs** Server error logs organized by date and time.
 * **plotly-demo** Plotly.js experimentation. Front-end library.
-* **react-demo** React experimentation. Front-end view server.
+* **react-app** React application. Front-end view server when run in development mode.
 * **source** Typescript source. Includes unit tests.

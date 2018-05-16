@@ -10,7 +10,7 @@ db.connection =
     port:       3306,
     database:   "cidashboard",
     user:       "root",
-    password:   ""
+    password:   "password"
 };
 
 db.tablename =

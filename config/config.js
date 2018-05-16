@@ -19,7 +19,7 @@ config.pipeline =
 config.webserver =
 {
     port:               8080,
-    public_directory:   __dirname.replace(/\\/g, '/').replace(/\/[\w-]+$/, '') + "/react-demo/build"
+    public_directory:   __dirname.replace(/\\/g, '/').replace(/\/[\w-]+$/, '') + "/react-app/build"
 };
 
 config.webserver.response =

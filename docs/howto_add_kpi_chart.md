@@ -8,7 +8,7 @@ Create a new class extending from the base classes (e.g. KpiMapper, AverageLineK
 
 So it's easier to change goals in the future.
 
-## 3. Add KPI Mapper to react-demo/src/BuildDashboard.js
+## 3. Add KPI Mapper to react-app/src/BuildDashboard.js
 
 Add the new route to **routes** variable. Format is:
 
