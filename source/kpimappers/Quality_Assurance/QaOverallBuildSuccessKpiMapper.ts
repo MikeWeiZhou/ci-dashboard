@@ -25,7 +25,8 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
-        return [`
+        return [
+        `
         WITH DAILY_AVG_SUCCESS_RATE AS
             (
                 SELECT  Date_format(build_completed_date, "%Y-%m-%d") AS 'BUILD_DATE'
@@ -34,7 +35,7 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
                 WHERE BUILD_COMPLETED_DATE BETWEEN DATE_ADD('${from}', INTERVAL -29 DAY) AND '${to}' 
                 GROUP BY BUILD_DATE
             )
-            
+                
             SELECT T1.BUILD_DATE AS 'DATE'
                 ,AVG(T2.SUCCESS_RATE) AS 'SUCCESS_RATE'
             FROM DAILY_AVG_SUCCESS_RATE T1
@@ -43,9 +44,8 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
                 DATE_ADD(T1.BUILD_DATE, INTERVAL -29 DAY) AND T1.BUILD_DATE
             WHERE T1.BUILD_DATE BETWEEN '${from}' AND '${to}'
             GROUP BY DATE
-            ORDER BY DATE
-            ;
-    `];
+            ORDER BY DATE;
+        `];
     }
 
     /**
@@ -59,8 +59,8 @@ export class QaOverallBuildSuccessKpiMapper extends KpiMapper
         var jsonArray: Array<any> = jsonArrays[0];
 
         // Edit the target and stretch goals here in decimal percantages
-        const targetGoal = 0.70
-        const stretchGoal = 0.90;
+        const targetGoal = 0.55;
+        const stretchGoal = 0.70;
 
          // Invalid; One data point on a scatter chart shows nothing
          if (jsonArray.length == 1)

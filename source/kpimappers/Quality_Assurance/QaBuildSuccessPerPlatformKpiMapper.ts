@@ -25,7 +25,8 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
-        return [`
+        return [
+        `
         WITH DAILY_AVG_SUCCESS_RATE AS
         (
             SELECT PLATFORM_NAME, Date_format(build_completed_date, "%Y-%m-%d") AS 'BUILD_DATE'
@@ -44,8 +45,13 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
             DATE_ADD(T1.BUILD_DATE, INTERVAL -29 DAY) AND T1.BUILD_DATE
         WHERE T1.BUILD_DATE BETWEEN '${from}' AND '${to}'
         GROUP BY DATE, PLATFORM_NAME
-        ORDER BY DATE
-        ;
+        ORDER BY DATE;
+        `,
+        `
+            SELECT PLATFORM_NAME
+            FROM ${this._tablename}
+            GROUP BY PLATFORM_NAME
+            ORDER BY PLATFORM_NAME;
         `];
     }
 
@@ -58,16 +64,24 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
         var jsonArray: Array<any> = jsonArrays[0];
+        const platformArray : Array<any> = jsonArrays[1];
+        // platform Array returns the following
+        // Linux, Mac, Windows
 
         // Edit the target and stretch goals here in decimal percantages
-        const targetGoal = 0.70
-        const stretchGoal = 0.90;
+        const targetGoal = 0.55
+        const stretchGoal = 0.70;
 
         // Invalid; One data point on a scatter chart shows nothing
         if (jsonArray.length == 1)
         {
             return null;
         }
+
+        // Values are used for followings
+        // Linux   = [0]
+        // Mac     = [1]
+        // Windows = [2]
 
         // Contains the values (The data to plot the graph)
         var windowsValue: Array<any> = [];
@@ -82,22 +96,21 @@ export class QaBuildSuccessPerPlatformKpiMapper extends KpiMapper
 
         for (let i: number = 0; i < jsonArray.length; ++i)
         {
-            if (jsonArray[i].PLATFORM_NAME == "Windows") {
+            if (jsonArray[i].PLATFORM_NAME == platformArray[0].PLATFORM_NAME) {
+
+                linuxValue.push(jsonArray[i].SUCCESS_RATE);
+                linuxLabel.push(jsonArray[i].DATE);
+            } else if (jsonArray[i].PLATFORM_NAME == platformArray[1].PLATFORM_NAME) {
+
+                macValue.push(jsonArray[i].SUCCESS_RATE);
+                macLabel.push(jsonArray[i].DATE);
+            } else if (jsonArray[i].PLATFORM_NAME == platformArray[2].PLATFORM_NAME) {
                 // Add the value and labels from the query and push it in the array
                 windowsValue.push(jsonArray[i].SUCCESS_RATE);
                 windowsLabel.push(jsonArray[i].DATE);
 
-            } else if (jsonArray[i].PLATFORM_NAME == "Linux") {
-
-                linuxValue.push(jsonArray[i].SUCCESS_RATE);
-                linuxLabel.push(jsonArray[i].DATE);
-
-            } else if (jsonArray[i].PLATFORM_NAME == "Mac") {
-                macValue.push(jsonArray[i].SUCCESS_RATE);
-                macLabel.push(jsonArray[i].DATE);
-
             }
-            
+
         } // end for statement
 
         return {
