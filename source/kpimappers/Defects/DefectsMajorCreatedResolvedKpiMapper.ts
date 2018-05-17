@@ -37,48 +37,65 @@ export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
 
         this._dateRange = dateRange;
         return [
-            `SELECT 
-                NULL, NULL as CheckDups,
-                (CASE WHEN ResolutionDate IS NULL THEN CreationDate ELSE ResolutionDate END) AS Date,
-                (CASE WHEN NumResolved IS NULL THEN 0 ELSE NumResolved END)
-                - (CASE WHEN NumCreated IS NULL THEN 0 ELSE NumCreated END) AS Diff
-                FROM
-                    (SELECT 
-                    CAST(CREATION_DATE AS DATE) AS CreationDate,
-                    COUNT(CREATION_DATE) AS NumCreated
-                    FROM ${this._tablename}
-                    WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                    AND PRIORITY = 'Major'
-                    GROUP BY CAST(CREATION_DATE AS DATE)) AS a
-                LEFT JOIN
-                    (SELECT 
-                    CAST(RESOLUTION_DATE AS DATE) AS ResolutionDate,
-                    COUNT(RESOLUTION_DATE) AS NumResolved
-                    FROM ${this._tablename}
-                    WHERE RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
-                    AND PRIORITY = 'Major'
-                    GROUP BY CAST(RESOLUTION_DATE AS DATE)) AS b
-                ON a.CreationDate = b.ResolutionDate 
-            UNION ALL
-            SELECT * FROM
-                (SELECT 
-                    CAST(CREATION_DATE AS DATE) AS CreationDate,
-                    COUNT(CREATION_DATE) AS NumCreated
-                    FROM ${this._tablename}
-                    WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                    AND PRIORITY = 'Major'
-                    GROUP BY CAST(CREATION_DATE AS DATE)) AS a
-                right join
-                (SELECT 
-                    CAST(RESOLUTION_DATE AS DATE) AS ResolutionDate,
-                    COUNT(RESOLUTION_DATE) AS NumResolved
-                    FROM ${this._tablename}
-                    WHERE RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
-                    AND PRIORITY = 'Major'
-                    GROUP BY CAST(RESOLUTION_DATE AS DATE)) AS b
-                ON a.CreationDate = b.ResolutionDate
-                ORDER BY Date
-            
+            `
+            SELECT T1.Date AS Date
+            ,AVG(T2.Diff) AS Average
+            FROM 
+            (
+		
+			SELECT cast(DATE as date) as date
+              ,SUM(RESOLVED) AS 'SUM_RESOLVED',
+			  SUM(CREATED) AS 'SUM_CREATED',
+			  sum(resolved)-sum(created) as Diff
+			  
+				FROM
+				(
+					SELECT cast(creation_date as date) AS 'DATE'
+						,1 AS 'CREATED'
+						,0 AS 'RESOLVED'
+						,PRIORITY
+					FROM ${this._tablename}
+					UNION ALL
+					SELECT cast(resolution_date as date) AS 'DATE'
+						,0 AS 'CREATED'
+						,1 AS 'RESOLVED'
+						,PRIORITY
+					FROM ${this._tablename}
+					WHERE RESOLUTION_DATE IS NOT NULL
+					and priority = 'Major'
+				) T1a
+				GROUP BY cast(DATE as date)
+            ) as T1
+            LEFT JOIN 
+            (
+				SELECT cast(DATE as date) as date
+              ,SUM(RESOLVED) AS 'SUM_RESOLVED',
+			  SUM(CREATED) AS 'SUM_CREATED',
+			  sum(resolved)-sum(created) as Diff
+			  
+				FROM
+				(
+					SELECT cast(creation_date as date) AS 'DATE'
+						,1 AS 'CREATED'
+						,0 AS 'RESOLVED'
+						,PRIORITY
+					FROM ${this._tablename}
+					UNION ALL
+					SELECT cast(resolution_date as date) AS 'DATE'
+						,0 AS 'CREATED'
+						,1 AS 'RESOLVED'
+						,PRIORITY
+					FROM ${this._tablename}
+					WHERE RESOLUTION_DATE IS NOT NULL
+					and priority = 'Major'
+				) T1a
+				GROUP BY cast(DATE as date)
+            ) as T2
+              ON T2.Date BETWEEN
+                 DATE_ADD(T1.Date, INTERVAL -6 DAY) AND T1.Date
+            WHERE T1.Date BETWEEN '${from}' AND '${to}'
+            GROUP BY Date
+			ORDER BY CAST(T1.Date AS DATE) ASC
         `];
     }
 
@@ -103,48 +120,59 @@ export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
         var maxYVal:number = jsonArray[0].Diff;
         var minYVal:number = 0;
 
-        for (let i: number = 0; i < jsonArray.length; i++)
-        {
-            if(jsonArray[i].CheckDups == null) {
-                 values.push(jsonArray[i].Diff);
-                 labels.push(jsonArray[i].Date);
+        jsonArrays[0].forEach(function(a){
+            values.push(a.Average);
+            labels.push(a.Date);
+            if(maxYVal < a.Average) {
+                maxYVal = a.Average
             }
-        }
-
-        var sectionLen = Math.floor(this._dateRange/values.length);
-        // console.log(sectionLen);
-
-        for (let i: number = 0; i < labels.length; i++)
-        {
-            var tempArr:Array<any> =[];
-
-            var runningSum:number = 0;
-            tempArr.push(values[i]);
-            if(i % sectionLen == 0) {
-                runningSum = tempArr.reduce(function(cur, val){
-                    return cur+val;
-                });
-                //console.log(runningSum);
-                values2.push(runningSum/sectionLen);
-                labels2.push(labels[i]); 
-
-                if(maxYVal < runningSum/sectionLen) {
-                    maxYVal = runningSum/sectionLen;
-                }
-
-                if(minYVal > runningSum/sectionLen) {
-                    minYVal = runningSum/sectionLen;
-                }
+            if(minYVal < a.Average) {
+                minYVal = a.Average
             }
-        }
+        });
+
+        // for (let i: number = 0; i < jsonArray.length; i++)
+        // {
+        //     if(jsonArray[i].CheckDups == null) {
+        //          values.push(jsonArray[i].Diff);
+        //          labels.push(jsonArray[i].Date);
+        //     }
+        // }
+
+        // var sectionLen = Math.floor(this._dateRange/values.length);
+        // // console.log(sectionLen);
+
+        // for (let i: number = 0; i < labels.length; i++)
+        // {
+        //     var tempArr:Array<any> =[];
+
+        //     var runningSum:number = 0;
+        //     tempArr.push(values[i]);
+        //     if(i % sectionLen == 0) {
+        //         runningSum = tempArr.reduce(function(cur, val){
+        //             return cur+val;
+        //         });
+        //         //console.log(runningSum);
+        //         values2.push(runningSum/sectionLen);
+        //         labels2.push(labels[i]); 
+
+        //         if(maxYVal < runningSum/sectionLen) {
+        //             maxYVal = runningSum/sectionLen;
+        //         }
+
+        //         if(minYVal > runningSum/sectionLen) {
+        //             minYVal = runningSum/sectionLen;
+        //         }
+        //     }
+        // }
 
         //console.log(values2);
         //console.log(labels2);
 
         return {
             data: [{
-                x: labels2,
-                y: values2,
+                x: labels,
+                y: values,
                 name: "R-C",
                 type: "scatter",
                 mode: "lines",
@@ -164,7 +192,7 @@ export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
                 yaxis: {
                     title: "R-C",
                     fixedrange: true,
-                    range: [-2, maxYVal + 1]
+                    range: [minYVal - .5, maxYVal + .5]
                 },
                 shapes: [
                     {

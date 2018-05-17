@@ -34,10 +34,11 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
         this._to = to;
 
         return [
-            `SELECT a.DATE AS Date,
-            a.VALUE AS Count,
-            AVG(b.VALUE) AS Average
-            FROM (
+            `          
+            SELECT T1.Date AS Date
+                  ,AVG(T2.Value) AS Average
+            FROM 
+            (
                 SELECT
                 CAST(CREATION_DATE AS DATE) AS Date,
                 COUNT(CREATION_DATE) AS Value,
@@ -46,24 +47,28 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
                 WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
                 AND PRIORITY = 'Critical'
                 GROUP BY 1
-            ) AS a
-            INNER JOIN (
+            ) as T1
+            LEFT JOIN 
+            (
                 SELECT
                 CAST(CREATION_DATE AS DATE) AS Date,
                 COUNT(CREATION_DATE) AS Value,
                 PRIORITY
                 FROM ${this._tablename}
-                WHERE PRIORITY = 'Critical'
+                WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+                AND PRIORITY = 'Critical'
                 GROUP BY 1
-            ) AS b
-            ON b.Date BETWEEN a.Date - ${dateRange} AND a.Date
-            GROUP BY 1, 2
-            ORDER BY CAST(a.Date AS DATE) ASC
+            ) as T2
+              ON T2.Date BETWEEN
+                 DATE_ADD(T1.Date, INTERVAL -6 DAY) AND T1.Date
+            WHERE T1.Date BETWEEN '${from}' AND '${to}'
+            GROUP BY Date
+			ORDER BY CAST(T1.Date AS DATE) ASC
             `,
-            `SELECT a.DATE AS Date,
-            a.Value AS Count,
-            AVG(b.Value) AS Average
-            FROM (
+            `SELECT T1.Date AS Date
+            ,AVG(T2.Value) AS Average
+            FROM 
+            (
                 SELECT
                 CAST(CREATION_DATE AS DATE) AS Date,
                 COUNT(CREATION_DATE) AS Value,
@@ -72,19 +77,23 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
                 WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
                 AND PRIORITY = 'Major'
                 GROUP BY 1
-            ) AS a
-            INNER JOIN (
+            ) as T1
+            LEFT JOIN 
+            (
                 SELECT
                 CAST(CREATION_DATE AS DATE) AS Date,
                 COUNT(CREATION_DATE) AS Value,
                 PRIORITY
                 FROM ${this._tablename}
-                WHERE PRIORITY = 'Major'
+                WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+                AND PRIORITY = 'Major'
                 GROUP BY 1
-            ) AS b
-            ON b.Date BETWEEN a.Date - ${dateRange}  AND a.Date
-            GROUP BY 1, 2
-            ORDER BY CAST(a.Date AS DATE) ASC
+            ) as T2
+                ON T2.Date BETWEEN
+                DATE_ADD(T1.Date, INTERVAL -6 DAY) AND T1.Date
+            WHERE T1.Date BETWEEN '${from}' AND '${to}'
+            GROUP BY Date
+            ORDER BY CAST(T1.Date AS DATE) ASC
             `
         ];
 
@@ -108,6 +117,7 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
         var dateUpperBound: string = moment(this._to).format(config.dateformat.charts);
 
         var maxYVal:number = jsonArrays[0][0].Average;
+        var minYVal:number = 0;
 
         var values: Array<any>[] =[];
         var labels: Array<any>[]= [];
@@ -120,12 +130,18 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
             if(maxYVal < a.Average) {
                 maxYVal = a.Average
             }
+            if(minYVal < a.Average) {
+                minYVal = a.Average
+            }
         });
         jsonArrays[1].forEach(function(a){
             values2.push(a.Average);
             labels2.push(a.Date);
             if(maxYVal < a.Average) {
                 maxYVal = a.Average
+            }
+            if(minYVal < a.Average) {
+                minYVal = a.Average
             }
         });
 
