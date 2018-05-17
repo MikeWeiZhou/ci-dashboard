@@ -25,11 +25,12 @@
  */
 export class SmoothMovingAverage
 {
+    private _minPrevDays: number = 15;
+
     private _dateColName: string;
     private _nDaysColName: string;
     private _nDaysSumColName: string;
     private _dailyColName: string;
-    private _minPrevDays: number;
 
     /**
      * Constructor.
@@ -82,7 +83,14 @@ export class SmoothMovingAverage
                 + data[i][this._dailyColName]     // today's rate
             ) / data[i-1][this._nDaysColName];    // n days used in prev day's moving avg
             x.push(data[i][this._dateColName]);
-            y.push(movingAverage);
+            if (data[i][this._nDaysColName] < this._minPrevDays)
+            {
+                y.push(null);
+            }
+            else
+            {
+                y.push(movingAverage);
+            }
         }
 
         return {

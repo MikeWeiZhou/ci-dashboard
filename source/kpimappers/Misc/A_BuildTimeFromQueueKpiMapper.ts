@@ -14,10 +14,6 @@ export class A_BuildTimeFromQueueKpiMapper extends KpiMapper
     // Moving average of n days
     private _nDaysMovingAverage: number = 30;
 
-    // Each data point must have at least n previous # of days of data within
-    // moving average window (e.g. 2 of the 30 previous days)
-    private _minPrevDayData: number = 2;
-
     private _target: number = kpigoals.build_time_from_queue.target_minutes;
     private _stretchGoal: number = kpigoals.build_time_from_queue.stretch_minutes;
 
@@ -31,11 +27,11 @@ export class A_BuildTimeFromQueueKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
-        this._minPrevDayData = Math.floor(this._nDaysMovingAverage);
+        var minPrevDayData: number = Math.floor(this._nDaysMovingAverage / 2);
         var nPrevDays: number = this._nDaysMovingAverage - 1;
         return [`
             SELECT T1.BUILD_DATE AS 'DATE'
-                  ,CASE WHEN COUNT(T2.BUILD_DATE) < ${this._minPrevDayData}
+                  ,CASE WHEN COUNT(T2.BUILD_DATE) < ${minPrevDayData}
                         THEN NULL
                         ELSE AVG(T2.AVG_BUILD_TIME)
                         END AS 'AVG_BUILD_TIME'
@@ -87,7 +83,7 @@ export class A_BuildTimeFromQueueKpiMapper extends KpiMapper
         //         GROUP BY BUILD_DATE, CYCLE
         //     )
         //     SELECT T1.BUILD_DATE AS 'DATE'
-        //           ,CASE WHEN COUNT(T2.BUILD_DATE) < ${this._minPrevDayData}
+        //           ,CASE WHEN COUNT(T2.BUILD_DATE) < ${minPrevDayData}
         //                 THEN NULL
         //                 ELSE AVG(T2.AVG_BUILD_TIME)
         //                 END AS 'AVG_BUILD_TIME'
