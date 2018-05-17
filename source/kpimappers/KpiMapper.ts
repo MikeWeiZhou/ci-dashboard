@@ -11,6 +11,11 @@ const config = require("../../config/config")
 export abstract class KpiMapper
 {
     public abstract readonly Title: string;
+
+    // Date range for Plotly to limit lower and upperbounds
+    protected chartFromDate: string;
+    protected chartToDate: string;
+
     private _dataStorage: IDataStorage;
 
     /**
@@ -33,8 +38,13 @@ export abstract class KpiMapper
     public async GetKpiStateOrNull(from: Date, to: Date): Promise<IKpiState|null>
     {
         var fromDate: moment.Moment = moment.utc(from);
-        var toDate: moment.Moment = moment.utc(to).hour(23).minute(59).second(59);
-        var dateRange: number = toDate.diff(fromDate, "days") + 1;
+        var toDate: moment.Moment = moment.utc(to);
+
+        this.chartFromDate = fromDate.format(config.dateformat.charts);
+        this.chartToDate = toDate.format(config.dateformat.charts);
+
+        var dateRange: number = toDate
+            .diff(fromDate, "days") + 1; // +1 cause inclusive of "toDate"
         var sqls: string[] = this.getQueryStrings
             (fromDate.format(config.dateformat.mysql)
             ,toDate.format(config.dateformat.mysql)

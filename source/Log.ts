@@ -1,5 +1,5 @@
 import * as moment from "moment"
-import { writeFile } from "fs"
+import { appendFile } from "fs"
 const config = require("../config/config");
 
 const logDirectory: string = "./" + config.log.directory;
@@ -11,11 +11,13 @@ const logDirectory: string = "./" + config.log.directory;
  */
 export function Log(error: Error, additionalInfo: string)
 {
-    var datestamp: string = moment().format("YYYY-MM-DD HH.mm.ss.SSS");
+    var datestamp: string = moment().format("YYYY-MM-DD");
+    var fulldatestamp: string = moment().format("YYYY-MM-DD HH.mm.ss.SSS");
     var filename: string = `${logDirectory}/${datestamp}.log`;
-    var metadata: string = `TIMESTAMP: ${datestamp}\n\n${additionalInfo}`;
+    var metadata: string = `-----------------------------------------------
+TIMESTAMP: ${fulldatestamp}\n\n${additionalInfo}`;
 
-    writeFile(filename, `${metadata}\n\n${error}\n\n${error.stack}`, (error: Error) =>
+    appendFile(filename, `${metadata}\n\n${error}\n\n${error.stack}`, (error: Error) =>
     {
         if (error)
         {

@@ -1,3 +1,4 @@
+import * as moment from "moment"
 import { IDataInterface } from "./IDataInterface"
 const config = require("../../config/config");
 
@@ -47,8 +48,7 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
         "FX": "***REMOVED***",
         "MX": "***REMOVED***",
         "DX": "***REMOVED***",
-        "IC": "***REMOVED***",
-        "DM": "DM"
+        "IC": "***REMOVED***"
     };
 
     /**
@@ -74,19 +74,27 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
         //           cc = product: FX, MX, DX, IX
         //            d = branch id (if omitted, then default, otherwise unique number identifying branch)
 
-        var platformCode: string = o.BUILD_KEY.substring(9, 12);
         var productCode: string = o.BUILD_KEY.substring(13, 15);
+        var platformCode: string = o.BUILD_KEY.substring(9, 12);
         var isDefault: boolean = !(o.BUILD_KEY.length > 17);
+        var platformName: string = this._platformName[platformCode];
+        var productName: string = this._productName[productCode];
+
+        // Skip any products or platforms not listed
+        if (!platformName || !productName)
+        {
+            return null;
+        }
 
         return [
             o.BUILDRESULTSUMMARY_ID,                // BUILDRESULTSUMMARY_ID
             o.MINUTES_TOTAL_QUEUE_AND_BUILD,        // MINUTES_TOTAL_QUEUE_AND_BUILD
-            o.BUILD_COMPLETED_DATE,                 // BUILD_COMPLETED_DATE
+            moment(o.BUILD_COMPLETED_DATE).format(config.dateformat.mysql), // BUILD_COMPLETED_DATE
             o.BUILD_KEY.substring(0, 6),            // CYCLE aaaaaa
             platformCode,                           // PLATFORM_CODE bbb
             productCode,                            // PRODUCT_CODE cc
-            this._platformName[platformCode],       // PLATFORM_NAME
-            this._productName[productCode],         // PRODUCT_NAME
+            platformName,                           // PLATFORM_NAME
+            productName,                            // PRODUCT_NAME
             (isDefault) ? 1 : 0,                    // IS_DEFAULT [d]
             (o.BUILD_STATE == "Failed") ? 0 : 1,    // IS_SUCCESS
             o.BUILD_STATE,                          // BUILD_STATE

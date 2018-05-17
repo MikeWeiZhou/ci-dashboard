@@ -20,6 +20,7 @@ export class Scheduler
     private readonly _MIN_RUN_INTERVAL_MINUTES = 0;
 
     private _dataStorage: IDataStorage;
+    private _schedulesRunning: number;
 
     /**
      * Constructor.
@@ -28,6 +29,15 @@ export class Scheduler
     public constructor(dataStorage: IDataStorage)
     {
         this._dataStorage = dataStorage;
+        this._schedulesRunning = 0;
+    }
+
+    /**
+     * Returns true if there are running schedules.
+     */
+    public HasRunningSchedules(): boolean
+    {
+        return (this._schedulesRunning != 0);
     }
 
     /**
@@ -65,12 +75,13 @@ export class Scheduler
             return;
         }
 
+        var isStreamErrored: boolean = false;
+        ++this._schedulesRunning;
+        console.time("Schedule: " + schedule.Title);
+
         var from: string = moment(validSchedule.DataFromDate).format(config.dateformat.console);
         var to: string = moment(validSchedule.DataToDate).format(config.dateformat.console);
         console.log(`Running schedule: ${validSchedule.Title} with date ranges between ${from} and ${to}`);
-
-        var isStreamErrored: boolean = false;
-        console.time("Schedule: " + schedule.Title);
 
         // Run schedule
         var _this: Scheduler = this;
@@ -87,6 +98,7 @@ export class Scheduler
         {
             console.log(`Error running schedule ${validSchedule.Title}. DataCollector error. Error has been logged`);
             Log(err, `Error running schedule ${validSchedule.Title}. DataCollector initialization or get stream`);
+            --this._schedulesRunning;
             return;
         }
 
@@ -115,6 +127,7 @@ export class Scheduler
                         {
                             console.log("BUT FAILED TO update dates info in data source tracking table");
                         }
+                        --_this._schedulesRunning;
                     }
                 }, 1000);
             });

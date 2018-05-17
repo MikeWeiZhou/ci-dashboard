@@ -70,7 +70,7 @@ config.log =
 config.dateformat =
 {
     // used for querying and inserting dates into MySQL database
-    mysql: "YYYY-MM-DD HH:mm:ss",
+    mysql: "YYYY-MM-DD",
 
     // used for communication with python scripts
     python: "YYYY-MM-DD",

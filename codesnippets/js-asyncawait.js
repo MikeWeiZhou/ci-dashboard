@@ -2,7 +2,7 @@
  * Example of how async functions never block even with await.
  */
 
-async function WaitAWhile(ms)
+function WaitAWhile(ms)
 {
     return new Promise((resolve, reject) =>
     {

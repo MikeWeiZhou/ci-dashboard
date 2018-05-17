@@ -52,7 +52,7 @@ export function start_webserver(storage: IDataStorage): void
             else
             {
                 response.status(config.webserver.response.no_data)
-                    .send(`${kpilist[request.params.category][request.params.kpi].Title}: No data for KPI`);
+                    .send(`${kpilist[request.params.category][request.params.kpi].Title}: Insufficient data`);
             }
         }
         catch (err)

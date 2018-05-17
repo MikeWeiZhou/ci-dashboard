@@ -26,4 +26,35 @@ export async function start_scheduler(storage: IDataStorage): Promise<void>
             console.log(err);
         }
     }
+
+    // // Generate exit signal for windows
+    // if (process.platform === "win32")
+    // {
+    //     var rl = require("readline")
+    //         .createInterface
+    //         ({
+    //             input: process.stdin,
+    //             output: process.stdout
+    //         });
+
+    //     rl.on("SIGINT", () =>
+    //     {
+    //         process.emit("SIGINT");
+    //     });
+    // }
+
+    // // Exit signal
+    // process.on("SIGINT", () =>
+    // {
+    //     console.log("exiting...");
+    //     process.exit();
+    // });
 }
+
+// function shutdownWhenNoSchedulesRunning()
+// {
+//     // setTimeout(() =>
+//     // {
+
+//     // });
+// }
