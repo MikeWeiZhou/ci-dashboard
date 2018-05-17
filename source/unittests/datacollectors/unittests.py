@@ -29,18 +29,18 @@ personArr.append(person2) # must be wrapped with array
 fromdate = sys.stdin.readline().strip()
 
 # 1 = spit out valid json objects
-if fromdate == "2018-01-01 00:00:00" :
+if fromdate == "2018-01-01" :
     print(json.dumps(monkeyArr))
     print(json.dumps(personArr))
 
 # 2. send arrays to node server
-elif fromdate == "2018-01-02 00:00:00" :
+elif fromdate == "2018-01-02" :
     print(["fail", "bail"])
 
 # 3. exit script with an exit code detectable on node server
-elif fromdate == "2018-01-03 00:00:00" :
+elif fromdate == "2018-01-03" :
     sys.exit(10)
 
 # 4. program crash detectable on node server (e.g. division by zero)
-elif fromdate == "2018-01-04 00:00:00" :
+elif fromdate == "2018-01-04" :
     print(1/0)
