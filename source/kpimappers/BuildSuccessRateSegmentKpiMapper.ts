@@ -1,12 +1,11 @@
 import * as moment from "moment"
 import { KpiMapper } from "./KpiMapper"
 import { IKpiState } from "./IKpiState"
-import { SmoothMovingAverage } from "./SmoothMovingAverage"
 const kpigoals = require("../../config/kpigoals")
 const config = require("../../config/config")
 
 /**
- * BuildSuccessRateSegmentKpiMapper with SmoothMovingAverage.
+ * BuildSuccessRateSegmentKpiMapper with SimpleMovingAverage.
  * 
  * Days with no data will not be plotted (ignored).
  */
@@ -18,6 +17,10 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
 
     // Moving average of n days
     private _nDaysMovingAverage: number = 30;
+
+    // Each data point must have at least n previous # of days of data within
+    // moving average window (e.g. 2 of the 30 previous days)
+    private _minPrevDayData: number = 2;
 
     private _target: number = kpigoals.build_success_rate.target_rate;
     private _stretchGoal: number = kpigoals.build_success_rate.stretch_rate;
@@ -32,6 +35,7 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
+        this._minPrevDayData = Math.floor(this._nDaysMovingAverage / 2);
         var nPrevDays: number = this._nDaysMovingAverage - 1;
         var segmentQuery: string = (!this.segmentColumn || !this.segmentValue)
             ? ""
@@ -39,10 +43,8 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
         return [
             // Overall
             `
-                SELECT T1.BUILD_DATE AS 'BUILD_DATE'
-                      ,COUNT(T2.AVG_SUCCESS_RATE) AS 'N_DAYS'
-                      ,SUM(T2.AVG_SUCCESS_RATE) AS 'SUM_N_DAYS_SUCCESS_RATE'
-                      ,T1.AVG_SUCCESS_RATE AS 'DAILY_SUCCESS_RATE'
+                SELECT T1.BUILD_DATE AS 'DATE'
+                    ,AVG(T2.AVG_SUCCESS_RATE) AS 'AVG_SUCCESS_RATE'
                 FROM (
                     SELECT BUILD_COMPLETED_DATE AS 'BUILD_DATE'
                           ,AVG(IS_SUCCESS) AS 'AVG_SUCCESS_RATE'
@@ -51,7 +53,7 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
                           DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
                     GROUP BY BUILD_DATE
                 ) T1
-                  LEFT JOIN (
+                LEFT JOIN (
                     SELECT BUILD_COMPLETED_DATE AS 'BUILD_DATE'
                           ,AVG(IS_SUCCESS) AS 'AVG_SUCCESS_RATE'
                     FROM ${config.db.tablename.qa_builds_and_runs_from_bamboo}
@@ -60,40 +62,41 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
                     GROUP BY BUILD_DATE
                 ) T2
                     ON T2.BUILD_DATE BETWEEN
-                       DATE_SUB(T1.BUILD_DATE, INTERVAL ${nPrevDays} DAY) AND T1.BUILD_DATE
+                    DATE_SUB(T1.BUILD_DATE, INTERVAL ${nPrevDays} DAY) AND T1.BUILD_DATE
                 WHERE T1.BUILD_DATE BETWEEN '${from}' AND '${to}'
-                GROUP BY BUILD_DATE, DAILY_SUCCESS_RATE
-                ORDER BY BUILD_DATE ASC
+                GROUP BY DATE
+                ORDER BY DATE ASC
                 ;
             `,
             // Segment split by this.splitByColumn
             `
-                SELECT T1.BUILD_DATE AS 'BUILD_DATE'
-                      ,COUNT(T2.AVG_SUCCESS_RATE) AS 'N_DAYS'
-                      ,SUM(T2.AVG_SUCCESS_RATE) AS 'SUM_N_DAYS_SUCCESS_RATE'
-                      ,T1.AVG_SUCCESS_RATE AS 'DAILY_SUCCESS_RATE'
-                      ,T1.${this.splitByColumn} AS '${this.splitByColumn}'
+                SELECT T1.BUILD_DATE AS 'DATE'
+                    ,CASE WHEN COUNT(T2.BUILD_DATE) < ${this._minPrevDayData}
+                            THEN NULL
+                            ELSE AVG(T2.AVG_SUCCESS_RATE)
+                            END AS 'AVG_SUCCESS_RATE'
+                    ,T1.${this.splitByColumn} AS '${this.splitByColumn}'
                 FROM (
                     SELECT BUILD_COMPLETED_DATE AS 'BUILD_DATE'
-                          ,AVG(IS_SUCCESS) AS 'AVG_SUCCESS_RATE'
-                          ,${this.splitByColumn}
+                        ,AVG(IS_SUCCESS) AS 'AVG_SUCCESS_RATE'
+                        ,${this.splitByColumn}
                     FROM ${config.db.tablename.qa_builds_and_runs_from_bamboo}
                     WHERE (BUILD_COMPLETED_DATE BETWEEN
-                          DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}')
-                          ${segmentQuery}
+                        DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}')
+                        ${segmentQuery}
                     GROUP BY BUILD_DATE, ${this.splitByColumn}
                 ) T1
-                  LEFT JOIN (
+                LEFT JOIN (
                     SELECT BUILD_COMPLETED_DATE AS 'BUILD_DATE'
-                          ,AVG(IS_SUCCESS) AS 'AVG_SUCCESS_RATE'
-                          ,${this.splitByColumn}
+                        ,AVG(IS_SUCCESS) AS 'AVG_SUCCESS_RATE'
+                        ,${this.splitByColumn}
                     FROM ${config.db.tablename.qa_builds_and_runs_from_bamboo}
                     WHERE (BUILD_COMPLETED_DATE BETWEEN
-                          DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}')
-                          ${segmentQuery}
+                        DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}')
+                        ${segmentQuery}
                     GROUP BY BUILD_DATE, ${this.splitByColumn}
                 ) T2
-                    ON
+                ON
                     (
                         T2.BUILD_DATE BETWEEN
                         DATE_SUB(T1.BUILD_DATE, INTERVAL ${nPrevDays} DAY) AND T1.BUILD_DATE
@@ -103,8 +106,8 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
                         T2.${this.splitByColumn} = T1.${this.splitByColumn}
                     )
                 WHERE T1.BUILD_DATE BETWEEN '${from}' AND '${to}'
-                GROUP BY BUILD_DATE, ${this.splitByColumn}
-                ORDER BY ${this.splitByColumn} ASC, BUILD_DATE ASC
+                GROUP BY DATE, ${this.splitByColumn}
+                ORDER BY ${this.splitByColumn} ASC, DATE ASC
                 ;
             `
         ];
@@ -120,17 +123,15 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
         //                   DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
         //             GROUP BY BUILD_DATE
         //         )
-        //         SELECT T1.BUILD_DATE AS 'BUILD_DATE'
-        //               ,COUNT(T2.AVG_SUCCESS_RATE) AS 'N_DAYS'
-        //               ,SUM(T2.AVG_SUCCESS_RATE) AS 'SUM_N_DAYS_SUCCESS_RATE'
-        //               ,T1.AVG_SUCCESS_RATE AS 'DAILY_SUCCESS_RATE'
+        //         SELECT T1.BUILD_DATE AS 'DATE'
+        //             ,AVG(T2.AVG_SUCCESS_RATE) AS 'AVG_SUCCESS_RATE'
         //         FROM DAILY_AVG_SUCCESS_RATE T1
-        //           LEFT JOIN DAILY_AVG_SUCCESS_RATE T2
-        //             ON T2.BUILD_DATE BETWEEN
-        //                DATE_SUB(T1.BUILD_DATE, INTERVAL ${nPrevDays} DAY) AND T1.BUILD_DATE
+        //         LEFT JOIN DAILY_AVG_SUCCESS_RATE T2
+        //           ON T2.BUILD_DATE BETWEEN
+        //              DATE_SUB(T1.BUILD_DATE, INTERVAL ${nPrevDays} DAY) AND T1.BUILD_DATE
         //         WHERE T1.BUILD_DATE BETWEEN '${from}' AND '${to}'
-        //         GROUP BY BUILD_DATE, DAILY_SUCCESS_RATE
-        //         ORDER BY BUILD_DATE ASC
+        //         GROUP BY DATE
+        //         ORDER BY DATE ASC
         //         ;
         //     `,
         //     // Segment split by this.splitByColumn
@@ -146,14 +147,15 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
         //                   ${segmentQuery}
         //             GROUP BY BUILD_DATE, ${this.splitByColumn}
         //         )
-        //         SELECT T1.BUILD_DATE AS 'BUILD_DATE'
-        //               ,COUNT(T2.AVG_SUCCESS_RATE) AS 'N_DAYS'
-        //               ,SUM(T2.AVG_SUCCESS_RATE) AS 'SUM_N_DAYS_SUCCESS_RATE'
-        //               ,T1.AVG_SUCCESS_RATE AS 'DAILY_SUCCESS_RATE'
+        //         SELECT T1.BUILD_DATE AS 'DATE'
+        //               ,CASE WHEN COUNT(T2.BUILD_DATE) < ${this._minPrevDayData}
+        //                     THEN NULL
+        //                     ELSE AVG(T2.AVG_SUCCESS_RATE)
+        //                     END AS 'AVG_SUCCESS_RATE'
         //               ,T1.${this.splitByColumn} AS '${this.splitByColumn}'
         //         FROM DAILY_AVG_SUCCESS_RATE T1
-        //           LEFT JOIN DAILY_AVG_SUCCESS_RATE T2
-        //             ON
+        //         LEFT JOIN DAILY_AVG_SUCCESS_RATE T2
+        //           ON
         //             (
         //                 T2.BUILD_DATE BETWEEN
         //                 DATE_SUB(T1.BUILD_DATE, INTERVAL ${nPrevDays} DAY) AND T1.BUILD_DATE
@@ -163,125 +165,11 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
         //                 T2.${this.splitByColumn} = T1.${this.splitByColumn}
         //             )
         //         WHERE T1.BUILD_DATE BETWEEN '${from}' AND '${to}'
-        //         GROUP BY BUILD_DATE, ${this.splitByColumn}
-        //         ORDER BY ${this.splitByColumn} ASC, BUILD_DATE ASC
+        //         GROUP BY DATE, ${this.splitByColumn}
+        //         ORDER BY ${this.splitByColumn} ASC, DATE ASC
         //         ;
         //     `
         // ];
-    }
-
-    private addOverallToChart(data: any, chart: Array<any>)
-    {
-        /* Sample result for 7 days:
-        +---------------------+--------+-------------------------+--------------------+
-        | BUILD_DATE          | N_DAYS | SUM_N_DAYS_SUCCESS_RATE | DAILY_SUCCESS_RATE |
-        +---------------------+--------+-------------------------+--------------------+
-        | 2018-03-26 00:00:00 |     29 |                 12.7062 |             0.5789 |
-        | 2018-03-27 00:00:00 |     29 |                 12.8216 |             0.6154 |
-        | 2018-03-28 00:00:00 |     29 |                 12.9874 |             0.4783 |
-        | 2018-03-29 00:00:00 |     29 |                 12.8928 |             0.4348 |
-        | 2018-03-30 00:00:00 |     29 |                 13.1733 |             0.4286 |
-        | 2018-03-31 00:00:00 |     29 |                 13.4541 |             0.5455 |
-        | 2018-04-01 00:00:00 |     29 |                 13.5276 |             0.2500 |
-        +---------------------+--------+-------------------------+--------------------+*/
-        var sma: SmoothMovingAverage =
-            new SmoothMovingAverage("BUILD_DATE", "N_DAYS", "SUM_N_DAYS_SUCCESS_RATE", "DAILY_SUCCESS_RATE");
-        var xy: any = sma.GetXY(data);
-        var overall: any =
-        {
-            x: xy.x,
-            y: xy.y,
-            name: "All Builds",
-            type: "scatter",
-            mode: "lines",
-            line:
-            {
-                "shape": "spline",
-                "smoothing": 1.3,
-                "width": 3
-            }
-        };
-        chart.push(overall);
-    }
-
-    private addSegmentsToChart(data: any, chart: Array<any>)
-    {
-        /* Sample result for 7 days:
-        +---------------------+--------+-------------------------+--------------------+---------------+
-        | BUILD_DATE          | N_DAYS | SUM_N_DAYS_SUCCESS_RATE | DAILY_SUCCESS_RATE | PLATFORM_NAME |
-        +---------------------+--------+-------------------------+--------------------+---------------+
-        | 2018-03-26 00:00:00 |     28 |                 15.6565 |             0.5714 | Linux         |
-        | 2018-03-27 00:00:00 |     28 |                 15.2719 |             0.6154 | Linux         |
-        | 2018-03-28 00:00:00 |     28 |                 15.4783 |             0.4286 | Linux         |
-        | 2018-03-29 00:00:00 |     28 |                 15.5497 |             0.5714 | Linux         |
-        | 2018-03-30 00:00:00 |     28 |                 16.0497 |             0.6250 | Linux         |
-        | 2018-03-31 00:00:00 |     28 |                 16.5497 |             0.7778 | Linux         |
-        | 2018-04-01 00:00:00 |     28 |                 17.3622 |             1.0000 | Linux         |
-        | 2018-03-26 00:00:00 |     27 |                 12.9095 |             0.5000 | Mac           |
-        | 2018-03-27 00:00:00 |     27 |                 13.4095 |             0.7500 | Mac           |
-        | 2018-03-29 00:00:00 |     26 |                 12.2428 |             0.3333 | Mac           |
-        | 2018-03-30 00:00:00 |     26 |                 13.1178 |             1.0000 | Mac           |
-        | 2018-03-31 00:00:00 |     26 |                 13.2785 |             0.2857 | Mac           |
-        | 2018-03-26 00:00:00 |     29 |                  8.7819 |             0.6000 | Windows       |
-        | 2018-03-27 00:00:00 |     29 |                  8.3375 |             0.5556 | Windows       |
-        | 2018-03-28 00:00:00 |     29 |                  8.6931 |             0.5556 | Windows       |
-        | 2018-03-29 00:00:00 |     29 |                  8.2598 |             0.1667 | Windows       |
-        | 2018-03-30 00:00:00 |     29 |                  8.0780 |             0.0000 | Windows       |
-        | 2018-03-31 00:00:00 |     29 |                  8.2030 |             0.5000 | Windows       |
-        | 2018-04-01 00:00:00 |     29 |                  8.0212 |             0.0000 | Windows       |
-        +---------------------+--------+-------------------------+--------------------+---------------+*/
-        var sma: SmoothMovingAverage =
-            new SmoothMovingAverage("BUILD_DATE", "N_DAYS", "SUM_N_DAYS_SUCCESS_RATE", "DAILY_SUCCESS_RATE");
-
-        // First segment
-        var segment: string = data[0][this.splitByColumn];
-        var start: number = 0;
-
-        for (let i: number = 1; i < data.length; ++i)
-        {
-            // segment change
-            if (data[i][this.splitByColumn] != segment)
-            {
-                let xy: any = sma.GetXY(data, start, i-1);
-                let segmentChart: any =
-                {
-                    x: xy.x,
-                    y: xy.y,
-                    name: segment,
-                    type: "scatter",
-                    mode: "lines",
-                    line:
-                    {
-                        "shape": "spline",
-                        "smoothing": 1.3,
-                        "width": 1
-                    }
-                };
-                start = i;
-                segment = data[i][this.splitByColumn];
-                chart.push(segmentChart);
-            }
-            // last record
-            if (i == data.length - 1)
-            {
-                let xy: any = sma.GetXY(data, start, i);
-                let segmentChart: any =
-                {
-                    x: xy.x,
-                    y: xy.y,
-                    name: data[i][this.splitByColumn],
-                    type: "scatter",
-                    mode: "lines",
-                    line:
-                    {
-                        "shape": "spline",
-                        "smoothing": 1.3,
-                        "width": 1
-                    }
-                };
-                chart.push(segmentChart);
-            }
-        }
     }
 
     /**
@@ -298,13 +186,44 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
             return null;
         }
 
-        var chart: any = [];
-        this.addOverallToChart(jsonArrays[0], chart);
-        this.addSegmentsToChart(jsonArrays[1], chart);
+        var charts: any = [];
+        for (let i in jsonArrays)
+        {
+            for (let result of jsonArrays[i])
+            {
+                if (!result[this.splitByColumn])
+                {
+                    result[this.splitByColumn] = "AllBuilds";
+                }
+                if (!charts[result[this.splitByColumn]])
+                {
+                    charts[result[this.splitByColumn]] = {};
+                    charts[result[this.splitByColumn]].x = [];
+                    charts[result[this.splitByColumn]].y = [];
+                    charts[result[this.splitByColumn]].name = result[this.splitByColumn];
+                    charts[result[this.splitByColumn]].type = "scatter";
+                    charts[result[this.splitByColumn]].mode = "lines";
+                    charts[result[this.splitByColumn]].line =
+                    {
+                        "shape": "spline",
+                        "smoothing": 1.3,
+                        "width": (result[this.splitByColumn] == "AllBuilds") ? 3 : 1
+                    };
+                }
+                charts[result[this.splitByColumn]].x.push(result.DATE);
+                charts[result[this.splitByColumn]].y.push(result.AVG_SUCCESS_RATE);
+            }
+        }
+
+        var data: any = [];
+        for (let splitColumn in charts)
+        {
+            data.push(charts[splitColumn]);
+        }
 
         // Return Plotly.js consumable
         return {
-            data: chart,
+            data: data,
             layout: {
                 title: this.Title,
                 xaxis: {
