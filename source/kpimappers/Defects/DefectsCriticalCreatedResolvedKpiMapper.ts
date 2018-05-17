@@ -14,7 +14,7 @@ import * as moment from "moment"
 export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
 {
    // private counter:number = 0;
-    public readonly Title: string = "Defects (Critical) - Resolved/Created Difference";
+    public readonly Title: string = "Defects: (Resolved - Created) Difference";
 
     private _tablename: string = config.db.tablename.bug_resolution_dates;
     private _dateRange: number;
@@ -97,7 +97,67 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
             WHERE T1.Date BETWEEN '${from}' AND '${to}'
             GROUP BY Date
 			ORDER BY CAST(T1.Date AS DATE) ASC
+        `,
         `
+        SELECT T1.Date AS Date
+        ,AVG(T2.Diff) AS Average
+        FROM 
+        (
+        
+            SELECT cast(DATE as date) as date
+            ,SUM(RESOLVED) AS 'SUM_RESOLVED',
+            SUM(CREATED) AS 'SUM_CREATED',
+            sum(resolved)-sum(created) as Diff
+            
+                FROM
+                (
+                    SELECT cast(creation_date as date) AS 'DATE'
+                        ,1 AS 'CREATED'
+                        ,0 AS 'RESOLVED'
+                        ,PRIORITY
+                    FROM ${this._tablename}
+                    UNION ALL
+                    SELECT cast(resolution_date as date) AS 'DATE'
+                        ,0 AS 'CREATED'
+                        ,1 AS 'RESOLVED'
+                        ,PRIORITY
+                    FROM ${this._tablename}
+                    WHERE RESOLUTION_DATE IS NOT NULL
+                    and priority = 'Major'
+                ) T1a
+                GROUP BY cast(DATE as date)
+            ) as T1
+            LEFT JOIN 
+            (
+                SELECT cast(DATE as date) as date
+            ,SUM(RESOLVED) AS 'SUM_RESOLVED',
+            SUM(CREATED) AS 'SUM_CREATED',
+            sum(resolved)-sum(created) as Diff
+            
+                FROM
+                (
+                    SELECT cast(creation_date as date) AS 'DATE'
+                        ,1 AS 'CREATED'
+                        ,0 AS 'RESOLVED'
+                        ,PRIORITY
+                    FROM ${this._tablename}
+                    UNION ALL
+                    SELECT cast(resolution_date as date) AS 'DATE'
+                        ,0 AS 'CREATED'
+                        ,1 AS 'RESOLVED'
+                        ,PRIORITY
+                    FROM ${this._tablename}
+                    WHERE RESOLUTION_DATE IS NOT NULL
+                    and priority = 'Major'
+                ) T1a
+                GROUP BY cast(DATE as date)
+            ) as T2
+            ON T2.Date BETWEEN
+                DATE_ADD(T1.Date, INTERVAL -6 DAY) AND T1.Date
+            WHERE T1.Date BETWEEN '${from}' AND '${to}'
+            GROUP BY Date
+            ORDER BY CAST(T1.Date AS DATE) ASC
+            `
         ];
     }
 
@@ -124,6 +184,16 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
         jsonArrays[0].forEach(function(a){
             values.push(a.Average);
             labels.push(a.Date);
+            if(maxYVal < a.Average) {
+                maxYVal = a.Average
+            }
+            if(minYVal < a.Average) {
+                minYVal = a.Average
+            }
+        });
+        jsonArrays[1].forEach(function(a){
+            values2.push(a.Average);
+            labels2.push(a.Date);
             if(maxYVal < a.Average) {
                 maxYVal = a.Average
             }
@@ -169,7 +239,19 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
             data: [{
                 x: labels,
                 y: values,
-                name: "R-C",
+                name: "Critical",
+                type: "scatter",
+                mode: "lines",
+                line: {
+                    "shape": "spline",
+                    "smoothing": 1.3
+                }
+            }
+            ,
+            {
+                x: labels2,
+                y: values2,
+                name: "Major",
                 type: "scatter",
                 mode: "lines",
                 line: {

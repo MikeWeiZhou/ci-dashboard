@@ -14,7 +14,7 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
     private _from: string;
     private _to: string;
 
-    public readonly Title: string = "Total Defects - Bugs Created/Day";
+    public readonly Title: string = "Defects: Bugs Created/Day";
 
     private _tablename: string = config.db.tablename.bug_resolution_dates;
     private _annualTarget: number = kpigoals.bugs_per_day.target;

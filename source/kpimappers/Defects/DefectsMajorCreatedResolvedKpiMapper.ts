@@ -12,7 +12,7 @@ import * as moment from "moment"
  */
 export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
 {
-    public readonly Title: string = "Defects (Major) - Resolved/Created Difference";
+    public readonly Title: string = "null";
     private _dateRange: number;
     private _tablename: string = config.db.tablename.bug_resolution_dates;
 
@@ -120,16 +120,16 @@ export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
         var maxYVal:number = jsonArray[0].Diff;
         var minYVal:number = 0;
 
-        jsonArrays[0].forEach(function(a){
-            values.push(a.Average);
-            labels.push(a.Date);
-            if(maxYVal < a.Average) {
-                maxYVal = a.Average
-            }
-            if(minYVal < a.Average) {
-                minYVal = a.Average
-            }
-        });
+        // jsonArrays[0].forEach(function(a){
+        //     values.push(a.Average);
+        //     labels.push(a.Date);
+        //     if(maxYVal < a.Average) {
+        //         maxYVal = a.Average
+        //     }
+        //     if(minYVal < a.Average) {
+        //         minYVal = a.Average
+        //     }
+        // });
 
         // for (let i: number = 0; i < jsonArray.length; i++)
         // {
@@ -171,8 +171,8 @@ export class DefectsMajorCreatedResolvedKpiMapper extends KpiMapper
 
         return {
             data: [{
-                x: labels,
-                y: values,
+                x: values,
+                y: labels,
                 name: "R-C",
                 type: "scatter",
                 mode: "lines",
