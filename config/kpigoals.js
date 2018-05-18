@@ -34,6 +34,16 @@ kpigoals =
     {
         target: 100,
         stretch: 200
+    },
+    bugs_resolution_time_major:
+    {
+        target: 180,
+        stretch: 90
+    },
+    bugs_resolution_time_critical:
+    {
+        target: 30,
+        stretch: 15
     }
 };
 

@@ -214,6 +214,9 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
             }
         });
 
+       // console.log(labels);
+       // console.log(labels2);
+
         return {
             data: [{
                 x: labels,

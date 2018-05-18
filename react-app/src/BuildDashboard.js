@@ -8,6 +8,7 @@ class BuildDashboard extends Component {
             "Quality_Assurance/QaOverallBuildSuccess"
             ,"Quality_Assurance/QaBuildSuccessPerPlatform"
             ,"Quality_Assurance/QaBuildSuccessPerProduct"
+            ,"Defects/DefectsAverageDaysToResolution"
             ,"Defects/DefectsCreatedResolvedDifference"
             ,"Defects/DefectsTotalNumberOfBugs"
             ,"AverageLineExamples/BuildSuccessRate"
