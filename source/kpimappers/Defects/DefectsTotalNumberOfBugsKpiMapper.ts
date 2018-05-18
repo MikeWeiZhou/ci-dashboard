@@ -35,65 +35,134 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
 
         return [
             `          
-            SELECT T1.Date AS Date
-                  ,AVG(T2.Value) AS Average
+            SELECT T2.Date AS Date
+            , (case when AVG(T3.value) then AVG(T3.value) else 0 end) as Average
             FROM 
-            (
-                SELECT
-                CAST(CREATION_DATE AS DATE) AS Date,
-                COUNT(CREATION_DATE) AS Value,
-                PRIORITY
-                FROM ${this._tablename}
-                WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                AND PRIORITY = 'Critical'
-                GROUP BY 1
-            ) as T1
-            LEFT JOIN 
-            (
-                SELECT
-                CAST(CREATION_DATE AS DATE) AS Date,
-                COUNT(CREATION_DATE) AS Value,
-                PRIORITY
-                FROM ${this._tablename}
-                WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                AND PRIORITY = 'Critical'
-                GROUP BY 1
-            ) as T2
-              ON T2.Date BETWEEN
-                 DATE_ADD(T1.Date, INTERVAL -6 DAY) AND T1.Date
-            WHERE T1.Date BETWEEN '${from}' AND '${to}'
-            GROUP BY Date
-			ORDER BY CAST(T1.Date AS DATE) ASC
+			(SELECT datetbl.Date AS Date, ifnull(t1.value, 0) as value     
+				FROM 
+				(
+					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
+					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
+				) as datetbl
+				left join
+				(
+					SELECT
+					CAST(CREATION_DATE AS DATE) AS Date,
+					COUNT(CREATION_DATE) AS Value,
+					PRIORITY
+					FROM ${this._tablename}
+					WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+					AND PRIORITY = 'Critical'
+					GROUP BY 1
+				) as T1	
+				ON datetbl.date = t1.date
+				where datetbl.Date between '${from}' AND '${to}'
+				) T2
+				left join
+			    (SELECT datetbl.Date AS Date, ifnull(t1.value, 0) as value     
+				FROM 
+				(
+					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
+					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
+				) as datetbl
+				left join
+				(
+					SELECT
+					CAST(CREATION_DATE AS DATE) AS Date,
+					COUNT(CREATION_DATE) AS Value,
+					PRIORITY
+					FROM ${this._tablename}
+					WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+					AND PRIORITY = 'Critical'
+					GROUP BY 1
+				) as T1	
+				ON datetbl.date = t1.date
+				where datetbl.Date between '${from}' AND '${to}'
+				) T3
+				 ON T3.Date BETWEEN
+                 DATE_ADD(T2.Date, INTERVAL -6 DAY) AND T2.Date
+				WHERE T2.Date BETWEEN '${from}' AND '${to}'
+				GROUP BY Date
+				ORDER BY CAST(T2.Date AS DATE) ASC
             `,
-            `SELECT T1.Date AS Date
-            ,AVG(T2.Value) AS Average
+            `
+            SELECT T2.Date AS Date
+            , (case when AVG(T3.value) then AVG(T3.value) else 0 end) as Average
             FROM 
-            (
-                SELECT
-                CAST(CREATION_DATE AS DATE) AS Date,
-                COUNT(CREATION_DATE) AS Value,
-                PRIORITY
-                FROM ${this._tablename}
-                WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                AND PRIORITY = 'Major'
-                GROUP BY 1
-            ) as T1
-            LEFT JOIN 
-            (
-                SELECT
-                CAST(CREATION_DATE AS DATE) AS Date,
-                COUNT(CREATION_DATE) AS Value,
-                PRIORITY
-                FROM ${this._tablename}
-                WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
-                AND PRIORITY = 'Major'
-                GROUP BY 1
-            ) as T2
-                ON T2.Date BETWEEN
-                DATE_ADD(T1.Date, INTERVAL -6 DAY) AND T1.Date
-            WHERE T1.Date BETWEEN '${from}' AND '${to}'
-            GROUP BY Date
-            ORDER BY CAST(T1.Date AS DATE) ASC
+			(SELECT datetbl.Date AS Date, ifnull(t1.value, 0) as value     
+				FROM 
+				(
+					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
+					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
+				) as datetbl
+				left join
+				(
+					SELECT
+					CAST(CREATION_DATE AS DATE) AS Date,
+					COUNT(CREATION_DATE) AS Value,
+					PRIORITY
+					FROM ${this._tablename}
+					WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+					AND PRIORITY = 'Major'
+					GROUP BY 1
+				) as T1	
+				ON datetbl.date = t1.date
+				where datetbl.Date between '${from}' AND '${to}'
+				) T2
+				left join
+			    (SELECT datetbl.Date AS Date, ifnull(t1.value, 0) as value     
+				FROM 
+				(
+					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
+					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
+				) as datetbl
+				left join
+				(
+					SELECT
+					CAST(CREATION_DATE AS DATE) AS Date,
+					COUNT(CREATION_DATE) AS Value,
+					PRIORITY
+					FROM ${this._tablename}
+					WHERE CREATION_DATE BETWEEN '${from}' AND '${to}'
+					AND PRIORITY = 'Major'
+					GROUP BY 1
+				) as T1	
+				ON datetbl.date = t1.date
+				where datetbl.Date between '${from}' AND '${to}'
+				) T3
+				 ON T3.Date BETWEEN
+                 DATE_ADD(T2.Date, INTERVAL -6 DAY) AND T2.Date
+				WHERE T2.Date BETWEEN '${from}' AND '${to}'
+				GROUP BY Date
+				ORDER BY CAST(T2.Date AS DATE) ASC
             `
         ];
 
@@ -180,7 +249,7 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
                 yaxis: {
                     title: "Bugs/Day",
                     fixedrange: true,
-                    range: [0, maxYVal + 1]
+                    range: [0-.5, maxYVal + .5]
                 },
                 shapes: [
                     {

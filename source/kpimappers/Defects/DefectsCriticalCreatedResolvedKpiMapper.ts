@@ -39,124 +39,188 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
 
         this._dateRange = dateRange;
         return [
-            `			SELECT T1.Date AS Date
-            ,AVG(T2.Diff) AS Average
+            `				
+			SELECT T2.Date AS Date
+            , (case when AVG(T3.value) then AVG(T3.value) else 0 end) as Average
             FROM 
-            (
-		
-			SELECT cast(DATE as date) as date
-              ,SUM(RESOLVED) AS 'SUM_RESOLVED',
-			  SUM(CREATED) AS 'SUM_CREATED',
-			  sum(resolved)-sum(created) as Diff
-			  
-				FROM
+			(SELECT datetbl.Date AS Date, ifnull(t1.diff, 0) as value     
+				FROM 
 				(
-					SELECT cast(creation_date as date) AS 'DATE'
-						,1 AS 'CREATED'
-						,0 AS 'RESOLVED'
-						,PRIORITY
-					FROM ${this._tablename}
-					UNION ALL
-					SELECT cast(resolution_date as date) AS 'DATE'
-						,0 AS 'CREATED'
-						,1 AS 'RESOLVED'
-						,PRIORITY
-					FROM ${this._tablename}
-					WHERE RESOLUTION_DATE IS NOT NULL
-					and priority = 'Critical'
-				) T1a
-				GROUP BY cast(DATE as date)
-            ) as T1
-            LEFT JOIN 
-            (
-				SELECT cast(DATE as date) as date
-              ,SUM(RESOLVED) AS 'SUM_RESOLVED',
-			  SUM(CREATED) AS 'SUM_CREATED',
-			  sum(resolved)-sum(created) as Diff
-			  
-				FROM
+					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
+					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
+				) as datetbl
+				left join
 				(
-					SELECT cast(creation_date as date) AS 'DATE'
-						,1 AS 'CREATED'
-						,0 AS 'RESOLVED'
-						,PRIORITY
-					FROM ${this._tablename}
-					UNION ALL
-					SELECT cast(resolution_date as date) AS 'DATE'
-						,0 AS 'CREATED'
-						,1 AS 'RESOLVED'
-						,PRIORITY
-					FROM ${this._tablename}
-					WHERE RESOLUTION_DATE IS NOT NULL
-					and priority = 'Critical'
-				) T1a
-				GROUP BY cast(DATE as date)
-            ) as T2
-              ON T2.Date BETWEEN
-                 DATE_ADD(T1.Date, INTERVAL -6 DAY) AND T1.Date
-            WHERE T1.Date BETWEEN '${from}' AND '${to}'
-            GROUP BY Date
-			ORDER BY CAST(T1.Date AS DATE) ASC
+				SELECT cast(DATE as date) as date,
+						SUM(RESOLVED) AS 'SUM_RESOLVED',
+						SUM(CREATED) AS 'SUM_CREATED',
+						sum(resolved)-sum(created) as Diff
+						FROM
+						(
+							SELECT cast(creation_date as date) AS 'DATE'
+								,1 AS 'CREATED'
+								,0 AS 'RESOLVED'
+								,PRIORITY
+							FROM ${this._tablename}
+							UNION ALL
+							SELECT cast(resolution_date as date) AS 'DATE'
+								,0 AS 'CREATED'
+								,1 AS 'RESOLVED'
+								,PRIORITY
+							FROM ${this._tablename}
+							WHERE RESOLUTION_DATE IS NOT NULL
+							and priority = 'Critical'
+						) T1a
+						GROUP BY cast(DATE as date)
+				) T1
+				ON datetbl.date = t1.date
+				where datetbl.Date between'${from}' AND '${to}'
+				) T2
+				left join
+			    (SELECT datetbl.Date AS Date, ifnull(t1.diff, 0) as value     
+				FROM 
+				(
+					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
+					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
+				) as datetbl
+				left join
+				(
+				SELECT cast(DATE as date) as date,
+						SUM(RESOLVED) AS 'SUM_RESOLVED',
+						SUM(CREATED) AS 'SUM_CREATED',
+						sum(resolved)-sum(created) as Diff
+						FROM
+						(
+							SELECT cast(creation_date as date) AS 'DATE'
+								,1 AS 'CREATED'
+								,0 AS 'RESOLVED'
+								,PRIORITY
+							FROM ${this._tablename}
+							UNION ALL
+							SELECT cast(resolution_date as date) AS 'DATE'
+								,0 AS 'CREATED'
+								,1 AS 'RESOLVED'
+								,PRIORITY
+							FROM ${this._tablename}
+							WHERE RESOLUTION_DATE IS NOT NULL
+							and priority = 'Critical'
+						) T1a
+						GROUP BY cast(DATE as date)
+				) T1
+				ON datetbl.date = t1.date
+				where datetbl.Date between '${from}' AND '${to}'
+				) T3
+				 ON T3.Date BETWEEN
+                 DATE_ADD(T2.Date, INTERVAL -6 DAY) AND T2.Date
+				WHERE T2.Date BETWEEN '${from}' AND '${to}'
+				GROUP BY Date
+				ORDER BY CAST(T2.Date AS DATE) ASC;
+				
         `,
         `
-        SELECT T1.Date AS Date
-        ,AVG(T2.Diff) AS Average
-        FROM 
-        (
-        
-            SELECT cast(DATE as date) as date
-            ,SUM(RESOLVED) AS 'SUM_RESOLVED',
-            SUM(CREATED) AS 'SUM_CREATED',
-            sum(resolved)-sum(created) as Diff
-            
-                FROM
-                (
-                    SELECT cast(creation_date as date) AS 'DATE'
-                        ,1 AS 'CREATED'
-                        ,0 AS 'RESOLVED'
-                        ,PRIORITY
-                    FROM ${this._tablename}
-                    UNION ALL
-                    SELECT cast(resolution_date as date) AS 'DATE'
-                        ,0 AS 'CREATED'
-                        ,1 AS 'RESOLVED'
-                        ,PRIORITY
-                    FROM ${this._tablename}
-                    WHERE RESOLUTION_DATE IS NOT NULL
-                    and priority = 'Major'
-                ) T1a
-                GROUP BY cast(DATE as date)
-            ) as T1
-            LEFT JOIN 
-            (
-                SELECT cast(DATE as date) as date
-            ,SUM(RESOLVED) AS 'SUM_RESOLVED',
-            SUM(CREATED) AS 'SUM_CREATED',
-            sum(resolved)-sum(created) as Diff
-            
-                FROM
-                (
-                    SELECT cast(creation_date as date) AS 'DATE'
-                        ,1 AS 'CREATED'
-                        ,0 AS 'RESOLVED'
-                        ,PRIORITY
-                    FROM ${this._tablename}
-                    UNION ALL
-                    SELECT cast(resolution_date as date) AS 'DATE'
-                        ,0 AS 'CREATED'
-                        ,1 AS 'RESOLVED'
-                        ,PRIORITY
-                    FROM ${this._tablename}
-                    WHERE RESOLUTION_DATE IS NOT NULL
-                    and priority = 'Major'
-                ) T1a
-                GROUP BY cast(DATE as date)
-            ) as T2
-            ON T2.Date BETWEEN
-                DATE_ADD(T1.Date, INTERVAL -6 DAY) AND T1.Date
-            WHERE T1.Date BETWEEN '${from}' AND '${to}'
-            GROUP BY Date
-            ORDER BY CAST(T1.Date AS DATE) ASC
+        SELECT T2.Date AS Date
+            , (case when AVG(T3.value) then AVG(T3.value) else 0 end) as Average
+            FROM 
+			(SELECT datetbl.Date AS Date, ifnull(t1.diff, 0) as value     
+				FROM 
+				(
+					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
+					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
+				) as datetbl
+				left join
+				(
+				SELECT cast(DATE as date) as date,
+						SUM(RESOLVED) AS 'SUM_RESOLVED',
+						SUM(CREATED) AS 'SUM_CREATED',
+						sum(resolved)-sum(created) as Diff
+						FROM
+						(
+							SELECT cast(creation_date as date) AS 'DATE'
+								,1 AS 'CREATED'
+								,0 AS 'RESOLVED'
+								,PRIORITY
+							FROM ${this._tablename}
+							UNION ALL
+							SELECT cast(resolution_date as date) AS 'DATE'
+								,0 AS 'CREATED'
+								,1 AS 'RESOLVED'
+								,PRIORITY
+							FROM ${this._tablename}
+							WHERE RESOLUTION_DATE IS NOT NULL
+							and priority = 'Major'
+						) T1a
+						GROUP BY cast(DATE as date)
+				) T1
+				ON datetbl.date = t1.date
+				where datetbl.Date between'${from}' AND '${to}'
+				) T2
+				left join
+			    (SELECT datetbl.Date AS Date, ifnull(t1.diff, 0) as value     
+				FROM 
+				(
+					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
+					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
+
+					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
+					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
+				) as datetbl
+				left join
+				(
+				SELECT cast(DATE as date) as date,
+						SUM(RESOLVED) AS 'SUM_RESOLVED',
+						SUM(CREATED) AS 'SUM_CREATED',
+						sum(resolved)-sum(created) as Diff
+						FROM
+						(
+							SELECT cast(creation_date as date) AS 'DATE'
+								,1 AS 'CREATED'
+								,0 AS 'RESOLVED'
+								,PRIORITY
+							FROM ${this._tablename}
+							UNION ALL
+							SELECT cast(resolution_date as date) AS 'DATE'
+								,0 AS 'CREATED'
+								,1 AS 'RESOLVED'
+								,PRIORITY
+							FROM ${this._tablename}
+							WHERE RESOLUTION_DATE IS NOT NULL
+							and priority = 'Major'
+						) T1a
+						GROUP BY cast(DATE as date)
+				) T1
+				ON datetbl.date = t1.date
+				where datetbl.Date between '${from}' AND '${to}'
+				) T3
+				 ON T3.Date BETWEEN
+                 DATE_ADD(T2.Date, INTERVAL -6 DAY) AND T2.Date
+				WHERE T2.Date BETWEEN '${from}' AND '${to}'
+				GROUP BY Date
+				ORDER BY CAST(T2.Date AS DATE) ASC
             `
         ];
     }
