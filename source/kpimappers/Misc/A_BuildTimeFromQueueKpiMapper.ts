@@ -1,7 +1,7 @@
 import * as moment from "moment"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
-const kpigoals = require("../../../config/kpigoals")
+const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
 /**
@@ -14,8 +14,8 @@ export class A_BuildTimeFromQueueKpiMapper extends KpiMapper
     // Moving average of n days
     private _nDaysMovingAverage: number = 30;
 
-    private _target: number = kpigoals.build_time_from_queue.target_minutes;
-    private _stretchGoal: number = kpigoals.build_time_from_queue.stretch_minutes;
+    private _target: number = kpi.goals.build_time_from_queue.target_minutes;
+    private _stretchGoal: number = kpi.goals.build_time_from_queue.stretch_minutes;
 
     /**
      * Returns an array of SQL query strings given a date range.

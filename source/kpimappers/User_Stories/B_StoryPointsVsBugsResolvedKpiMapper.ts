@@ -1,7 +1,6 @@
 import * as moment from "moment"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
-const kpigoals = require("../../../config/kpigoals")
 const config = require("../../../config/config")
 
 /**

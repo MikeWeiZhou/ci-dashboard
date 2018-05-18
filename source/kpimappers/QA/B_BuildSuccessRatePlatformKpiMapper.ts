@@ -1,8 +1,6 @@
 import * as moment from "moment"
 import { BuildSuccessRateSegmentKpiMapper } from "../BuildSuccessRateSegmentKpiMapper"
 import { IKpiState } from "../IKpiState"
-const kpigoals = require("../../../config/kpigoals")
-const config = require("../../../config/config")
 
 /**
  * B_BuildSuccessRatePlatformKpiMapper.

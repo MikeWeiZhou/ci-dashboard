@@ -1,7 +1,7 @@
 import * as moment from "moment"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
-const kpigoals = require("../../../config/kpigoals")
+const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
 /**
@@ -16,8 +16,8 @@ export class A_StoryPointsVelocityKpiMapper extends KpiMapper
     // Moving average of n days
     private _nDaysMovingAverage: number = 30;
 
-    private _annualTarget: number = kpigoals.story_points_velocity.target_annual;
-    private _annualStretchGoal: number = kpigoals.story_points_velocity.stretch_annual;
+    private _annualTarget: number = kpi.goals.story_points_velocity.target_annual;
+    private _annualStretchGoal: number = kpi.goals.story_points_velocity.stretch_annual;
 
     /**
      * Returns an array of SQL query strings given a date range.
@@ -30,26 +30,94 @@ export class A_StoryPointsVelocityKpiMapper extends KpiMapper
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
         var nPrevDays: number = this._nDaysMovingAverage - 1;
-        return [`
-            SELECT T1.RESOLUTION_DATE AS 'DATE'
-                  ,SUM(T2.AVG_STORY_POINTS)/${this._nDaysMovingAverage} AS 'AVG_STORY_POINTS'
-                  ,T1.CYCLE AS 'CYCLE'
+        console.log(`
+        SELECT T1.RESOLUTION_DATE AS 'DATE'
+            ,SUM(CASE WHEN T2.AVG_STORY_POINTS IS NULL THEN 0 ELSE T2.AVG_STORY_POINTS END)/${this._nDaysMovingAverage} AS 'AVG_STORY_POINTS'
+            ,T1.CYCLE AS 'CYCLE'
+        FROM (
+            SELECT D.DATE AS DATE
             FROM (
+                SELECT CAST(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS DATE) AS 'DATE'
+                FROM
+                (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+                UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS a
+                CROSS JOIN (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+                UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS b
+                CROSS JOIN (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+                UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS c
+            ) D
+            WHERE D.DATE BETWEEN
+                DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
+        ) D1
+        LEFT JOIN (
+            SELECT RESOLUTION_DATE
+                ,AVG(STORY_POINTS) AS 'AVG_STORY_POINTS'
+                ,CYCLE
+            FROM ${config.db.tablename.resolved_story_points}
+            WHERE RESOLUTION_DATE BETWEEN
+                DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
+            GROUP BY RESOLUTION_DATE, CYCLE
+        ) T1
+            ON T1.RESOLUTION_DATE = D1.DATE
+        LEFT JOIN (
+            SELECT RESOLUTION_DATE
+                ,AVG(STORY_POINTS) AS 'AVG_STORY_POINTS'
+                ,CYCLE
+            FROM ${config.db.tablename.resolved_story_points}
+            WHERE RESOLUTION_DATE BETWEEN
+                DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
+            GROUP BY RESOLUTION_DATE, CYCLE
+        ) T2
+            ON
+            (
+                T2.RESOLUTION_DATE BETWEEN
+                DATE_SUB(T1.RESOLUTION_DATE, INTERVAL ${nPrevDays} DAY) AND T1.RESOLUTION_DATE
+            )
+            AND
+            (
+                T1.CYCLE = T2.CYCLE
+            )
+        WHERE T1.RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
+        GROUP BY DATE, CYCLE
+        ORDER BY DATE ASC
+        ;
+    `);
+        return [`
+            SELECT D1.DATE AS 'DATE'
+                ,SUM(CASE WHEN T2.AVG_STORY_POINTS IS NULL THEN 0 ELSE T2.AVG_STORY_POINTS END)/${this._nDaysMovingAverage} AS 'AVG_STORY_POINTS'
+                ,T1.CYCLE AS 'CYCLE'
+            FROM (
+                SELECT D.DATE AS DATE
+                FROM (
+                    SELECT CAST(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS DATE) AS 'DATE'
+                    FROM
+                    (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+                    UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS a
+                    CROSS JOIN (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+                    UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS b
+                    CROSS JOIN (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+                    UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS c
+                ) D
+                WHERE D.DATE BETWEEN
+                    DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
+            ) D1
+            LEFT JOIN (
                 SELECT RESOLUTION_DATE
-                      ,AVG(STORY_POINTS) AS 'AVG_STORY_POINTS'
-                      ,CYCLE
+                    ,AVG(STORY_POINTS) AS 'AVG_STORY_POINTS'
+                    ,CYCLE
                 FROM ${config.db.tablename.resolved_story_points}
                 WHERE RESOLUTION_DATE BETWEEN
-                      DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
+                    DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
                 GROUP BY RESOLUTION_DATE, CYCLE
             ) T1
-              LEFT JOIN (
+                ON T1.RESOLUTION_DATE = D1.DATE
+            LEFT JOIN (
                 SELECT RESOLUTION_DATE
-                      ,AVG(STORY_POINTS) AS 'AVG_STORY_POINTS'
-                      ,CYCLE
+                    ,AVG(STORY_POINTS) AS 'AVG_STORY_POINTS'
+                    ,CYCLE
                 FROM ${config.db.tablename.resolved_story_points}
                 WHERE RESOLUTION_DATE BETWEEN
-                      DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
+                    DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
                 GROUP BY RESOLUTION_DATE, CYCLE
             ) T2
                 ON
@@ -76,11 +144,29 @@ export class A_StoryPointsVelocityKpiMapper extends KpiMapper
         //         WHERE RESOLUTION_DATE BETWEEN
         //               DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
         //         GROUP BY RESOLUTION_DATE, CYCLE
+        //     ),
+        //     GENERATED_DATES AS
+        //     (
+        //         SELECT D.DATE AS DATE
+        //         FROM (
+        //             SELECT CAST(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS DATE) AS 'DATE'
+        //             FROM
+        //             (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+        //             UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS a
+        //             CROSS JOIN (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+        //             UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS b
+        //             CROSS JOIN (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+        //             UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) AS c
+        //         ) D
+        //         WHERE D.DATE BETWEEN
+        //               DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
         //     )
-        //     SELECT T1.RESOLUTION_DATE AS 'DATE'
-        //           ,SUM(T2.AVG_STORY_POINTS)/${this._nDaysMovingAverage} AS 'AVG_STORY_POINTS'
+        //     SELECT D1.DATE AS 'DATE'
+        //           ,SUM(CASE WHEN T2.AVG_STORY_POINTS IS NULL THEN 0 ELSE T2.AVG_STORY_POINTS END)/${this._nDaysMovingAverage} AS 'AVG_STORY_POINTS'
         //           ,T1.CYCLE AS 'CYCLE'
-        //     FROM DAILY_AVG_STORY_POINTS T1
+        //     FROM GENERATED_DATES D1
+        //       LEFT JOIN DAILY_AVG_STORY_POINTS T1
+        //         ON T1.RESOLUTION_DATE = D1.DATE
         //       LEFT JOIN DAILY_AVG_STORY_POINTS T2
         //         ON
         //         (
