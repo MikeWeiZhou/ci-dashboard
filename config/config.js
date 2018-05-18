@@ -18,7 +18,7 @@ config.pipeline =
 
 config.webserver =
 {
-    port:               8080,
+    port:               80,
     public_directory:   __dirname.replace(/\\/g, '/').replace(/\/[\w-]+$/, '') + "/react-app/build"
 };
 

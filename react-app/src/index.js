@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import 'bootstrap';
-import 'jquery';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import 'popper.js';
 // import BuildDashboard from './BuildDashboard';
 

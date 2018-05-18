@@ -12,14 +12,15 @@ class Category extends Component {
   // Called after component is mounted
   componentDidMount() {
     this.requestKPICategoryDetails();
-    // this.props.setTitle(this.state.title);
   }
 
   // Called after component is updated    
   componentDidUpdate(prevProps) {
     // Only request data if props is updated
-    if (prevProps !== this.props)
-      this.requestKPICategoryDetails();    
+    if (prevProps.startDate  !== this.props.startDate) {
+      this.requestKPICategoryDetails();
+      this.props.setTabText(this.props.category, this.state.title);
+    }
   }
 
   render() {
@@ -52,7 +53,7 @@ class Category extends Component {
         if (res.ok) {
           resJSON = await res.json();
           this.setState({
-            title: resJSON.title, 
+            title: resJSON.title,
             kpis: resJSON.kpis,
             startDate: this.props.startDate,
             endDate: this.props.endDate
