@@ -1,24 +1,30 @@
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
 import * as moment from "moment"
-const kpigoals = require("../../../config/kpigoals")
+const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
 /**
  * DefectsTotalNumberOfBugs.
+ * Total Number of Bugs
  * 
- * Defects - Total Number of Bugs
+ *  * Description of Method:
+ * The bug count is applied if creations(s) occurred on that day.
+ * It is assumed that no bugs were creations on dates that do not exist and when 
+ * creation dates are nulled.
+ * The simple moving average accounts for such days with no creations.
+ * 
  */
-export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
+export class DefectsTotalBugsCreatedKpiMapper extends KpiMapper
 {
     private _from: string;
     private _to: string;
 
-    public readonly Title: string = "Defects: Bugs Created/Day";
+    public readonly Title: string = "Bugs Created/Day";
 
     private _tablename: string = config.db.tablename.bug_resolution_dates;
-    private _annualTarget: number = kpigoals.bugs_per_day.target;
-    private _annualStretchGoal: number = kpigoals.bugs_per_day.stretch;
+    private _annualTarget: number = kpi.goals.bugs_per_day.target;
+    private _annualStretchGoal: number = kpi.goals.bugs_per_day.stretch;
 
     /**
      * Returns an array of SQL query strings given a date range.
@@ -32,6 +38,10 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
     {
         this._from = from;
         this._to = to;
+
+        var window:number = dateRange*kpi.moving_average.date_range_factor
+        < kpi.moving_average.max_days_in_period ? dateRange*kpi.moving_average.date_range_factor :
+        kpi.moving_average.max_days_in_period;
 
         return [
             `          
@@ -94,7 +104,7 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
 				where datetbl.Date between '${from}' AND '${to}'
 				) T3
 				 ON T3.Date BETWEEN
-                 DATE_ADD(T2.Date, INTERVAL -6 DAY) AND T2.Date
+                 DATE_ADD(T2.Date, INTERVAL -${window} DAY) AND T2.Date
 				WHERE T2.Date BETWEEN '${from}' AND '${to}'
 				GROUP BY Date
 				ORDER BY CAST(T2.Date AS DATE) ASC
@@ -159,7 +169,7 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
 				where datetbl.Date between '${from}' AND '${to}'
 				) T3
 				 ON T3.Date BETWEEN
-                 DATE_ADD(T2.Date, INTERVAL -6 DAY) AND T2.Date
+                 DATE_ADD(T2.Date, INTERVAL -${window} DAY) AND T2.Date
 				WHERE T2.Date BETWEEN '${from}' AND '${to}'
 				GROUP BY Date
 				ORDER BY CAST(T2.Date AS DATE) ASC
@@ -250,7 +260,7 @@ export class DefectsTotalNumberOfBugsKpiMapper extends KpiMapper
                     range: [dateLowerBound, dateUpperBound]
                 },
                 yaxis: {
-                    title: "Bugs/Day",
+                    title: "Bugs Created/Day",
                     fixedrange: true,
                     range: [0-.5, maxYVal + .5]
                 },

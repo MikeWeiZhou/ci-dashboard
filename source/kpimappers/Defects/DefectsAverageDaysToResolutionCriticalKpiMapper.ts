@@ -1,20 +1,26 @@
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
-const kpigoals = require("../../../config/kpigoals")
+const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 import * as moment from "moment"
 
 /**
- * DefectsAverageDaysToResolution.
+ * DefectsAverageDaysToResolutionCritical.
+ * Average Days To Resolution (DTR) for Critical Bugs
  * 
- * Defects - Average Days to resolution for bugs completed
+ * Description of method: 
+ * Resolved bugs are selected by their resolution date within the chosen date range, regardless
+ * of their creation dates.
+ * If multiple bugs are resolved on the same day, their DTR are summed to present
+ * the total DTR for that day.
+ * 
  */
-export class DefectsAverageDaysToResolutionKpiMapper extends KpiMapper
+export class DefectsAverageDaysToResolutionCriticalKpiMapper extends KpiMapper
 {
-    public readonly Title: string = "Average Days to Resolution";
+    public readonly Title: string = "Average Days to Resolution (Critical)";
     
-    private _annualTarget: number = kpigoals.bugs_resolution_time_major.target;
-    private _annualStretchGoal: number = kpigoals.bugs_resolution_time_major.stretch;
+    private _annualTarget: number = kpi.goals.bugs_resolution_time_critical.target;
+    private _annualStretchGoal: number = kpi.goals.bugs_resolution_time_critical.stretch;
 
     private _from: string;
     private _to: string;
@@ -31,38 +37,11 @@ export class DefectsAverageDaysToResolutionKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
+        var window:number = dateRange*kpi.moving_average.date_range_factor
+        < kpi.moving_average.max_days_in_period ? dateRange*kpi.moving_average.date_range_factor :
+        kpi.moving_average.max_days_in_period;
+
         return [`
-        SELECT cast(T1.RESOLVED as date) AS Date,
-        AVG(T2.Days) AS Average
-        FROM 
-        (
-            SELECT 
-            cast(resolution_date as date) AS RESOLVED,
-            avg(datediff(cast(resolution_date as date),cast(creation_date as date))) as Days
-            FROM ${this._tablename}
-            WHERE RESOLUTION_DATE IS NOT NULL
-            and priority = 'Major'
-            and cast(resolution_date as date) between '${from}' AND '${to}'
-            group by resolved
-        ) as T1
-        LEFT JOIN 
-        (
-            SELECT 
-            cast(resolution_date as date) AS RESOLVED,
-            avg(datediff(cast(resolution_date as date),cast(creation_date as date))) as Days
-            FROM ${this._tablename}
-            WHERE RESOLUTION_DATE IS NOT NULL
-            and priority = 'Major'
-            and cast(resolution_date as date) between '${from}' AND '${to}'
-            group by resolved
-        ) as T2
-          ON T2.RESOLVED BETWEEN
-             DATE_ADD(T1.RESOLVED, INTERVAL -6 DAY) AND T1.RESOLVED
-        WHERE T1.RESOLVED BETWEEN '${from}' AND '${to}'
-        GROUP BY Date
-        ORDER BY CAST(T1.RESOLVED AS DATE) ASC
-    `,
-    `
         SELECT cast(T1.RESOLVED as date) AS Date,
             AVG(T2.Days) AS Average
             FROM 
@@ -88,7 +67,7 @@ export class DefectsAverageDaysToResolutionKpiMapper extends KpiMapper
                 group by resolved
             ) as T2
             ON T2.RESOLVED BETWEEN
-                DATE_ADD(T1.RESOLVED, INTERVAL -6 DAY) AND T1.RESOLVED
+                DATE_ADD(T1.RESOLVED, INTERVAL -${window} DAY) AND T1.RESOLVED
             WHERE T1.RESOLVED BETWEEN '${from}' AND '${to}'
             GROUP BY Date
             ORDER BY CAST(T1.RESOLVED AS DATE) ASC
@@ -111,8 +90,8 @@ export class DefectsAverageDaysToResolutionKpiMapper extends KpiMapper
 
         var values: Array<any>[] =[];
         var labels: Array<any>[]= [];
-        var values2: Array<any>[] =[];
-        var labels2: Array<any>[]= [];
+       // var values2: Array<any>[] =[];
+       // var labels2: Array<any>[]= [];
 
         jsonArrays[0].forEach(function(a){
             values.push(a.Average);
@@ -124,37 +103,25 @@ export class DefectsAverageDaysToResolutionKpiMapper extends KpiMapper
                 minYVal = a.Average
             }
         });
-        jsonArrays[1].forEach(function(a){
-            values2.push(a.Average);
-            labels2.push(a.Date);
-            if(maxYVal < a.Average) {
-                maxYVal = a.Average
-            }
-            if(minYVal < a.Average) {
-                minYVal = a.Average
-            }
-        });
+        // jsonArrays[1].forEach(function(a){
+        //     values2.push(a.Average);
+        //     labels2.push(a.Date);
+        //     if(maxYVal < a.Average) {
+        //         maxYVal = a.Average
+        //     }
+        //     if(minYVal < a.Average) {
+        //         minYVal = a.Average
+        //     }
+        // });
 
        //console.log(labels);
-       // console.log(labels2);
+        //console.log(labels2);
 
         return {
             data: [{
                 x: labels,
                 y: values,
                 name: "Critical",
-                type: "scatter",
-                mode: "lines",
-                line: {
-                    "shape": "spline",
-                    "smoothing": 1.3
-                }
-            }
-            ,
-            {
-                x: labels2,
-                y: values2,
-                name: "Major",
                 type: "scatter",
                 mode: "lines",
                 line: {
@@ -171,7 +138,7 @@ export class DefectsAverageDaysToResolutionKpiMapper extends KpiMapper
                     //range: [dateLowerBound, dateUpperBound]
                 },
                 yaxis: {
-                    title: "Day",
+                    title: "Days",
                     fixedrange: true//,
                     //range: [minYVal-.5, maxYVal + .5]
                 },

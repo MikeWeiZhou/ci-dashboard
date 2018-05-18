@@ -2,7 +2,7 @@ import * as moment from "moment"
 import { KpiMapper } from "./KpiMapper"
 import { IKpiState } from "./IKpiState"
 import { SmoothMovingAverage } from "./SmoothMovingAverage"
-const kpigoals = require("../../config/kpigoals")
+const kpi = require("../../config/kpi")
 const config = require("../../config/config")
 
 /**
@@ -19,8 +19,8 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
     // Moving average of n days
     private _nDaysMovingAverage: number = 30;
 
-    private _target: number = kpigoals.build_success_rate.target_rate;
-    private _stretchGoal: number = kpigoals.build_success_rate.stretch_rate;
+    private _target: number = kpi.goals.build_success_rate.target_rate;
+    private _stretchGoal: number = kpi.goals.build_success_rate.stretch_rate;
 
     /**
      * Returns an array of SQL query strings given a date range.
