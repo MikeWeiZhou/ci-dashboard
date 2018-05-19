@@ -5,9 +5,13 @@ body {
 }
 
 /* ------------------------------------------------------------------- */
-/* Temporary styling for prototype */ 
-.dateSelectionButtons > .btn {
-  margin: auto 0.5em;
+/* Styling for dashboard */
+#tablist {
+  margin-top: 0.5em;
+}
+
+#dateSelectionButtons > .btn {
+  margin: 0.5em 0.5em;
 }
 
 .kpi {

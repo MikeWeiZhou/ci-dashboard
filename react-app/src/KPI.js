@@ -20,7 +20,7 @@ class KPI extends Component {
     // Called after component is updated    
     componentDidUpdate(prevProps) {
         // Only request data if props is updated
-        if (prevProps !== this.props)
+        if (prevProps.startDate !== this.props.startDate)
             this.requestData();        
     }
     

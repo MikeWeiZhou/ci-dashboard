@@ -4,9 +4,7 @@ import KPI from './KPI';
 class Category extends Component {
   state = {
     title: "",
-    kpis: [],
-    startDate: "",
-    endDate: ""
+    kpis: []
   }
 
   // Called after component is mounted
@@ -16,18 +14,26 @@ class Category extends Component {
 
   // Called after component is updated    
   componentDidUpdate(prevProps) {
-    // Only request data if props is updated
-    if (prevProps.startDate  !== this.props.startDate) {
-      this.requestKPICategoryDetails();
+    if (prevProps.tabText == null) {
+      // console.log(`Updating tabText`);
       this.props.setTabText(this.props.category, this.state.title);
+    }
+
+    // Only request data if props is updated
+    if (prevProps.startDate !== this.props.startDate) {
+      console.log(`Category.js - prevProp.startDate = ${prevProps.startDate}`);
+      console.log(`Category.js - this.props.startDate = ${this.props.startDate}`);
+      this.requestKPICategoryDetails();
     }
   }
 
   render() {
+    // console.log(`Category render is running`);
     var kpis = [];
     var keyNum = 0;
+
     this.state.kpis.forEach(kpi => {
-      kpis.push(<KPI key={`${this.props.category}${keyNum}`} category={this.props.category} kpi={kpi} startDate={this.state.startDate} endDate={this.state.endDate} />)
+      kpis.push(<KPI key={`${this.props.category}${keyNum}`} category={this.props.category} kpi={kpi} startDate={this.props.startDate} endDate={this.props.endDate} />)
       keyNum++;
     });
 
@@ -54,9 +60,7 @@ class Category extends Component {
           resJSON = await res.json();
           this.setState({
             title: resJSON.title,
-            kpis: resJSON.kpis,
-            startDate: this.props.startDate,
-            endDate: this.props.endDate
+            kpis: resJSON.kpis
           });
         } else {
             resJSON = await res.json();
