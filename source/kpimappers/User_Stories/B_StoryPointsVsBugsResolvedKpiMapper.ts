@@ -1,6 +1,9 @@
 import * as moment from "moment"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
+import { SimpleMovingAveragePeriod } from "../SimpleMovingAveragePeriod"
+import { GenerateDatesSubquery } from "../GenerateDatesSubquery"
+const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
 /**
@@ -10,10 +13,7 @@ const config = require("../../../config/config")
  */
 export class B_StoryPointsVsBugsResolvedKpiMapper extends KpiMapper
 {
-    public readonly Title: string = "Story Points vs Bugs Resolved";
-
-    // Moving average of n days
-    private _nDaysMovingAverage: number = 30;
+    public readonly Title: string = "Story Point Velocity vs Bugs Resolved Velocity";
 
     /**
      * Returns an array of SQL query strings given a date range.
@@ -25,134 +25,82 @@ export class B_StoryPointsVsBugsResolvedKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
-        var nPrevDays: number = this._nDaysMovingAverage - 1;
+        var movingAveragePeriod: number = SimpleMovingAveragePeriod.GetPeriod(dateRange);
+        var nPrevDays: number = movingAveragePeriod - 1;
+        var generateDatesSubquery: string = GenerateDatesSubquery.GetQuery(from, to);
+        var dailyAvgStoryPointsSubquery: string =
+        `(
+            SELECT RESOLUTION_DATE
+                  ,AVG(STORY_POINTS) AS 'AVG_STORY_POINTS'
+            FROM ${config.db.tablename.resolved_story_points}
+            WHERE RESOLUTION_DATE BETWEEN
+                  DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
+            GROUP BY RESOLUTION_DATE
+        )`;
+        var dailyMajorBugsResolvedSubquery: string =
+        `(
+            SELECT RESOLUTION_DATE
+                  ,COUNT(*) AS 'BUGS_RESOLVED'
+            FROM ${config.db.tablename.bug_resolution_dates}
+            WHERE (RESOLUTION_DATE BETWEEN
+                  DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}')
+              AND PRIORITY = 'Major'
+            GROUP BY RESOLUTION_DATE
+        )`;
+        var dailyCriticalBugsResolvedSubquery: string =
+        `(
+            SELECT RESOLUTION_DATE
+                  ,COUNT(*) AS 'BUGS_RESOLVED'
+            FROM ${config.db.tablename.bug_resolution_dates}
+            WHERE (RESOLUTION_DATE BETWEEN
+                  DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}')
+              AND PRIORITY = 'Critical'
+            GROUP BY RESOLUTION_DATE
+        )`;
         return [
             // Story Points Velocity
             `
-                SELECT T1.RESOLUTION_DATE AS 'DATE'
-                    ,SUM(T2.AVG_STORY_POINTS)/${this._nDaysMovingAverage} AS 'AVG_VALUE'
-                FROM (
-                    SELECT RESOLUTION_DATE
-                        ,AVG(STORY_POINTS) AS 'AVG_STORY_POINTS'
-                    FROM ${config.db.tablename.resolved_story_points}
-                    WHERE RESOLUTION_DATE BETWEEN
-                        DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
-                    GROUP BY RESOLUTION_DATE
-                ) T1
-                LEFT JOIN (
-                    SELECT RESOLUTION_DATE
-                        ,AVG(STORY_POINTS) AS 'AVG_STORY_POINTS'
-                    FROM ${config.db.tablename.resolved_story_points}
-                    WHERE RESOLUTION_DATE BETWEEN
-                        DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
-                    GROUP BY RESOLUTION_DATE
-                ) T2
-                    ON
-                    (
-                        T2.RESOLUTION_DATE BETWEEN
-                        DATE_SUB(T1.RESOLUTION_DATE, INTERVAL ${nPrevDays} DAY) AND T1.RESOLUTION_DATE
-                    )
-                WHERE T1.RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
+                SELECT D1.DATE AS 'DATE'
+                      ,IFNULL(SUM(T2.AVG_STORY_POINTS), 0)/${movingAveragePeriod} AS 'AVG_VALUE'
+                FROM ${generateDatesSubquery} D1
+                  LEFT JOIN ${dailyAvgStoryPointsSubquery} T1
+                    ON T1.RESOLUTION_DATE = D1.DATE
+                  LEFT JOIN ${dailyAvgStoryPointsSubquery} T2
+                    ON T2.RESOLUTION_DATE BETWEEN
+                    DATE_SUB(D1.DATE, INTERVAL ${nPrevDays} DAY) AND D1.DATE
+                WHERE D1.DATE BETWEEN '${from}' AND '${to}'
                 GROUP BY DATE
                 ORDER BY DATE ASC
-                ;
             `,
-            // Bugs Resolved Rate
+            // Major Bugs Resolved Velocity
             `
-                SELECT T1.RESOLUTION_DATE AS 'DATE'
-                    ,SUM(T2.BUGS_RESOLVED)/${this._nDaysMovingAverage} AS 'AVG_VALUE'
-                    ,T1.PRIORITY AS 'PRIORITY'
-                FROM (
-                    SELECT RESOLUTION_DATE
-                        ,COUNT(*) AS 'BUGS_RESOLVED'
-                        ,PRIORITY
-                    FROM ${config.db.tablename.bug_resolution_dates}
-                    WHERE RESOLUTION_DATE BETWEEN
-                        DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
-                    GROUP BY RESOLUTION_DATE, PRIORITY
-                ) T1
-                LEFT JOIN (
-                    SELECT RESOLUTION_DATE
-                        ,COUNT(*) AS 'BUGS_RESOLVED'
-                        ,PRIORITY
-                    FROM ${config.db.tablename.bug_resolution_dates}
-                    WHERE RESOLUTION_DATE BETWEEN
-                        DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
-                    GROUP BY RESOLUTION_DATE, PRIORITY
-                ) T2
-                    ON
-                    (
-                        T2.RESOLUTION_DATE BETWEEN
-                        DATE_SUB(T1.RESOLUTION_DATE, INTERVAL ${nPrevDays} DAY) AND T1.RESOLUTION_DATE
-                    )
-                    AND
-                    (
-                        T1.PRIORITY = T2.PRIORITY
-                    )
-                WHERE T1.RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
-                GROUP BY DATE, PRIORITY
+                SELECT D1.DATE AS 'DATE'
+                      ,IFNULL(SUM(T2.BUGS_RESOLVED), 0)/${movingAveragePeriod} AS 'AVG_VALUE'
+                FROM ${generateDatesSubquery} D1
+                  LEFT JOIN ${dailyMajorBugsResolvedSubquery} T1
+                    ON T1.RESOLUTION_DATE = D1.DATE
+                  LEFT JOIN ${dailyMajorBugsResolvedSubquery} T2
+                    ON T2.RESOLUTION_DATE BETWEEN
+                       DATE_SUB(D1.DATE, INTERVAL ${nPrevDays} DAY) AND D1.DATE
+                WHERE D1.DATE BETWEEN '${from}' AND '${to}'
+                GROUP BY DATE
                 ORDER BY DATE ASC
-                ;
+            `,
+            // Critical Bugs Resolved Velocity
+            `
+                SELECT D1.DATE AS 'DATE'
+                      ,IFNULL(SUM(T2.BUGS_RESOLVED), 0)/${movingAveragePeriod} AS 'AVG_VALUE'
+                FROM ${generateDatesSubquery} D1
+                  LEFT JOIN ${dailyCriticalBugsResolvedSubquery} T1
+                    ON T1.RESOLUTION_DATE = D1.DATE
+                  LEFT JOIN ${dailyCriticalBugsResolvedSubquery} T2
+                    ON T2.RESOLUTION_DATE BETWEEN
+                       DATE_SUB(D1.DATE, INTERVAL ${nPrevDays} DAY) AND D1.DATE
+                WHERE D1.DATE BETWEEN '${from}' AND '${to}'
+                GROUP BY DATE
+                ORDER BY DATE ASC
             `
         ];
-        // return [
-        //     // Story Points Velocity
-        //     `
-        //         WITH DAILY_AVG_STORY_POINTS AS
-        //         (
-        //             SELECT RESOLUTION_DATE
-        //                 ,AVG(STORY_POINTS) AS 'AVG_STORY_POINTS'
-        //             FROM ${config.db.tablename.resolved_story_points}
-        //             WHERE RESOLUTION_DATE BETWEEN
-        //                 DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
-        //             GROUP BY RESOLUTION_DATE
-        //         )
-        //         SELECT T1.RESOLUTION_DATE AS 'DATE'
-        //             ,SUM(T2.AVG_STORY_POINTS)/${this._nDaysMovingAverage} AS 'AVG_VALUE'
-        //         FROM DAILY_AVG_STORY_POINTS T1
-        //         LEFT JOIN DAILY_AVG_STORY_POINTS T2
-        //             ON
-        //             (
-        //                 T2.RESOLUTION_DATE BETWEEN
-        //                 DATE_SUB(T1.RESOLUTION_DATE, INTERVAL ${nPrevDays} DAY) AND T1.RESOLUTION_DATE
-        //             )
-        //         WHERE T1.RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
-        //         GROUP BY DATE
-        //         ORDER BY DATE ASC
-        //         ;
-        //     `,
-        //     // Bugs Resolved Rate
-        //     `
-        //         WITH DAILY_BUGS_RESOLVED AS
-        //         (
-        //             SELECT RESOLUTION_DATE
-        //                 ,COUNT(*) AS 'BUGS_RESOLVED'
-        //                 ,PRIORITY
-        //             FROM ${config.db.tablename.bug_resolution_dates}
-        //             WHERE RESOLUTION_DATE BETWEEN
-        //                 DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
-        //             GROUP BY RESOLUTION_DATE, PRIORITY
-        //         )
-        //         SELECT T1.RESOLUTION_DATE AS 'DATE'
-        //             ,SUM(T2.BUGS_RESOLVED)/${this._nDaysMovingAverage} AS 'AVG_VALUE'
-        //             ,T1.PRIORITY AS 'PRIORITY'
-        //         FROM DAILY_BUGS_RESOLVED T1
-        //         LEFT JOIN DAILY_BUGS_RESOLVED T2
-        //             ON
-        //             (
-        //                 T2.RESOLUTION_DATE BETWEEN
-        //                 DATE_SUB(T1.RESOLUTION_DATE, INTERVAL ${nPrevDays} DAY) AND T1.RESOLUTION_DATE
-        //             )
-        //             AND
-        //             (
-        //                 T1.PRIORITY = T2.PRIORITY
-        //             )
-        //         WHERE T1.RESOLUTION_DATE BETWEEN '${from}' AND '${to}'
-        //         GROUP BY DATE, PRIORITY
-        //         ORDER BY DATE ASC
-        //         ;
-        //     `
-        // ];
     }
 
     /**
@@ -164,51 +112,19 @@ export class B_StoryPointsVsBugsResolvedKpiMapper extends KpiMapper
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
         // Invalid; Requires at least 2 data points
-        if (jsonArrays[0].length < 2 && jsonArrays[1].length < 2)
+        if (jsonArrays[0].length < 2 && jsonArrays[1].length < 2 && jsonArrays[3].length < 2)
         {
             return null;
         }
 
-        var charts: any = [];
-        for (let i in jsonArrays)
-        {
-            for (let result of jsonArrays[i])
-            {
-                if (!result.PRIORITY)
-                {
-                    result.PRIORITY = "StoryPoints";
-                }
-                if (!charts[result.PRIORITY])
-                {
-                    charts[result.PRIORITY] = {};
-                    charts[result.PRIORITY].x = [];
-                    charts[result.PRIORITY].y = [];
-                    charts[result.PRIORITY].yaxis = (result.PRIORITY == "StoryPoints")
-                        ? "y"
-                        : "y2";
-                    charts[result.PRIORITY].name = `${result.PRIORITY}`;
-                    charts[result.PRIORITY].type = "scatter";
-                    charts[result.PRIORITY].mode = "lines";
-                    charts[result.PRIORITY].line =
-                    {
-                        "shape": "spline",
-                        "smoothing": 1.3
-                    };
-                }
-                charts[result.PRIORITY].x.push(result.DATE);
-                charts[result.PRIORITY].y.push(result.AVG_VALUE);
-            }
-        }
-
-        var data: any = [];
-        for (let priority in charts)
-        {
-            data.push(charts[priority]);
-        }
+        var chart: any = [];
+        this.addDataToChart("Story Points", "y", jsonArrays[0], chart);
+        this.addDataToChart("Major Defects", "y", jsonArrays[1], chart);
+        this.addDataToChart("Critical Defects", "y", jsonArrays[2], chart);
 
         // Return Plotly.js consumable
         return {
-            data: data,
+            data: chart,
             layout: {
                 title: this.Title,
                 legend: {
@@ -238,5 +154,29 @@ export class B_StoryPointsVsBugsResolvedKpiMapper extends KpiMapper
                 displayModeBar: false
             }
         };
+    }
+
+    private addDataToChart(name: string, yaxis: string, data: Array<any>, chart: Array<any>) : void
+    {
+        var newChart: any = {};
+        newChart.x = [];
+        newChart.y = [];
+        newChart.yaxis = yaxis;
+        newChart.name = name;
+        newChart.type = "scatter";
+        newChart.mode = "lines";
+        newChart.line =
+        {
+            "shape": "spline",
+            "smoothing": 1.3
+        };
+
+        for (let record of data)
+        {
+            newChart.x.push(record.DATE);
+            newChart.y.push(record.AVG_VALUE);
+        }
+
+        chart.push(newChart);
     }
 }

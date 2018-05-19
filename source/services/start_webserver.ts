@@ -2,6 +2,8 @@ import * as express from "express"
 import * as fs from "fs"
 import { IDataStorage } from "../datastorages/IDataStorage"
 import { IKpiState } from "../kpimappers/IKpiState"
+import { KpiMapper } from "../kpimappers/KpiMapper"
+import { SimpleMovingAveragePeriod } from "../kpimappers/SimpleMovingAveragePeriod"
 import { Log } from "../Log"
 const config = require("../../config/config")
 
@@ -28,6 +30,14 @@ export function start_webserver(storage: IDataStorage): void
         {
             response.status(config.webserver.response.no_exists).send("File not found");
         }
+    });
+
+    // Get KPI Simple Moving Average period
+    webServer.get("/getkpimovingaverageperiod/:from/:to", (request: express.Request, response: express.Response) =>
+    {
+        var dateRange: number = KpiMapper.GetDateRange(request.params.from, request.params.to);
+        var numberOfDays: number = SimpleMovingAveragePeriod.GetPeriod(dateRange);
+        response.send(numberOfDays);
     });
 
     // Get KPI
@@ -93,32 +103,40 @@ export function start_webserver(storage: IDataStorage): void
     });
 }
 
-function initializeKpisAndReturnList(storage: IDataStorage)
+function initializeKpisAndReturnList(storage: IDataStorage): any
 {
-    var kpilist: object = {};
-    var dirs: string[] = fs.readdirSync("./source/kpimappers");
-    for (let dirname of dirs)
+    try
     {
-        if (/\.ts$/.test(dirname))
+        var kpilist: object = {};
+        var dirs: string[] = fs.readdirSync("./build/kpimappers");
+        for (let dirname of dirs)
         {
-            continue;
-        }
-
-        kpilist[dirname] = {};
-        let kpifilenames: string[] = fs.readdirSync(`./source/kpimappers/${dirname}`);
-        for (let filename of kpifilenames)
-        {
-            if (!/KpiMapper\.ts$/.test(filename))
+            if (/\.js$/.test(dirname))
             {
                 continue;
             }
-
-            let name: string = filename.replace(".ts", '');
-            let apiName: string = filename.replace("KpiMapper.ts", '');
-            let req = require(`../kpimappers/${dirname}/${name}`);
-            kpilist[dirname][apiName] = new req[name](storage);
+    
+            kpilist[dirname] = {};
+            let kpifilenames: string[] = fs.readdirSync(`./build/kpimappers/${dirname}`);
+            for (let filename of kpifilenames)
+            {
+                if (!/KpiMapper\.js$/.test(filename))
+                {
+                    continue;
+                }
+    
+                let name: string = filename.replace(".js", '');
+                let apiName: string = filename.replace("KpiMapper.js", '');
+                let req = require(`../kpimappers/${dirname}/${name}`);
+                kpilist[dirname][apiName] = new req[name](storage);
+            }
         }
+        return kpilist;
     }
-
-    return kpilist;
+    catch (err)
+    {
+        console.log("Failed to initialize all KPI mappers. Ensure filename and classname are identical.");
+        console.log(err);
+        process.exit();
+    }
 }

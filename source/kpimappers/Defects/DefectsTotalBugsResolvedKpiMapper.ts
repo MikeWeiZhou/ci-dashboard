@@ -1,6 +1,8 @@
+import * as moment from "moment"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
-import * as moment from "moment"
+import { SimpleMovingAveragePeriod } from "../SimpleMovingAveragePeriod"
+import { GenerateDatesSubquery } from "../GenerateDatesSubquery"
 const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
@@ -9,11 +11,11 @@ const config = require("../../../config/config")
  * Number of Bugs Resolved
  * 
  * Description of Method:
+ * 
  * The bug count is applied if resolution(s) occurred on that day.
  * It is assumed that no bugs were resolved on dates that do not exist and when 
  * resolution dates are nulled.
  * The simple moving average accounts for such days with no resolutions.
- * 
  */
 export class DefectsTotalBugsResolvedKpiMapper extends KpiMapper
 {
@@ -39,9 +41,8 @@ export class DefectsTotalBugsResolvedKpiMapper extends KpiMapper
         this._from = from;
         this._to = to;
 
-        var window:number = dateRange*kpi.moving_average.date_range_factor
-        < kpi.moving_average.max_days_in_period ? dateRange*kpi.moving_average.date_range_factor :
-        kpi.moving_average.max_days_in_period;
+        var window: number = SimpleMovingAveragePeriod.GetPeriod(dateRange);
+        var generateDatesSubquery: string = GenerateDatesSubquery.GetQuery(from, to);
 
         return [
             `          
@@ -49,18 +50,7 @@ export class DefectsTotalBugsResolvedKpiMapper extends KpiMapper
             , (case when AVG(T3.value) then AVG(T3.value) else 0 end) as Average
             FROM 
 			(SELECT datetbl.Date AS Date, ifnull(t1.value, 0) as value     
-				FROM 
-				(
-					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
-					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
-				) as datetbl
+				FROM ${generateDatesSubquery} as datetbl
 				left join
 				(
 					SELECT
@@ -77,18 +67,7 @@ export class DefectsTotalBugsResolvedKpiMapper extends KpiMapper
 				) T2
 				left join
 			    (SELECT datetbl.Date AS Date, ifnull(t1.value, 0) as value     
-				FROM 
-				(
-					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
-					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
-				) as datetbl
+				FROM ${generateDatesSubquery} as datetbl
 				left join
 				(
 					SELECT
@@ -114,18 +93,7 @@ export class DefectsTotalBugsResolvedKpiMapper extends KpiMapper
             , (case when AVG(T3.value) then AVG(T3.value) else 0 end) as Average
             FROM 
 			(SELECT datetbl.Date AS Date, ifnull(t1.value, 0) as value     
-				FROM 
-				(
-					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
-					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
-				) as datetbl
+				FROM ${generateDatesSubquery} as datetbl
 				left join
 				(
 					SELECT
@@ -142,18 +110,7 @@ export class DefectsTotalBugsResolvedKpiMapper extends KpiMapper
 				) T2
 				left join
 			    (SELECT datetbl.Date AS Date, ifnull(t1.value, 0) as value     
-				FROM 
-				(
-					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
-					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
-				) as datetbl
+				FROM ${generateDatesSubquery} as datetbl
 				left join
 				(
 					SELECT

@@ -6,11 +6,11 @@ const kpi = require("../../config/kpi")
 const config = require("../../config/config")
 
 /**
- * BuildSuccessRateSegmentKpiMapper with simple moving average.
+ * BuildTimeFromQueueSegmentKpiMapper with simple moving average.
  * 
  * Days with no data will not be plotted (ignored).
  */
-export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
+export abstract class BuildTimeFromQueueSegmentKpiMapper extends KpiMapper
 {
     // SQL GROUP data by this column
     protected abstract groupByColumn: string;
@@ -39,20 +39,20 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
         var segmentQuery: string = (!this.filterColumn || !this.filterValue)
             ? ""
             : `AND ${this.filterColumn} = ${this.filterValue}`;
-        var dailyAvgSuccessRateSubquery =
+        var dailyAvgBuildTimeSubquery: string =
         `(
             SELECT BUILD_COMPLETED_DATE AS 'BUILD_DATE'
-                  ,AVG(IS_SUCCESS) AS 'AVG_SUCCESS_RATE'
+                  ,AVG(MINUTES_TOTAL_QUEUE_AND_BUILD) AS 'AVG_BUILD_TIME'
             FROM ${config.db.tablename.qa_builds_and_runs_from_bamboo}
             WHERE (BUILD_COMPLETED_DATE BETWEEN
                   DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}')
               ${segmentQuery}
             GROUP BY BUILD_DATE
         )`;
-        var dailyAvgSuccessRateGroupedSubquery =
+        var dailyAvgBuildTimeGroupedSubquery: string =
         `(
             SELECT BUILD_COMPLETED_DATE AS 'BUILD_DATE'
-                  ,AVG(IS_SUCCESS) AS 'AVG_SUCCESS_RATE'
+                  ,AVG(MINUTES_TOTAL_QUEUE_AND_BUILD) AS 'AVG_BUILD_TIME'
                   ,${this.groupByColumn}
             FROM ${config.db.tablename.qa_builds_and_runs_from_bamboo}
             WHERE (BUILD_COMPLETED_DATE BETWEEN
@@ -64,9 +64,9 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
             // Overall
             `
                 SELECT T1.BUILD_DATE AS 'DATE'
-                      ,AVG(T2.AVG_SUCCESS_RATE) AS 'AVG_SUCCESS_RATE'
-                FROM ${dailyAvgSuccessRateSubquery} T1
-                LEFT JOIN ${dailyAvgSuccessRateSubquery} T2
+                      ,AVG(T2.AVG_BUILD_TIME) AS 'AVG_BUILD_TIME'
+                FROM ${dailyAvgBuildTimeSubquery} T1
+                LEFT JOIN ${dailyAvgBuildTimeSubquery} T2
                   ON T2.BUILD_DATE BETWEEN
                      DATE_SUB(T1.BUILD_DATE, INTERVAL ${nPrevDays} DAY) AND T1.BUILD_DATE
                 WHERE T1.BUILD_DATE BETWEEN '${from}' AND '${to}'
@@ -78,11 +78,11 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
                 SELECT T1.BUILD_DATE AS 'DATE'
                       ,CASE WHEN COUNT(T2.BUILD_DATE) < ${minPrevDayData}
                             THEN NULL
-                            ELSE AVG(T2.AVG_SUCCESS_RATE)
-                            END AS 'AVG_SUCCESS_RATE'
+                            ELSE AVG(T2.AVG_BUILD_TIME)
+                            END AS 'AVG_BUILD_TIME'
                       ,T1.${this.groupByColumn} AS '${this.groupByColumn}'
-                FROM ${dailyAvgSuccessRateGroupedSubquery} T1
-                LEFT JOIN ${dailyAvgSuccessRateGroupedSubquery} T2
+                FROM ${dailyAvgBuildTimeGroupedSubquery} T1
+                LEFT JOIN ${dailyAvgBuildTimeGroupedSubquery} T2
                   ON
                     (
                         T2.BUILD_DATE BETWEEN
@@ -138,7 +138,7 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
                     };
                 }
                 charts[result[this.groupByColumn]].x.push(result.DATE);
-                charts[result[this.groupByColumn]].y.push(result.AVG_SUCCESS_RATE);
+                charts[result[this.groupByColumn]].y.push(result.AVG_BUILD_TIME);
             }
         }
 
@@ -159,34 +159,32 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
                     range: [this.chartFromDate, this.chartToDate]
                 },
                 yaxis: {
-                    title: "Daily success rate",
-                    tickformat: ",.0%",
-                    fixedrange: true,
-                    range: [0,1]
+                    title: "Build time including queue (in minutes)",
+                    fixedrange: true
                 },
                 shapes: [
-                    // Daily Target Line
+                    // Target Line
                     {
                         type: "line",
                         xref: "paper",
                         x0: 0,
                         x1: 1,
-                        y0: kpi.goals.build_success_rate.target_rate,
-                        y1: kpi.goals.build_success_rate.target_rate,
+                        y0: kpi.goals.build_time_from_queue.target_minutes,
+                        y1: kpi.goals.build_time_from_queue.target_minutes,
                         line: {
                             color: "rgb(0, 255, 0)",
                             width: 4,
                             dash:"dot"
                         }
                     },
-                    // Daily Stretch Goal Line
+                    // Stretch Goal Line
                     {
                         type: "line",
                         xref: "paper",
                         x0: 0,
                         x1: 1,
-                        y0: kpi.goals.build_success_rate.stretch_rate,
-                        y1: kpi.goals.build_success_rate.stretch_rate,
+                        y0: kpi.goals.build_time_from_queue.stretch_minutes,
+                        y1: kpi.goals.build_time_from_queue.stretch_minutes,
                         line: {
                             color: "gold",
                             width: 4,

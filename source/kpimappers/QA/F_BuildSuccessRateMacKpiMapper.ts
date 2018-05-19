@@ -9,8 +9,8 @@ import { IKpiState } from "../IKpiState"
  */
 export class F_BuildSuccessRateMacKpiMapper extends BuildSuccessRateSegmentKpiMapper
 {
-    protected splitByColumn: string = "CYCLE";
-    protected segmentColumn: string = "PLATFORM_NAME";
-    protected segmentValue: string = "'Mac'";
-    public readonly Title: string = `Build Success Rate (${this.segmentValue})`;
+    protected groupByColumn: string = "CYCLE";
+    protected filterColumn: string = "PLATFORM_NAME";
+    protected filterValue: string = "'Mac'";
+    public readonly Title: string = `Build Success Rate (${this.filterValue})`;
 }

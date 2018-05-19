@@ -1,22 +1,23 @@
+import * as moment from "moment"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
 import { isNull } from "util";
+import { SimpleMovingAveragePeriod } from "../SimpleMovingAveragePeriod"
+import { GenerateDatesSubquery } from "../GenerateDatesSubquery"
 const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
-import * as moment from "moment"
-
 
 /**
  * DefectsCreatedResolvedKpiMapper.
  * Created vs Resolved.
  * 
  * Description of Method:
+ * 
  * The total created and resolved bugs for a day are used in computing the difference. 
  * Dates with exclusively either created or resolved bugs (XOR), but not both, will 
  * compute the difference with a 0 value for the other type.
  * Dates without any created and resolved bugs will assume a value of 0.
  * Such dates are accounted for in the simple moving average.
- * 
  */
 export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
 {
@@ -44,9 +45,8 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
         this._from = from;
         this._to = to;
 
-        var window:number = dateRange*kpi.moving_average.date_range_factor
-        < kpi.moving_average.max_days_in_period ? dateRange*kpi.moving_average.date_range_factor :
-        kpi.moving_average.max_days_in_period;
+        var window: number = SimpleMovingAveragePeriod.GetPeriod(dateRange);
+        var generateDatesSubquery: string = GenerateDatesSubquery.GetQuery(from, to);
 
         return [
             `				
@@ -54,18 +54,7 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
             , (case when AVG(T3.value) then AVG(T3.value) else 0 end) as Average
             FROM 
 			(SELECT datetbl.Date AS Date, ifnull(t1.diff, 0) as value     
-				FROM 
-				(
-					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
-					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
-				) as datetbl
+				FROM ${generateDatesSubquery} as datetbl
 				left join
 				(
 				SELECT cast(DATE as date) as date,
@@ -95,18 +84,7 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
 				) T2
 				left join
 			    (SELECT datetbl.Date AS Date, ifnull(t1.diff, 0) as value     
-				FROM 
-				(
-					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
-					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
-				) as datetbl
+				FROM ${generateDatesSubquery} as datetbl
 				left join
 				(
 				SELECT cast(DATE as date) as date,
@@ -146,18 +124,7 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
             , (case when AVG(T3.value) then AVG(T3.value) else 0 end) as Average
             FROM 
 			(SELECT datetbl.Date AS Date, ifnull(t1.diff, 0) as value     
-				FROM 
-				(
-					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
-					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
-				) as datetbl
+				FROM ${generateDatesSubquery} as datetbl
 				left join
 				(
 				SELECT cast(DATE as date) as date,
@@ -187,18 +154,7 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
 				) T2
 				left join
 			    (SELECT datetbl.Date AS Date, ifnull(t1.diff, 0) as value     
-				FROM 
-				(
-					select cast(DATE_ADD(NOW(), interval -(a.a + (10 * b.a) + (100 * c.a)) day) AS Date) as date
-					from (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as a
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as b
-
-					cross join (select 0 as a union all select 1 union all select 2 union all select 3 union all select 4
-					union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) as c
-				) as datetbl
+				FROM ${generateDatesSubquery} as datetbl
 				left join
 				(
 				SELECT cast(DATE as date) as date,

@@ -1,6 +1,10 @@
 /**
  * SmoothMovingAverage.
  * 
+ *      WARNING:
+ * 
+ *      This has been deprecated.
+ * 
  *  Uses formula listed in :
  *   https://mahifx.com/mfxtrade/indicators/smoothed-moving-average-smma
  * 
@@ -9,7 +13,7 @@
  *   - nDaysColName = N_DAYS
  *   - nDaysSumColName = SUM_N_DAYS_SUCCESS_RATE
  *   - dailyColName = DAILY_SUCCESS_RATE
- *      
+ *
  *  Sample result for 7 days:
  *  +---------------------+--------+-------------------------+--------------------+
  *  | BUILD_DATE          | N_DAYS | SUM_N_DAYS_SUCCESS_RATE | DAILY_SUCCESS_RATE |

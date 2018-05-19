@@ -9,8 +9,8 @@ import { IKpiState } from "../IKpiState"
  */
 export class A_BuildSuccessRateCycleKpiMapper extends BuildSuccessRateSegmentKpiMapper
 {
-    protected splitByColumn: string = "CYCLE";
-    protected segmentColumn: string = "";
-    protected segmentValue: string = "";
+    protected groupByColumn: string = "CYCLE";
+    protected filterColumn: string = "";
+    protected filterValue: string = "";
     public readonly Title: string = `Build Success Rate Per Cycle`;
 }

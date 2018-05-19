@@ -6,11 +6,11 @@ kpi.moving_average =
 {
     // If date range factor = 0.1 (10%)
     // the moving average period will be 10% of the selected date range
-    date_range_factor: .1,
+    date_range_factor: .3,
 
     // Maximum days in a period, will be used if date_range_factor becomes
     // greater than this setting
-    max_days_in_period: 30
+    max_days_in_period: 40
 };
 
 kpi.goals =
@@ -18,22 +18,22 @@ kpi.goals =
     // Build time including queue (for successful builds)
     build_time_from_queue:
     {
-        target_minutes: 60,
-        stretch_minutes: 30
+        target_minutes: 500,
+        stretch_minutes: 400
     },
 
     // Story points to be completed annually
     story_points_velocity:
     {
-        target_annual:  1088,
-        stretch_annual: 1137
+        target_annual:  400,
+        stretch_annual: 500
     },
 
     // Daily build success rate
     build_success_rate:
     {
-        target_rate: 0.75,
-        stretch_rate: 0.9
+        target_rate: 0.5,
+        stretch_rate: 0.6
     },
 
     // Targets for daily bugs created

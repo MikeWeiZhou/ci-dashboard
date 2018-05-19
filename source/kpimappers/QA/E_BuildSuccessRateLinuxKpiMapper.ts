@@ -9,8 +9,8 @@ import { IKpiState } from "../IKpiState"
  */
 export class E_BuildSuccessRateLinuxKpiMapper extends BuildSuccessRateSegmentKpiMapper
 {
-    protected splitByColumn: string = "CYCLE";
-    protected segmentColumn: string = "PLATFORM_NAME";
-    protected segmentValue: string = "'Linux'";
-    public readonly Title: string = `Build Success Rate (${this.segmentValue})`;
+    protected groupByColumn: string = "CYCLE";
+    protected filterColumn: string = "PLATFORM_NAME";
+    protected filterValue: string = "'Linux'";
+    public readonly Title: string = `Build Success Rate (${this.filterValue})`;
 }

@@ -10,6 +10,18 @@ const config = require("../../config/config")
  */
 export abstract class KpiMapper
 {
+    /**
+     * Returns the date range given a from and to date.
+     * @param {Date} from 
+     * @param {Date} to 
+     */
+    public static GetDateRange(from: Date, to: Date): number
+    {
+        var fromDate: moment.Moment = moment.utc(from);
+        var toDate: moment.Moment = moment.utc(to);
+        return toDate.diff(fromDate, "days") + 1; // +1 cause inclusive of "toDate"
+    }
+
     public abstract readonly Title: string;
 
     // Date range for Plotly to limit lower and upperbounds
@@ -43,25 +55,26 @@ export abstract class KpiMapper
         this.chartFromDate = fromDate.format(config.dateformat.charts);
         this.chartToDate = toDate.format(config.dateformat.charts);
 
-        var dateRange: number = toDate
-            .diff(fromDate, "days") + 1; // +1 cause inclusive of "toDate"
         var sqls: string[] = this.getQueryStrings
-            (fromDate.format(config.dateformat.mysql)
-            ,toDate.format(config.dateformat.mysql)
-            ,dateRange);
-        var jsonArrayResults: Array<any>[] = [];
+        (
+            fromDate.format(config.dateformat.mysql),
+            toDate.format(config.dateformat.mysql),
+            KpiMapper.GetDateRange(from, to)
+        );
+
         try
         {
+            var jsonArrayResults: Array<any>[] = [];
             for (let sql of sqls)
             {
                 jsonArrayResults.push(await this._dataStorage.Query(sql));
             }
+            return this.mapToKpiStateOrNull(jsonArrayResults);
         }
         catch (err)
         {
             throw err;
         }
-        return this.mapToKpiStateOrNull(jsonArrayResults);
     }
 
     /**

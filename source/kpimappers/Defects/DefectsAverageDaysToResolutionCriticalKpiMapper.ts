@@ -1,30 +1,31 @@
+import * as moment from "moment"
 import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
+import { SimpleMovingAveragePeriod } from "../SimpleMovingAveragePeriod"
 const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
-import * as moment from "moment"
 
 /**
  * DefectsAverageDaysToResolutionCritical.
  * Average Days To Resolution (DTR) for Critical Bugs
  * 
- * Description of method: 
+ * Description of method:
+ * 
  * Resolved bugs are selected by their resolution date within the chosen date range, regardless
  * of their creation dates.
  * If multiple bugs are resolved on the same day, their DTR are summed to present
  * the total DTR for that day.
- * 
  */
 export class DefectsAverageDaysToResolutionCriticalKpiMapper extends KpiMapper
 {
     public readonly Title: string = "Average Days to Resolution (Critical)";
-    
+
     private _annualTarget: number = kpi.goals.bugs_resolution_time_critical.target;
     private _annualStretchGoal: number = kpi.goals.bugs_resolution_time_critical.stretch;
 
     private _from: string;
     private _to: string;
-    
+
     private _tablename: string = config.db.tablename.bug_resolution_dates;
 
     /**
@@ -37,9 +38,7 @@ export class DefectsAverageDaysToResolutionCriticalKpiMapper extends KpiMapper
      */
     protected getQueryStrings(from: string, to: string, dateRange: number): string[]
     {
-        var window:number = dateRange*kpi.moving_average.date_range_factor
-        < kpi.moving_average.max_days_in_period ? dateRange*kpi.moving_average.date_range_factor :
-        kpi.moving_average.max_days_in_period;
+        var window: number = SimpleMovingAveragePeriod.GetPeriod(dateRange);
 
         return [`
         SELECT cast(T1.RESOLVED as date) AS Date,

@@ -9,8 +9,8 @@ import { IKpiState } from "../IKpiState"
  */
 export class B_BuildSuccessRatePlatformKpiMapper extends BuildSuccessRateSegmentKpiMapper
 {
-    protected splitByColumn: string = "PLATFORM_NAME";
-    protected segmentColumn: string = "";
-    protected segmentValue: string = "";
+    protected groupByColumn: string = "PLATFORM_NAME";
+    protected filterColumn: string = "";
+    protected filterValue: string = "";
     public readonly Title: string = `Build Success Rate Per Platform`;
 }

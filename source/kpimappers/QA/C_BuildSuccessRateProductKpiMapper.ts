@@ -9,8 +9,8 @@ import { IKpiState } from "../IKpiState"
  */
 export class C_BuildSuccessRateProductKpiMapper extends BuildSuccessRateSegmentKpiMapper
 {
-    protected splitByColumn: string = "PRODUCT_NAME";
-    protected segmentColumn: string = "";
-    protected segmentValue: string = "";
+    protected groupByColumn: string = "PRODUCT_NAME";
+    protected filterColumn: string = "";
+    protected filterValue: string = "";
     public readonly Title: string = `Build Success Rate Per Product`;
 }
