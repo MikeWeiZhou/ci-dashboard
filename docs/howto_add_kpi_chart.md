@@ -4,7 +4,7 @@ We recommend Visual Studio Code for development as it provides IDE-level support
 
 ## 1. Create KPI Mapper
 
-Create a new class extending from the base class (i.e. KpiMapper). Samples are provided within the kpimappers folder.
+Create a new class extending from the base class (i.e. KpiMapper). Samples are provided within the kpimappers folder. **Filenames must end with "KpiMapper" or the chart will not detect it.**
 
 * **User_Stories/A_StoryPointsVelocityKpiMapper** shows a simple kpi mapper that is easy to duplicate, also shows how missing data are zeroed out
 * **User_Stories/B_StoryPointsVsBugsResolveKpiMapper** shows a more complex kpi mapper with two y-axis, missing data are zeroed out
