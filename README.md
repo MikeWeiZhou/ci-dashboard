@@ -88,7 +88,6 @@ These commands are mainly for easier development and testing. **DB Note**: If da
 * **logs** Server error logs organized by date and time.
 * **react-app** React application. Front-end view server when run in development mode.
 * **source** Typescript source. Includes unit tests.
-* **old_demo** Old demo files. Deprecated.
 
 ## 7. Included Documentations
 
