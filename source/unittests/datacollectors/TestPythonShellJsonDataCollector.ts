@@ -1,3 +1,4 @@
+import * as moment from "moment"
 import * as assert from "assert"
 import * as fs from "fs"
 import { PythonShellJsonDataCollector } from "../../datacollectors/PythonShellJsonDataCollector"
@@ -42,7 +43,7 @@ describe("datacollectors/PythonShellJsonDataCollector", () =>
         it("should receive correct # and identical json objects to ones sent", (done: Function) =>
         {
             var counter = 1;
-            pyshell.Initialize(new Date("2018-01-01"), new Date());
+            pyshell.Initialize(moment(moment("2018-01-01").format("YYYY-MM-DD")).toDate(), new Date());
             pyshell.GetStream()
                 .on("data", (data: any) =>
                 {
@@ -60,7 +61,7 @@ describe("datacollectors/PythonShellJsonDataCollector", () =>
 
         it("should throw error and no data when python sends invalid json objects", (done: Function) =>
         {
-            pyshell.Initialize(new Date("2018-01-02"), new Date());
+            pyshell.Initialize(moment(moment("2018-01-02").format("YYYY-MM-DD")).toDate(), new Date());
             pyshell.GetStream()
                 .on("data", (data: any) =>
                 {
@@ -83,7 +84,7 @@ describe("datacollectors/PythonShellJsonDataCollector", () =>
 
         it("should throw 'exited with code 10' error when python script crashes from sys.exit(10)", (done: Function) =>
         {
-            pyshell.Initialize(new Date("2018-01-03"), new Date());
+            pyshell.Initialize(moment(moment("2018-01-03").format("YYYY-MM-DD")).toDate(), new Date());
             pyshell.GetStream()
                 .on("data", (data: any) => {})
                 .on("error", (err: Error) =>
@@ -99,7 +100,7 @@ describe("datacollectors/PythonShellJsonDataCollector", () =>
 
         it("should throw 'ZeroDivisionError' when python script crashes from division by zero", (done: Function) =>
         {
-            pyshell.Initialize(new Date("2018-01-04"), new Date());
+            pyshell.Initialize(moment(moment("2018-01-04").format("YYYY-MM-DD")).toDate(), new Date());
             pyshell.GetStream()
                 .on("data", (data: any) => {})
                 .on("error", (err: any) =>
