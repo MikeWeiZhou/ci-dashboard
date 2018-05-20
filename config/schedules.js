@@ -5,8 +5,6 @@ const QaBuildsAndRunsFromBambooDataInterface = require("../build/datainterfaces/
 const BugResolutionDatesDataInterface = require("../build/datainterfaces/BugResolutionDatesDataInterface")
 const ResolvedStoryPointsDataInterface = require("../build/datainterfaces/ResolvedStoryPointsDataInterface")
 
-const config = require("./config")
-
 // Format of schedules should match interface in source/scheduler/ISchedule.ts
 var schedules =
 [

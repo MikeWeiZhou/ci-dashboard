@@ -70,9 +70,15 @@ export class WriteStream extends Writable
     {
         if (this._bufferCount != 0)
         {
-            this.writeBuffer(() => {});
+            this.writeBuffer((err: Error) =>
+            {
+                cb(err);
+            });
         }
-        cb();
+        else
+        {
+            cb();
+        }
     }
 
     /**

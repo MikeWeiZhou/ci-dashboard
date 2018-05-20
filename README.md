@@ -79,7 +79,7 @@ These commands are mainly for easier development and testing. **DB Note**: If da
 
 ## 6. Directory Structure
 
-* **build** Javascript compiled from Typescript. Includes react front-end and unit tests.
+* **build** Javascript compiled from Typescript. Includes unit tests.
 * **config** Configuration files.
 * **data** Sample data files.
 * **docs** Holds all the documentation and how-to's.

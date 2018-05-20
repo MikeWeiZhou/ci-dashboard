@@ -1,5 +1,3 @@
-const config = require("./config")
-
 var kpi = {};
 
 kpi.moving_average =
