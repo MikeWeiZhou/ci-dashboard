@@ -1,5 +1,7 @@
 # How To Add Data Source
 
+We recommend Visual Studio Code for development as it provides IDE-level support for Typescript showing errors for typing and inheritance even before compilation.
+
 ## 1. Add table name to config/config.db.js
 
 Add new table name entry to field *db.tablename*
@@ -26,7 +28,7 @@ New data sources will be queried with the data start date set in *config/config.
 * import required data collector and data interface layers at the top of the file
 * add a schedule entry
 
-Sample schedules are provided within the file.
+Sample schedules are provided within the file. The Python sample data collector is commented out in the schedules by default. Uncomment to see it in action.
 
 ## 6. Update database and rebuild project
 

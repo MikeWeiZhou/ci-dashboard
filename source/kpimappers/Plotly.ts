@@ -1,7 +1,7 @@
 /**
  * Plotly.
  * 
- * Helper functions for generating Plotly structures.
+ * Helper functions for generating Plotly.js structures.
  */
 export class Plotly
 {
@@ -41,7 +41,7 @@ export class Plotly
             yanchor: "bottom"
         };
     }
-    
+
     /**
      * Returns a Plotly X-Axis object for dates given a date range.
      * Used in the "layout" property of IKpiState.

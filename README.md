@@ -28,7 +28,7 @@ There has been major changes including database schema update since last prototy
 
 ## 2. Configuration Files
 
-The "config" directory contains configuration settings for the CI Dashbaord. A restart of the server must be completed before changes will take effect.
+The "config" directory contains configuration settings for the CI Dashbaord. A restart of the server must be completed before changes will take effect. Re-compilation/re-building code is not necessary.
 
 * **config.js** pipeline, web server, error logging, date formats
 * **config.db.js** database connection, table names

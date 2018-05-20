@@ -34,4 +34,4 @@ Run these commands to start the server:
 
 * cd *[directory to root of this project]*
 * npm run start
-* http://localhost
+* http://localhost (may need to specify port if config/config.js port is not set to 80)

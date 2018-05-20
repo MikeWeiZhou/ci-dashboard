@@ -3,7 +3,6 @@ import { KpiMapper } from "./KpiMapper"
 import { IKpiState } from "./IKpiState"
 import { SimpleMovingAveragePeriod } from "./SimpleMovingAveragePeriod"
 import { Plotly } from "./Plotly"
-const kpi = require("../../config/kpi")
 const config = require("../../config/config")
 
 /**
@@ -27,8 +26,8 @@ export abstract class BuildTimeFromQueueSegmentKpiMapper extends KpiMapper
     private _yAxisTitle: string = "Minutes (lower is better)";
 
     // Target and stretch goals
-    private _targetGoal: number = kpi.goals.build_time_from_queue.target_minutes;
-    private _stretchGoal: number = kpi.goals.build_time_from_queue.stretch_minutes;
+    private _targetGoal: number = config.kpi.goals.build_time_from_queue.target_minutes;
+    private _stretchGoal: number = config.kpi.goals.build_time_from_queue.stretch_minutes;
 
     /**
      * Returns an array of SQL query strings given a date range.

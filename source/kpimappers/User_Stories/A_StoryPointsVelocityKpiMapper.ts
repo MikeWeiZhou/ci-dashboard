@@ -4,7 +4,6 @@ import { IKpiState } from "../IKpiState"
 import { SimpleMovingAveragePeriod } from "../SimpleMovingAveragePeriod"
 import { GenerateDatesSubquery } from "../GenerateDatesSubquery"
 import { Plotly } from "../Plotly"
-const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
 /**
@@ -19,8 +18,8 @@ export class A_StoryPointsVelocityKpiMapper extends KpiMapper
     private _yAxisTitle: string = "Points per day (higher is better)";
 
     // Target and stretch goals
-    private _targetGoal: number = kpi.goals.story_points_velocity.target_annual/365;
-    private _stretchGoal: number = kpi.goals.story_points_velocity.stretch_annual/365;
+    private _targetGoal: number = config.kpi.goals.story_points_velocity.target_annual/365;
+    private _stretchGoal: number = config.kpi.goals.story_points_velocity.stretch_annual/365;
 
     /**
      * Returns an array of SQL query strings given a date range.

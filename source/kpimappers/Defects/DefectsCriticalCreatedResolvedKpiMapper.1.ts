@@ -4,7 +4,6 @@ import { IKpiState } from "../IKpiState"
 import { isNull } from "util";
 import { SimpleMovingAveragePeriod } from "../SimpleMovingAveragePeriod"
 import { GenerateDatesSubquery } from "../GenerateDatesSubquery"
-const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
 /**
@@ -26,8 +25,8 @@ export class DefectsCriticalCreatedResolvedKpiMapper extends KpiMapper
 
     private _tablename: string = config.db.tablename.bug_resolution_dates;
     private _dateRange: number;
-    private _annualTarget: number = kpi.goals.bugs_rc_difference.target;
-    private _annualStretchGoal: number = kpi.goals.bugs_rc_difference.stretch;
+    private _annualTarget: number = config.kpi.goals.bugs_rc_difference.target;
+    private _annualStretchGoal: number = config.kpi.goals.bugs_rc_difference.stretch;
 
     private _from: string;
     private _to: string;

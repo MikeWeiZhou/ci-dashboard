@@ -1,5 +1,8 @@
 import * as moment from "moment"
 
+/**
+ * Returns a SQL query that generates a table of dates given the from and to date.
+ */
 export class GenerateDatesSubquery
 {
     /**

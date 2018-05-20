@@ -1,7 +1,9 @@
 const config_db = require("./config.db")
+const config_kpi = require("./config.kpi")
 
 var config = {};
 config.db = config_db;
+config.kpi = config_kpi;
 
 /*******************
  * P I P E L I N E *
@@ -9,7 +11,11 @@ config.db = config_db;
 
 config.pipeline =
 {
-    write_buffer_limit: 1000 // Number of items to buffer before writing to database
+    // Number of items to buffer before writing to database
+    //
+    // Writing in batches has a huge performance gain over writing on per-item
+    // Used in streams/WriteStream when data collecting in schedules
+    write_buffer_limit: 1000
 };
 
 /***********************

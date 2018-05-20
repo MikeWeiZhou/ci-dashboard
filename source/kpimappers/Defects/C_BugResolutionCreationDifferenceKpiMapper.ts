@@ -4,7 +4,6 @@ import { IKpiState } from "../IKpiState"
 import { SimpleMovingAveragePeriod } from "../SimpleMovingAveragePeriod"
 import { GenerateDatesSubquery } from "../GenerateDatesSubquery"
 import { Plotly } from "../Plotly"
-const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
 /**
@@ -19,8 +18,8 @@ export class C_BugResolutionCreationDifferenceKpiMapper extends KpiMapper
     private _yAxisTitle: string = "Difference (higher is better)";
 
     // Target and stretch goals
-    private _targetGoal: number = kpi.goals.bugs_rc_difference.target_annual/365;
-    private _stretchGoal: number = kpi.goals.bugs_rc_difference.stretch_annual/365;
+    private _targetGoal: number = config.kpi.goals.bugs_rc_difference.target_annual/365;
+    private _stretchGoal: number = config.kpi.goals.bugs_rc_difference.stretch_annual/365;
 
     /**
      * Returns an array of SQL query strings given a date range.

@@ -4,7 +4,6 @@ import { IKpiState } from "../IKpiState"
 import { SimpleMovingAveragePeriod } from "../SimpleMovingAveragePeriod"
 import { GenerateDatesSubquery } from "../GenerateDatesSubquery"
 import { Plotly } from "../Plotly"
-const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
 /**

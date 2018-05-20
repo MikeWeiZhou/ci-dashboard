@@ -3,7 +3,6 @@ import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
 import { SimpleMovingAveragePeriod } from "../SimpleMovingAveragePeriod"
 import { GenerateDatesSubquery } from "../GenerateDatesSubquery"
-const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
 /**
@@ -25,8 +24,8 @@ export class DefectsTotalBugsResolvedKpiMapper extends KpiMapper
     public readonly Title: string = "Bugs Resolved/Day";
 
     private _tablename: string = config.db.tablename.bug_resolution_dates;
-    private _annualTarget: number = kpi.goals.bugs_per_day.target;
-    private _annualStretchGoal: number = kpi.goals.bugs_per_day.stretch;
+    private _annualTarget: number = config.kpi.goals.bugs_per_day.target;
+    private _annualStretchGoal: number = config.kpi.goals.bugs_per_day.stretch;
 
     /**
      * Returns an array of SQL query strings given a date range.

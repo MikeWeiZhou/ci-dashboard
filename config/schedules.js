@@ -12,25 +12,25 @@ var schedules =
     //     Title: "Sample Data Source",
     //     DataCollector: new PythonShellJsonDataCollector.PythonShellJsonDataCollector("./data/sample_data_source.py"),
     //     DataInterface: new SampleDataInterface.SampleDataInterface(),
-    //     RunIntervalInMinutes: 999
+    //     RunIntervalInMinutes: 60 * 12 // run every 12 hours
     // },
     {
         Title: "QA Builds and Runs from Bamboo",
         DataCollector: new JsonDataCollector.JsonDataCollector("./data/qa_builds_and_runs_from_bamboo.json"),
         DataInterface: new QaBuildsAndRunsFromBambooDataInterface.QaBuildsAndRunsFromBambooDataInterface(),
-        RunIntervalInMinutes: 999
+        RunIntervalInMinutes: 60 * 12 // run every 12 hours
     },
     {
         Title: "Bug Resolution Dates",
         DataCollector: new JsonDataCollector.JsonDataCollector("./data/bug_data.json"),
         DataInterface: new BugResolutionDatesDataInterface.BugResolutionDatesDataInterface(),
-        RunIntervalInMinutes: 999
+        RunIntervalInMinutes: 60 * 12 // run every 12 hours
     },
     {
         Title: "Resolved Story Points",
         DataCollector: new JsonDataCollector.JsonDataCollector("./data/story_data.json"),
         DataInterface: new ResolvedStoryPointsDataInterface.ResolvedStoryPointsDataInterface(),
-        RunIntervalInMinutes: 999
+        RunIntervalInMinutes: 60 * 12 // run every 12 hours
     },
 ];
 

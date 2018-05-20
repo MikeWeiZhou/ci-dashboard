@@ -4,7 +4,6 @@ import { IKpiState } from "../IKpiState"
 import { SimpleMovingAveragePeriod } from "../SimpleMovingAveragePeriod"
 import { GenerateDatesSubquery } from "../GenerateDatesSubquery"
 import { Plotly } from "../Plotly"
-const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
 /**
@@ -19,8 +18,8 @@ export class E_DaysToResolutionCriticalKpiMapper extends KpiMapper
     private _yAxisTitle: string = "Days (lower is better)";
 
     // Target and stretch goals
-    private _targetGoal: number = kpi.goals.bugs_resolution_time_critical.target;
-    private _stretchGoal: number = kpi.goals.bugs_resolution_time_critical.stretch;
+    private _targetGoal: number = config.kpi.goals.bugs_resolution_time_critical.target;
+    private _stretchGoal: number = config.kpi.goals.bugs_resolution_time_critical.stretch;
 
     /**
      * Returns an array of SQL query strings given a date range.

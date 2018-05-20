@@ -77,7 +77,7 @@ export class Scheduler
 
         var isStreamErrored: boolean = false;
         ++this._schedulesRunning;
-        console.time("Schedule: " + schedule.Title);
+        // console.time("Schedule: " + schedule.Title);
 
         var from: string = moment(validSchedule.DataFromDate).format(config.dateformat.console);
         var to: string = moment(validSchedule.DataToDate).format(config.dateformat.console);
@@ -115,7 +115,8 @@ export class Scheduler
             })
             .on("finish", async () =>
             {
-                console.timeEnd("Schedule: " + schedule.Title);
+                // console.timeEnd("Schedule: " + schedule.Title);
+
                 // "finish" event always fire before "error" event, if there is an error
                 // so we must gurantee there isn't any "error" event thrown immediately after
                 setTimeout(async () =>
