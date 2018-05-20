@@ -35,9 +35,19 @@ export function start_webserver(storage: IDataStorage): void
     // Get KPI Simple Moving Average period
     webServer.get("/getkpimovingaverageperiod/:from/:to", (request: express.Request, response: express.Response) =>
     {
-        var dateRange: number = KpiMapper.GetDateRange(request.params.from, request.params.to);
-        var numberOfDays: number = SimpleMovingAveragePeriod.GetPeriod(dateRange);
-        response.send(numberOfDays);
+        try
+        {
+            var from: Date = new Date(request.params.from);
+            var to: Date = new Date(request.params.to);
+            var dateRange: number = KpiMapper.GetDateRange(from, to);
+            var numberOfDays: number = SimpleMovingAveragePeriod.GetPeriod(dateRange);
+            response.send(numberOfDays + "");
+        }
+        catch (err)
+        {
+            Log(err, `Can't get moving average period. Wrong date format. Expected /from/to. Error has been logged.`);
+            console.log(`Can't get moving average period. Wrong date format. Expected /from/to. Error has been logged.`);
+        }
     });
 
     // Get KPI
