@@ -8,16 +8,19 @@ const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
 /**
- * B_StoryPointsVsBugsResolvedKpiMapper.
+ * B_BugCreationVelocityKpiMapper.
  * 
- * Days with no data will be treated as zero.
+ * Days with no data will assumed to be zero.
  */
-export class B_StoryPointsVsBugsResolvedKpiMapper extends KpiMapper
+export class B_BugCreationVelocityKpiMapper extends KpiMapper
 {
-    public readonly Title: string = "Story Point Velocity vs Bugs Resolved Velocity";
+    public readonly Title: string = "Bug Creation Velocity";
 
-    private _yAxisTitle: string = "Points per day (higher is better)";
-    private _y2AxisTitle: string = "Bugs resolved per day (higher is better)";
+    private _yAxisTitle: string = "Bugs created per day (lower is better)";
+
+    // Target and stretch goals
+    private _targetGoal: number = kpi.goals.bugs_per_day.target;
+    private _stretchGoal: number = kpi.goals.bugs_per_day.stretch;
 
     /**
      * Returns an array of SQL query strings given a date range.
@@ -32,59 +35,36 @@ export class B_StoryPointsVsBugsResolvedKpiMapper extends KpiMapper
         var movingAveragePeriod: number = SimpleMovingAveragePeriod.GetPeriod(dateRange);
         var nPrevDays: number = movingAveragePeriod - 1;
         var generateDatesSubquery: string = GenerateDatesSubquery.GetQuery(from, to);
-        var dailyAvgStoryPointsSubquery: string =
+        var dailyMajorBugsCreatedSubquery: string =
         `(
-            SELECT RESOLUTION_DATE
-                  ,AVG(STORY_POINTS) AS 'AVG_STORY_POINTS'
-            FROM ${config.db.tablename.resolved_story_points}
-            WHERE RESOLUTION_DATE BETWEEN
-                  DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}'
-            GROUP BY RESOLUTION_DATE
-        )`;
-        var dailyMajorBugsResolvedSubquery: string =
-        `(
-            SELECT RESOLUTION_DATE
-                  ,COUNT(*) AS 'BUGS_RESOLVED'
+            SELECT CREATION_DATE
+                  ,COUNT(*) AS 'BUGS_CREATED'
             FROM ${config.db.tablename.bug_resolution_dates}
-            WHERE (RESOLUTION_DATE BETWEEN
+            WHERE (CREATION_DATE BETWEEN
                   DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}')
               AND PRIORITY = 'Major'
-            GROUP BY RESOLUTION_DATE
+            GROUP BY CREATION_DATE
         )`;
-        var dailyCriticalBugsResolvedSubquery: string =
+        var dailyCriticalBugsCreatedSubquery: string =
         `(
-            SELECT RESOLUTION_DATE
-                  ,COUNT(*) AS 'BUGS_RESOLVED'
+            SELECT CREATION_DATE
+                  ,COUNT(*) AS 'BUGS_CREATED'
             FROM ${config.db.tablename.bug_resolution_dates}
-            WHERE (RESOLUTION_DATE BETWEEN
+            WHERE (CREATION_DATE BETWEEN
                   DATE_SUB('${from}', INTERVAL ${nPrevDays} DAY) AND '${to}')
               AND PRIORITY = 'Critical'
-            GROUP BY RESOLUTION_DATE
+            GROUP BY CREATION_DATE
         )`;
         return [
-            // Story Points Velocity
-            `
-                SELECT D1.DATE AS 'DATE'
-                      ,IFNULL(SUM(T2.AVG_STORY_POINTS), 0)/${movingAveragePeriod} AS 'AVG_VALUE'
-                FROM ${generateDatesSubquery} D1
-                  LEFT JOIN ${dailyAvgStoryPointsSubquery} T1
-                    ON T1.RESOLUTION_DATE = D1.DATE
-                  LEFT JOIN ${dailyAvgStoryPointsSubquery} T2
-                    ON T2.RESOLUTION_DATE BETWEEN
-                    DATE_SUB(D1.DATE, INTERVAL ${nPrevDays} DAY) AND D1.DATE
-                WHERE D1.DATE BETWEEN '${from}' AND '${to}'
-                GROUP BY DATE
-                ORDER BY DATE ASC
-            `,
             // Major Bugs Resolved Velocity
             `
                 SELECT D1.DATE AS 'DATE'
-                      ,IFNULL(SUM(T2.BUGS_RESOLVED), 0)/${movingAveragePeriod} AS 'AVG_VALUE'
+                      ,IFNULL(SUM(T2.BUGS_CREATED), 0)/${movingAveragePeriod} AS 'AVG_VALUE'
                 FROM ${generateDatesSubquery} D1
-                  LEFT JOIN ${dailyMajorBugsResolvedSubquery} T1
-                    ON T1.RESOLUTION_DATE = D1.DATE
-                  LEFT JOIN ${dailyMajorBugsResolvedSubquery} T2
-                    ON T2.RESOLUTION_DATE BETWEEN
+                  LEFT JOIN ${dailyMajorBugsCreatedSubquery} T1
+                    ON T1.CREATION_DATE = D1.DATE
+                  LEFT JOIN ${dailyMajorBugsCreatedSubquery} T2
+                    ON T2.CREATION_DATE BETWEEN
                        DATE_SUB(D1.DATE, INTERVAL ${nPrevDays} DAY) AND D1.DATE
                 WHERE D1.DATE BETWEEN '${from}' AND '${to}'
                 GROUP BY DATE
@@ -93,12 +73,12 @@ export class B_StoryPointsVsBugsResolvedKpiMapper extends KpiMapper
             // Critical Bugs Resolved Velocity
             `
                 SELECT D1.DATE AS 'DATE'
-                      ,IFNULL(SUM(T2.BUGS_RESOLVED), 0)/${movingAveragePeriod} AS 'AVG_VALUE'
+                      ,IFNULL(SUM(T2.BUGS_CREATED), 0)/${movingAveragePeriod} AS 'AVG_VALUE'
                 FROM ${generateDatesSubquery} D1
-                  LEFT JOIN ${dailyCriticalBugsResolvedSubquery} T1
-                    ON T1.RESOLUTION_DATE = D1.DATE
-                  LEFT JOIN ${dailyCriticalBugsResolvedSubquery} T2
-                    ON T2.RESOLUTION_DATE BETWEEN
+                  LEFT JOIN ${dailyCriticalBugsCreatedSubquery} T1
+                    ON T1.CREATION_DATE = D1.DATE
+                  LEFT JOIN ${dailyCriticalBugsCreatedSubquery} T2
+                    ON T2.CREATION_DATE BETWEEN
                        DATE_SUB(D1.DATE, INTERVAL ${nPrevDays} DAY) AND D1.DATE
                 WHERE D1.DATE BETWEEN '${from}' AND '${to}'
                 GROUP BY DATE
@@ -151,16 +131,15 @@ export class B_StoryPointsVsBugsResolvedKpiMapper extends KpiMapper
     protected mapToKpiStateOrNull(jsonArrays: Array<any>[]): IKpiState|null
     {
         // Invalid; Requires at least 2 data points
-        if (jsonArrays[0].length < 2 && jsonArrays[1].length < 2 && jsonArrays[3].length < 2)
+        if (jsonArrays[0].length < 2 && jsonArrays[1].length < 2)
         {
             return null;
         }
 
         // map traces line to charts data for Plotly to consume
         var chartsData: any = [];
-        this.addTraceLineToChart("Story Points", "y", jsonArrays[0], chartsData);
-        this.addTraceLineToChart("Major Bugs", "y2", jsonArrays[1], chartsData);
-        this.addTraceLineToChart("Critical Bugs", "y2", jsonArrays[2], chartsData);
+        this.addTraceLineToChart("Major Bugs", "y", jsonArrays[0], chartsData);
+        this.addTraceLineToChart("Critical Bugs", "y", jsonArrays[1], chartsData);
 
         // Return Plotly.js consumable
         return {
@@ -171,7 +150,7 @@ export class B_StoryPointsVsBugsResolvedKpiMapper extends KpiMapper
                 legend: Plotly.GetLegendInfo(),
                 xaxis: Plotly.GetDateXAxis(this.chartFromDate, this.chartToDate),
                 yaxis: Plotly.GetYAxis(this._yAxisTitle),
-                yaxis2: Plotly.GetY2Axis(this._y2AxisTitle),
+                shapes: Plotly.GetShapesFromGoals(this._targetGoal, this._stretchGoal)
             },
             frames: [],
             config: {

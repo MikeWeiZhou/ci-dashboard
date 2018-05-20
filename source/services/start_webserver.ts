@@ -101,7 +101,7 @@ export function start_webserver(storage: IDataStorage): void
 
         response.send
         ({
-            title: request.params.category.replace('_', ' '),
+            title: request.params.category.replace(/_/g, ' '),
             kpis: Object.keys(kpilist[request.params.category])
         });
     });

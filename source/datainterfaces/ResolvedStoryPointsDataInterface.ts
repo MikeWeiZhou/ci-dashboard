@@ -21,7 +21,6 @@ export class ResolvedStoryPointsDataInterface implements IDataInterface
     public readonly TableColumns: Array<string> =
     [
         "STORY_ID",
-        "CYCLE",
         "RESOLUTION_DATE",
         "STORY_POINTS"
     ];
@@ -37,7 +36,6 @@ export class ResolvedStoryPointsDataInterface implements IDataInterface
     {
         return [
             o.key,                  // STORY_ID
-            o.key.substring(0, 6),  // CYCLE
             moment(o.value.resolution_date).format(config.dateformat.mysql), // RESOLUTION_DATE
             o.value.story_points,   // STORY_POINTS
         ];

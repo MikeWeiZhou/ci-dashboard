@@ -47,7 +47,6 @@ sqlqueries.setup =
     `CREATE TABLE IF NOT EXISTS ${config.db.tablename.bug_resolution_dates}
     (
         BUG_ID          VARCHAR(15) NOT NULL PRIMARY KEY,
-        PRODUCT         VARCHAR(15) NOT NULL,
         PRIORITY        VARCHAR(20) NOT NULL,
         CREATION_DATE   DATETIME    NOT NULL,
         RESOLUTION_DATE DATETIME
@@ -59,7 +58,6 @@ sqlqueries.setup =
     `CREATE TABLE IF NOT EXISTS ${config.db.tablename.resolved_story_points}
     (
         STORY_ID        VARCHAR(15) NOT NULL PRIMARY KEY,
-        CYCLE           CHAR(6)     NOT NULL,
         RESOLUTION_DATE DATETIME    NOT NULL,
         STORY_POINTS    FLOAT
     )`,

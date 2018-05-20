@@ -3,11 +3,11 @@ import { BuildSuccessRateSegmentKpiMapper } from "../BuildSuccessRateSegmentKpiM
 import { IKpiState } from "../IKpiState"
 
 /**
- * B_BuildSuccessRatePlatformKpiMapper.
+ * D_BuildSuccessRatePlatformKpiMapper.
  * 
  * Days with no data will not be plotted (ignored).
  */
-export class B_BuildSuccessRatePlatformKpiMapper extends BuildSuccessRateSegmentKpiMapper
+export class D_BuildSuccessRatePlatformKpiMapper extends BuildSuccessRateSegmentKpiMapper
 {
     protected groupByColumn: string = "PLATFORM_NAME";
     protected filterColumn: string = "";

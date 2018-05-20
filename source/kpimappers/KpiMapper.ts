@@ -57,7 +57,8 @@ export abstract class KpiMapper
 
         var sqls: string[] = this.getQueryStrings
         (
-            fromDate.format(config.dateformat.mysql),
+            // -1 day to fromDate to fix Plotly indentation issues
+            fromDate.subtract(2, "day").format(config.dateformat.mysql),
             toDate.format(config.dateformat.mysql),
             KpiMapper.GetDateRange(from, to)
         );

@@ -2,37 +2,64 @@
 
 BCIT ISSP 2018 spring project - ***REMOVED*** CI Dashboard
 
+1. Installation
+2. Configuration Files
+3. KPI Chart Logic
+4. Unit Tests
+5. NPM Commands
+6. Directory Structure
+7. Included Documentations
 
-## 1. Latest Prototype (Tuesday May 9th, 2018 2:10 PM)
-From an end-user perspective, currently the prototype has the basic client-server architecture setup and is functional.
+## 0. Prototype Update (Sat May 19, 2018 11:59 PM)
 
-* The team is working on different ways of visualizing the data **(priority)**
-* The pipeline from data source (e.g. python script) to the REST API serving KPI states **is working and in refinement/bug fixing**
-* Front-end currently requests data from the backend via API (with customizable date ranges) and generates the KPI graphs dynamically
-* Currently we are making front-end data visualization layer more modular so when a new KPI is added in the back-end the UI will automatically update to show the new KPI **work in progress**
-* More unit tests are on the way
+Since the last prototype:
 
-### Installation
+* Refined UI and added moving average period display
+* Made KPI mappers more consistent in the code and in the view
+* Better in-code comments of existing KPI mappers so they can serve as templates
+* Bug fixes to both front- and back-end
+
+There has been major changes including database schema update since last prototype, run command **npm run reset-all** to drop database tables and re-setup everything.
+
+## 1. Installation
 
 * Clone git repository on the **prototype** branch, our latest working prototype
 * Install and setup required software as described in *docs/howto_setup_and_run_dashboard.md*
-* Open command line/bash and change directory to root of project
 
-### Run CI Dashboard
+## 2. Configuration Files
 
-* Run command: *npm run start*
-* Then visit http://localhost for data visualization
-* Or visit http://localhost/kpi/qa/overall_builds_success/2001-01-10/2018-09-10 as the example REST API route
+The "config" directory contains configuration settings for the CI Dashbaord. A restart of the server must be completed before changes will take effect.
 
-### Run Unit Tests
+* **config.js** pipeline, web server, error logging, date formats
+* **config.db.js** database connection, table names
+* **kpi.js** KPI goals and moving average settings
+* **schedules.js** data collection scheduling
+* **sqlqueries.js** required for setting up and updating database
+
+## 3. KPI Chart Logic
+
+All the KPI charts uses a simple moving average. For example, if the moving average period is 30 days, then each data point on the chart is an average (equally weighted per day) of 29 days before and the current day.
+
+### Missing Data
+
+Some charts will ignore (not plot) the missing data, and some will zero out the missing data points.
+
+* All the build time and build success rate charts **ignores** missing data
+* Defects: Bug Resolution Velocity, Bug Creation Velocity, Bug Resolution-Creation Difference all **zeroes** missing data
+* Defects: Days To Resolve Bugs charts **ignores** missing data
+* All charts in User Stories category **zeroes** missing data
+
+Number of previous day data required per point on the chart is calculated by Math.floor(MovingAveragePeriod/2)
+
+## 4. Unit Tests
 
 * Run command: *npm run test*
 * ^ Builds and runs unit test on the back-end
 
-
-## 2. NPM Commands
+## 5. NPM Commands
 These commands are mainly for easier development and testing. **DB Note**: If database model changes, old tables must be dropped/changed first.
 
+* **npm run reset-all** deletes db tables and re-setup everything
 * **npm run setup** installs node dependencies, builds front and back-end, and setup database
 * **npm run setup-front** setup front-end only
 * **npm run setup-back** setup back-end only, including the database
@@ -50,15 +77,21 @@ These commands are mainly for easier development and testing. **DB Note**: If da
 ***
 * **npm run test** builds the back-end and runs unit tests on the back-end
 
-
-## 3. Directory Structure
+## 6. Directory Structure
 
 * **build** Javascript compiled from Typescript. Includes react front-end and unit tests.
-* **codesnippets** Code snippets/experiments. This is purely for developers.
 * **config** Configuration files.
 * **data** Sample data files.
 * **docs** Holds all the documentation and how-to's.
 * **logs** Server error logs organized by date and time.
-* **plotly-demo** Plotly.js experimentation. Front-end library.
 * **react-app** React application. Front-end view server when run in development mode.
 * **source** Typescript source. Includes unit tests.
+* **old_demo** Old demo files. Deprecated.
+
+## 7. Included Documentations
+
+The folder "docs" includes these documentations:
+
+* How To Setup And Run Dashboard
+* How To Add Data Source
+* How To Add KPI Chart

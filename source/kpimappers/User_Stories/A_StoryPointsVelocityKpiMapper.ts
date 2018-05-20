@@ -3,6 +3,7 @@ import { KpiMapper } from "../KpiMapper"
 import { IKpiState } from "../IKpiState"
 import { SimpleMovingAveragePeriod } from "../SimpleMovingAveragePeriod"
 import { GenerateDatesSubquery } from "../GenerateDatesSubquery"
+import { Plotly } from "../Plotly"
 const kpi = require("../../../config/kpi")
 const config = require("../../../config/config")
 
@@ -14,6 +15,12 @@ const config = require("../../../config/config")
 export class A_StoryPointsVelocityKpiMapper extends KpiMapper
 {
     public readonly Title: string = "Story Points Velocity";
+
+    private _yAxisTitle: string = "Points per day (higher is better)";
+
+    // Target and stretch goals
+    private _targetGoal: number = kpi.goals.story_points_velocity.target_annual/365;
+    private _stretchGoal: number = kpi.goals.story_points_velocity.stretch_annual/365;
 
     /**
      * Returns an array of SQL query strings given a date range.
@@ -66,68 +73,31 @@ export class A_StoryPointsVelocityKpiMapper extends KpiMapper
             return null;
         }
 
-        var x: any = [];
-        var y: any = [];
+        // generate trace line
+        var traceLine: any = Plotly.GetTraceLineData
+        (
+            "Story Points", // title
+            [],             // empty array
+            [],             // empty array
+        );
+
+        // add x, y values to trace line
         for (let result of jsonArrays[0])
         {
-            x.push(result.DATE);
-            y.push(result.AVG_STORY_POINTS);
+            traceLine.x.push(result.DATE);
+            traceLine.y.push(result.AVG_STORY_POINTS);
         }
 
         // Return Plotly.js consumable
         return {
-            data: [{
-                x: x,
-                y: y,
-                type: "scatter",
-                mode: "lines",
-                line: {
-                    "shape": "spline",
-                    "smoothing": 1.3
-                }
-            }],
+            data: [traceLine],
             layout: {
                 title: this.Title,
-                xaxis: {
-                    title: "Date",
-                    fixedrange: true,
-                    range: [this.chartFromDate, this.chartToDate]
-                },
-                yaxis: {
-                    title: "Average story points / day",
-                    fixedrange: true,
-                    rangemode: "nonnegative"
-                },
-                shapes: [
-                    // Annual Target Line
-                    {
-                        type: 'line',
-                        xref: 'paper',
-                        x0: 0,
-                        x1: 1,
-                        y0: kpi.goals.story_points_velocity.target_annual/365,
-                        y1: kpi.goals.story_points_velocity.target_annual/365,
-                        line: {
-                            color: 'rgb(0, 255, 0)',
-                            width: 4,
-                            dash:'dot'
-                        }
-                    },
-                    // Annual Stretch Goal Line
-                    {
-                        type: 'line',
-                        xref: 'paper',
-                        x0: 0,
-                        x1: 1,
-                        y0: kpi.goals.story_points_velocity.stretch_annual/365,
-                        y1: kpi.goals.story_points_velocity.stretch_annual/365,
-                        line: {
-                            color: 'gold',
-                            width: 4,
-                            dash:'dot'
-                        }
-                    }
-                ]
+                showlegend: true,
+                legend: Plotly.GetLegendInfo(),
+                xaxis: Plotly.GetDateXAxis(this.chartFromDate, this.chartToDate),
+                yaxis: Plotly.GetYAxis(this._yAxisTitle),
+                shapes: Plotly.GetShapesFromGoals(this._targetGoal, this._stretchGoal)
             },
             frames: [],
             config: {

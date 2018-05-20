@@ -3,14 +3,14 @@ import { BuildSuccessRateSegmentKpiMapper } from "../BuildSuccessRateSegmentKpiM
 import { IKpiState } from "../IKpiState"
 
 /**
- * C_BuildSuccessRateProductKpiMapper.
+ * D_BuildSuccessRatePlatformKpiMapper.
  * 
  * Days with no data will not be plotted (ignored).
  */
-export class C_BuildSuccessRateProductKpiMapper extends BuildSuccessRateSegmentKpiMapper
+export class D_BuildSuccessRatePlatformKpiMapper extends BuildSuccessRateSegmentKpiMapper
 {
-    protected groupByColumn: string = "PRODUCT_NAME";
+    protected groupByColumn: string = "PLATFORM_NAME";
     protected filterColumn: string = "";
     protected filterValue: string = "";
-    public readonly Title: string = `Build Success Rate Per Product`;
+    public readonly Title: string = `Build Success Rate Per Platform`;
 }

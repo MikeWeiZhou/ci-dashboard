@@ -21,7 +21,6 @@ export class BugResolutionDatesDataInterface implements IDataInterface
     public readonly TableColumns: Array<string> =
     [
         "BUG_ID",
-        "PRODUCT",
         "PRIORITY",
         "CREATION_DATE",
         "RESOLUTION_DATE"
@@ -42,7 +41,6 @@ export class BugResolutionDatesDataInterface implements IDataInterface
 
         return [
             o.key,                  // BUG_ID
-            o.key.split('-')[0],    // PRODUCT
             o.value.priority,       // PRIORITY
             moment(o.value.creation_date).format(config.dateformat.mysql),  // CREATION_DATE
             resolutionDate          // RESOLUTION_DATE

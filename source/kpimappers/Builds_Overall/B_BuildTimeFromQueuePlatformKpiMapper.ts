@@ -3,14 +3,14 @@ import { BuildTimeFromQueueSegmentKpiMapper } from "../BuildTimeFromQueueSegment
 import { IKpiState } from "../IKpiState"
 
 /**
- * A_BuildTimeFromQueueCycleKpiMapper.
+ * B_BuildTimeFromQueuePlatformKpiMapper.
  * 
  * Days with no data will not be plotted (ignored).
  */
-export class A_BuildTimeFromQueueCycleKpiMapper extends BuildTimeFromQueueSegmentKpiMapper
+export class B_BuildTimeFromQueuePlatformKpiMapper extends BuildTimeFromQueueSegmentKpiMapper
 {
-    protected groupByColumn: string = "CYCLE";
+    protected groupByColumn: string = "PLATFORM_NAME";
     protected filterColumn: string = "";
     protected filterValue: string = "";
-    public readonly Title: string = `Build Time From Queue Per Cycle (successful builds)`;
+    public readonly Title: string = `Build Time Including Queue Per Platform (successful builds)`;
 }

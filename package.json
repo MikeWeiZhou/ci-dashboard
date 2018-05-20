@@ -3,6 +3,7 @@
   "description": "Continuous Integration Dashboard for ***REMOVED*** Inc.",
   "version": "1.0.0",
   "scripts": {
+    "reset-all": "node build/scripts/dropdb && npm run setup",
     "setup": "npm run setup-front && npm run setup-back",
     "setup-front": "cd react-app && npm install && cd .. && npm run build-front",
     "setup-back": "npm install && npm run build-back && npm run setup-db",

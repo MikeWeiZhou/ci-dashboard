@@ -46,8 +46,8 @@ kpi.goals =
     // Targets for difference (resolved - created) annually
     bugs_rc_difference:
     {
-        target: 100,
-        stretch: 200
+        target_annual: 100,
+        stretch_annual: 200
     },
 
     // Days to resolve major bugs
