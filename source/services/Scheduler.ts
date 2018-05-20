@@ -202,7 +202,7 @@ export class Scheduler
     private async updateDataToDateInDb(schedule: ISchedule): Promise<boolean>
     {
         var results: any;
-        var date: string = moment(schedule.DataToDate).format(config.dateformat.mysql);
+        var date: string = moment(schedule.DataToDate).format(config.dateformat.mysql_tracker);
         var query: string = `UPDATE ${config.db.tablename.data_source_tracker}
                              SET TO_DATE = '${date}'
                              WHERE TABLE_NAME = '${schedule.DataInterface.TableName}'`;

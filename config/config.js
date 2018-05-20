@@ -75,10 +75,16 @@ config.log =
 */
 config.dateformat =
 {
-    // used for querying and inserting dates into MySQL database
+    // Used by KPI mappers, do not add hour/minute/second or the
+    // sql queries will give errored results
     mysql: "YYYY-MM-DD",
 
+    // Used the the data source date tracker
+    // Must have more fine grained info such as hour/minute/second
+    mysql_tracker: "YYYY-MM-DD HH:mm:ss",
+
     // used for communication with python scripts
+    // can be as fine grained as mysql_tracker
     python: "YYYY-MM-DD",
 
     // used for date input for Plot.ly charts

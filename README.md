@@ -10,7 +10,7 @@ BCIT ISSP 2018 spring project - ***REMOVED*** CI Dashboard
 6. Directory Structure
 7. Included Documentations
 
-## 0. Prototype Update (Sun May 20, 2018 8:24 AM)
+## 0. Prototype Update (Sun May 20, 2018 9:00 AM)
 
 Since the last prototype:
 
@@ -19,6 +19,7 @@ Since the last prototype:
 * Better in-code comments of existing KPI mappers so they can serve as templates
 * More documentation on how to add KPI mappers
 * Bug fixes to both front- and back-end
+* By default, the python date range sent only has the year-month-date, but it can be set to send the hour-minute-seconds as well in the config.js dateformat.python property
 
 There has been major changes including database schema update since last prototype, run command **npm run reset-all** to drop database tables and re-setup everything.
 
