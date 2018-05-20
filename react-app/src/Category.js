@@ -21,8 +21,8 @@ class Category extends Component {
 
     // Only request data if props is updated
     if (prevProps.startDate !== this.props.startDate) {
-      console.log(`Category.js - prevProp.startDate = ${prevProps.startDate}`);
-      console.log(`Category.js - this.props.startDate = ${this.props.startDate}`);
+      // console.log(`Category.js - prevProp.startDate = ${prevProps.startDate}`);
+      // console.log(`Category.js - this.props.startDate = ${this.props.startDate}`);
       this.requestKPICategoryDetails();
     }
   }

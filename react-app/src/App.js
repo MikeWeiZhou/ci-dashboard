@@ -8,7 +8,8 @@ class App extends Component {
     this.state = {
       categories: {},
       startDate: "",
-      endDate: ""
+      endDate: "",
+      movAvgPeriod: null
     };
 
     // Bind functions to class
@@ -21,12 +22,15 @@ class App extends Component {
   // Called after component is mounted
   componentDidMount() {
     this.setDateRange_7d();
-    this.requestKPICategories();
+    this.requestKPICategories();    
   }
 
-  componentDidUpdate(prevState) {
-    console.log("App.js - startDate: %s, endDate: %s", this.state.startDate, this.state.endDate);
-    console.log(this.state.categories);
+  componentDidUpdate(prevProps, prevState) {
+    // console.log("App.js - startDate: %s, endDate: %s", this.state.startDate, this.state.endDate);
+    // console.log(this.state.categories);
+    // console.log(prevState);
+    if (prevState.movAvgPeriod == null || this.state.movAvgPeriod == null)
+      this.requestMovingAveragePeriod();    
   }
   
   render() {
@@ -86,6 +90,7 @@ class App extends Component {
           <label className="btn btn-outline-primary" onClick={() => this.setDateRange_all()}>
             <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option5" />all
           </label>
+          <div className="justify-content-end">Moving average period: {this.state.movAvgPeriod}</div> 
         </div>
         <div className="tab-content">
           {categoryPanes}
@@ -123,11 +128,35 @@ class App extends Component {
     }
   }
 
+  async requestMovingAveragePeriod() {
+    var url = `getkpimovingaverageperiod/${this.state.startDate}/${this.state.endDate}`;
+
+    try{
+      // GET request to retrieve data
+      var res = await fetch(url);
+      var resJSON = {};
+
+      if (res.ok) {
+        // GET request to retrieve data
+        resJSON = await res.json();
+        this.setState({
+          movAvgPeriod: resJSON
+        });
+
+      } else {
+        resJSON = await res.json();
+        console.log(`Failed request - url: ${res.url}, status: ${res.status}`);
+        console.log(resJSON);
+      }
+    } catch (error) {
+      console.log(error.message);      
+    }
+  }
+
   setTabText(catKey, newText) {
     this.setState((prevState) => {
       prevState.categories[catKey] = newText;
     });
-    // this.forceUpdate();
   }
 
   setDateRange(start, end) {
@@ -142,7 +171,7 @@ class App extends Component {
     var start = new Date(end.toDateString());
     
     start.setDate(start.getDate() - 6);
-    this.setState({startDate: start.toDateString(), endDate: end.toDateString()});
+    this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
   }
 
   setDateRange_14d() {
@@ -153,7 +182,7 @@ class App extends Component {
     var start = new Date(end.toDateString());
     
     start.setDate(start.getDate() - 13);
-    this.setState({startDate: start.toDateString(), endDate: end.toDateString()});
+    this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
   }
 
   setDateRange_1m() {
@@ -164,7 +193,8 @@ class App extends Component {
     var start = new Date(end.toDateString());
 
     start.setMonth(start.getMonth() - 1);
-    this.setState({startDate: start.toDateString(), endDate: end.toDateString()});
+    this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
+    this.requestMovingAveragePeriod();
   }
 
   setDateRange_3m() {
@@ -175,7 +205,7 @@ class App extends Component {
     var start = new Date(end.toDateString());
 
     start.setMonth(start.getMonth() - 3);
-    this.setState({startDate: start.toDateString(), endDate: end.toDateString()});
+    this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
   }
 
   setDateRange_6m() {
@@ -186,7 +216,7 @@ class App extends Component {
     var start = new Date(end.toDateString());
 
     start.setMonth(start.getMonth() - 6);
-    this.setState({startDate: start.toDateString(), endDate: end.toDateString()});
+    this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
   }
 
   setDateRange_1y() {
@@ -197,7 +227,7 @@ class App extends Component {
     var start = new Date(end.toDateString());
 
     start.setFullYear(start.getFullYear() - 1);
-    this.setState({startDate: start.toDateString(), endDate: end.toDateString()});
+    this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
   }
 
   setDateRange_ytd() {
@@ -209,14 +239,14 @@ class App extends Component {
 
     start.setMonth(0);
     start.setDate(1);
-    this.setState({startDate: start.toDateString(), endDate: end.toDateString()});
+    this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
   }
 
   setDateRange_all() {
     // var end = new Date();
     var end = this.tempEndDate;    
     var start = "2017-01-01";
-    this.setState({startDate: start, endDate: end.toDateString()});
+    this.setState({startDate: start, endDate: end.toDateString(), movAvgPeriod: null});
   }
 }
 
