@@ -1,6 +1,6 @@
 {
   "name": "cidashboard",
-  "description": "Continuous Integration Dashboard for ***REMOVED*** Inc.",
+  "description": "Continuous Integration Dashboard",
   "version": "1.0.0",
   "scripts": {
     "reset-all": "node build/scripts/dropdb && npm run setup",
