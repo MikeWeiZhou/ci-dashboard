@@ -31,6 +31,10 @@ There has been major changes including database schema update since last prototy
 * Clone git repository on the **prototype** branch, our latest working prototype
 * Install and setup required software as described in *docs/howto_setup_and_run_dashboard.md*
 
+NOTE: Use the build in the  **master** branch when integrating the project with live data sources. The dashboard date ranges are calculated dynamically based on the system date (except date range "all").
+
+(The 'develop', 'prototype', and 'demo' branches have a hard-coded end date for all date ranges set to 2018-04-01 due to available sample data)
+
 ## 2. Configuration Files
 
 The "config" directory contains configuration settings for the CI Dashbaord back-end. A restart of the server must be completed before changes will take effect. Re-compilation/re-building code is not necessary.
@@ -41,12 +45,6 @@ The "config" directory contains configuration settings for the CI Dashbaord back
 * **config.kpi.js** KPI goals and moving average settings
 * **schedules.js** data collection scheduling
 * **sqlqueries.js** required for setting up and updating database
-
-The **react-app/src/config.react.js** file contains the following settings for the React front-end:
-* Date range "all" start date
-* Auto update timer interval
-* Enable/disable auto play (cycle through tabs) on app launch
-* Auto play timer interval
 
 ## 3. KPI Chart Logic
 
@@ -96,7 +94,7 @@ These commands are mainly for easier development and testing. **DB Note**: If da
 * **data** Sample data files.
 * **docs** Holds all the documentation and how-to's.
 * **logs** Server error logs organized by date and time.
-* **react-app** React application. Front-end view server when run in development mode.
+* **react-app** React dashboard application. Front-end view server when run in development mode.
 * **source** Typescript source. Includes unit tests.
 
 ## 7. Included Documentations
@@ -111,3 +109,5 @@ The folder "docs" includes these documentations:
 
 The dashboard is able to display additional charts per row by decreasing the zoom level.
 The React front-end is built responsively and will resize the menu bar to accomodate smaller zoom levels.
+
+NOTE: A limitation of the dashboard is the start date for date range "all" is hard-coded. This setting can be found in the config.dashboard.js file.
