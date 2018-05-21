@@ -1,8 +1,14 @@
 var config_dashboard = {}
 
-/******************************************
- * CONFIGURATIONS FOR THE REACT DASHBOARD *
- ******************************************/
+/************************************************
+ * CONFIGURATIONS FOR THE REACT DASHBOARD       *
+ *                                              *
+ * WARNING:                                     *
+ *                                              *
+ * If you change any settings here,             *
+ * you must recompile the front-end             *
+ * using the command "npm run build-front"      *
+ ************************************************/
 
 config_dashboard = {
 
