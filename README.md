@@ -11,7 +11,7 @@ BCIT ISSP 2018 spring project - ***REMOVED*** CI Dashboard
 7. Included Documentations
 8. React app
 
-## 0. Prototype Update (Sun May 21, 2018 9:00 AM)
+## 0. Prototype Update (Sun May 21, 2018 1:30 PM)
 
 Since the last prototype:
 
@@ -22,7 +22,7 @@ Since the last prototype:
 * More documentation on how to add KPI mappers
 * Bug fixes to both front- and back-end
 * By default, the python date range sent only has the year-month-date, but it can be set to send the hour-minute-seconds as well in the config.js dateformat.python property
-* Added config file for React app (note that due to create-react-app default restrictions, the config file path is react-app/src/config.react.js)
+* Added config file for React app
 
 There has been major changes including database schema update since last prototype, run command **npm run reset-all** to drop database tables and re-setup everything.
 
@@ -36,8 +36,9 @@ There has been major changes including database schema update since last prototy
 The "config" directory contains configuration settings for the CI Dashbaord back-end. A restart of the server must be completed before changes will take effect. Re-compilation/re-building code is not necessary.
 
 * **config.js** pipeline, web server, error logging, date formats
+* **config.dashboard.js** front-end dashboard config
 * **config.db.js** database connection, table names
-* **kpi.js** KPI goals and moving average settings
+* **config.kpi.js** KPI goals and moving average settings
 * **schedules.js** data collection scheduling
 * **sqlqueries.js** required for setting up and updating database
 
