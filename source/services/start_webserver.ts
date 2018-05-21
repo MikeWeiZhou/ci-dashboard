@@ -87,7 +87,12 @@ export function start_webserver(storage: IDataStorage): void
     // Get KPI Categories
     webServer.get("/getkpicategories", (request: express.Request, response: express.Response) =>
     {
-        response.send(Object.keys(kpilist));
+        var cats: object = {};
+        for (let cat of Object.keys(kpilist))
+        {
+            cats[cat] = cat.replace(/_/g, ' ');
+        }
+        response.send(cats);
     });
 
     // Get KPI Category Details
@@ -99,11 +104,7 @@ export function start_webserver(storage: IDataStorage): void
             return;
         }
 
-        response.send
-        ({
-            title: request.params.category.replace(/_/g, ' '),
-            kpis: Object.keys(kpilist[request.params.category])
-        });
+        response.send(Object.keys(kpilist[request.params.category]));
     });
 
     // Start listening
