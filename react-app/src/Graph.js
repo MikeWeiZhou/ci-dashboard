@@ -13,8 +13,6 @@ class Graph extends Component {
                     layout={this.props.layout}
                     frames={this.props.frames}
                     config={this.props.config}
-                    // onInitialized={(figure) => this.setState(figure)}
-                    // onUpdate={(figure) => this.setState(figure)}
                 />
         );
       }

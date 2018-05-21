@@ -3,7 +3,6 @@ import KPI from './KPI';
 
 class Category extends Component {
   state = {
-    title: "",
     kpis: []
   }
 
@@ -14,34 +13,29 @@ class Category extends Component {
 
   // Called after component is updated    
   componentDidUpdate(prevProps) {
-    if (prevProps.tabText == null) {
-      // console.log(`Updating tabText`);
-      this.props.setTabText(this.props.category, this.state.title);
-    }
-
     // Only request data if props is updated
-    if (prevProps.startDate !== this.props.startDate) {
-      // console.log(`Category.js - prevProp.startDate = ${prevProps.startDate}`);
-      // console.log(`Category.js - this.props.startDate = ${this.props.startDate}`);
+    if (this.props.updateDashboard || prevProps.startDate !== this.props.startDate) {
       this.requestKPICategoryDetails();
     }
   }
 
   render() {
-    // console.log(`Category render is running`);
     var kpis = [];
     var keyNum = 0;
 
     this.state.kpis.forEach(kpi => {
-      kpis.push(<KPI key={`${this.props.category}${keyNum}`} category={this.props.category} kpi={kpi} startDate={this.props.startDate} endDate={this.props.endDate} />)
+      kpis.push(<KPI key={`${this.props.category}${keyNum}`} category={this.props.category} kpi={kpi} 
+                  startDate={this.props.startDate} endDate={this.props.endDate} updateDashboard={this.props.updateDashboard}/>)
       keyNum++;
     });
 
+    var tabPane = (this.props.active) ? "tab-pane fade active show" : "tab-pane fade";
+
     return(
-      <div className={(this.props.active) ? `tab-pane fade active show` : `tab-pane fade`} id={`${this.props.category}Pane`}  role="tabpanel">
-          <div className="visualizations row justify-content-center">
-              {kpis}
-          </div>
+      <div className={`${tabPane}`} id={`${this.props.category}Pane`}  role="tabpanel">
+        <div className="row d-flex justify-content-center">
+          {kpis}
+        </div>
       </div>
     );
   }
@@ -58,10 +52,7 @@ class Category extends Component {
         // Set state if response is OK
         if (res.ok) {
           resJSON = await res.json();
-          this.setState({
-            title: resJSON.title,
-            kpis: resJSON.kpis
-          });
+          this.setState({ kpis: resJSON });
         } else {
             resJSON = await res.json();
             console.log(`Failed request - url: ${res.url}, status: ${res.status}`);

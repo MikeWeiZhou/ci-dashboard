@@ -12,5 +12,5 @@ export class B_BuildTimeFromQueuePlatformKpiMapper extends BuildTimeFromQueueSeg
     protected groupByColumn: string = "PLATFORM_NAME";
     protected filterColumn: string = "";
     protected filterValue: string = "";
-    public readonly Title: string = `Build Time Including Queue Per Platform (successful builds)`;
+    public readonly Title: string = `Build Time From Queue Per Platform`;
 }

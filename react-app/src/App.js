@@ -1,131 +1,69 @@
 import React, { Component } from "react";
-import Category from "./Category";
+import Dashboard from "./Dashboard";
+import config_dashboard from './config.react';
 
 class App extends Component {
   constructor(props) {
     super(props);
     // Initial state of the component
     this.state = {
-      categories: {},
       startDate: "",
       endDate: "",
-      movAvgPeriod: null
+      movAvgPeriod: null,
+      initialized: false,
+      updateDashboard: false,
+      autoUpdate: true
     };
-
-    // Bind functions to class
-    this.setTabText = this.setTabText.bind(this);
-
+    
+    // Temp end date for demo
     this.tempEndDate = new Date(2018, 3, 1);
-    // console.log(`temp end date: ${this.tempEndDate}`);
+    
+    // Bind functions to class
+    this.setDateRange_by_day = this.setDateRange_by_day.bind(this);
+    this.setDateRange_by_month = this.setDateRange_by_month.bind(this);
+    this.setDateRange_by_year = this.setDateRange_by_year.bind(this);
+    this.setDateRange_ytd = this.setDateRange_ytd.bind(this);
+    this.setDateRange_all = this.setDateRange_all.bind(this);
+    this.triggerUpdate = this.triggerUpdate.bind(this);
+    this.triggerAutoUpdate = this.triggerAutoUpdate.bind(this);
   }
 
   // Called after component is mounted
   componentDidMount() {
-    this.setDateRange_7d();
-    this.requestKPICategories();    
+    this.setDateRange_by_day(7); // Default date range when app is loaded
+    if (this.state.autoUpdate) {
+      this.updateTimer = setInterval(this.triggerUpdate, config_dashboard.auto_update_interval);
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // console.log("App.js - startDate: %s, endDate: %s", this.state.startDate, this.state.endDate);
-    // console.log(this.state.categories);
-    // console.log(prevState);
-    if (prevState.movAvgPeriod == null || this.state.movAvgPeriod == null)
-      this.requestMovingAveragePeriod();    
+    if (!(this.state.initialized))
+      this.requestMovingAveragePeriod();
+
+    if (this.state.initialized 
+      && this.state.movAvgPeriod == null 
+      && prevState.startDate !== this.state.startDate)
+      this.requestMovingAveragePeriod();
+
+    if (this.state.updateDashboard)
+      this.setState({ updateDashboard: false });
   }
   
   render() {
-    // console.log(`App render is running`);
-    var categoryList = [];
-    var categoryPanes = [];
-    var keyNum = 0;
-
-    for (var catKey in this.state.categories) {
-      if (this.state.categories.hasOwnProperty(catKey)){
-        if (keyNum === 0) {
-          categoryList.push(
-            <li key={`li${keyNum}`} className="nav-item">
-              <a className="nav-link active" id={`${catKey}Tab`} data-toggle="pill" href={`#${catKey}Pane`}>{this.state.categories[catKey]}</a>
-            </li>
-          );
-          categoryPanes.push(<Category key={`cat${keyNum}`} active={true} category={catKey} tabText={this.state.categories[catKey]} setTabText={this.setTabText} startDate={this.state.startDate} endDate={this.state.endDate} />);
-        } else {
-          categoryList.push(
-            <li key={`li${keyNum}`} className="nav-item">
-              <a className="nav-link" id={`${catKey}Tab`} data-toggle="pill" href={`#${catKey}Pane`}>{this.state.categories[catKey]}</a>
-            </li>
-          );
-          categoryPanes.push(<Category key={`cat${keyNum}`} active={false} category={catKey} tabText={this.state.categories[catKey]} setTabText={this.setTabText} startDate={this.state.startDate} endDate={this.state.endDate} />);      
-        }
-      }
-      keyNum++;
-    };
-
-    return (
-      <div id="app">
-        <ul className="nav nav-pills row d-flex justify-content-center" id="tablist">
-          {categoryList}
-        </ul>
-        <div className="btn-group btn-group-toggle row d-flex justify-content-center" id="dateSelectionButtons" data-toggle="buttons">
-          <label className="btn btn-outline-primary active" onClick={() => this.setDateRange_7d()}>
-            <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option1" defaultChecked={true} />7d
-          </label>
-          <label className="btn btn-outline-primary" onClick={() => this.setDateRange_14d()}>
-            <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option1" />14d
-          </label>
-          <label className="btn btn-outline-primary" onClick={() => this.setDateRange_1m()}>
-            <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option2" />1m
-          </label>
-          <label className="btn btn-outline-primary" onClick={() => this.setDateRange_3m()}>
-            <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option2" />3m
-          </label>
-          <label className="btn btn-outline-primary" onClick={() => this.setDateRange_6m()}>
-            <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option3" />6m
-          </label>
-          <label className="btn btn-outline-primary" onClick={() => this.setDateRange_1y()}>
-            <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option4" />1y
-          </label>
-          <label className="btn btn-outline-primary" onClick={() => this.setDateRange_ytd()}>
-            <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option5" />ytd
-          </label>
-          <label className="btn btn-outline-primary" onClick={() => this.setDateRange_all()}>
-            <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option5" />all
-          </label>
-          <div className="justify-content-end">Moving average period: {this.state.movAvgPeriod}</div> 
-        </div>
-        <div className="tab-content">
-          {categoryPanes}
-        </div>
-      </div>
-    );
-  }
-
-  async requestKPICategories() {
-    // Construct route
-    var url = `getkpicategories`;
-    
-    try{
-      // GET request to retrieve data
-      var res = await fetch(url);
-      var resJSON = {};
-
-      // Set state if response is OK
-      if (res.ok) {
-        resJSON = await res.json();
-        var newCategories = {};
-        for (var value of resJSON) {          
-          newCategories[value] = null;
-        }
-        this.setState({
-          categories: newCategories
-        });
-      } else {
-        resJSON = await res.json();
-        console.log(`Failed request - url: ${res.url}, status: ${res.status}`);
-        console.log(resJSON);
-      }
-    } catch (error) {
-      console.log(error.message);      
-    }
+    return <Dashboard
+            startDate={this.state.startDate}
+            endDate={this.state.endDate}
+            movAvgPeriod={this.state.movAvgPeriod}
+            updateDashboard={this.state.updateDashboard}
+            autoUpdate={this.state.autoUpdate}
+            setDateRange_by_day={this.setDateRange_by_day}
+            setDateRange_by_month={this.setDateRange_by_month}
+            setDateRange_by_year={this.setDateRange_by_year}
+            setDateRange_ytd={this.setDateRange_ytd}
+            setDateRange_all={this.setDateRange_all}
+            triggerUpdate={this.triggerUpdate}
+            triggerAutoUpdate={this.triggerAutoUpdate}
+            />;
   }
 
   async requestMovingAveragePeriod() {
@@ -139,10 +77,16 @@ class App extends Component {
       if (res.ok) {
         // GET request to retrieve data
         resJSON = await res.json();
-        this.setState({
-          movAvgPeriod: resJSON
-        });
-
+        if (this.state.initialized) {
+          this.setState({
+            movAvgPeriod: resJSON
+          });
+        } else {
+          this.setState({
+            movAvgPeriod: resJSON,
+            initialized: true
+          });
+        }
       } else {
         resJSON = await res.json();
         console.log(`Failed request - url: ${res.url}, status: ${res.status}`);
@@ -153,80 +97,40 @@ class App extends Component {
     }
   }
 
-  setTabText(catKey, newText) {
-    this.setState((prevState) => {
-      prevState.categories[catKey] = newText;
-    });
-  }
-
   setDateRange(start, end) {
     this.setState({startDate: start, endDate: end});
   }
 
-  setDateRange_7d() {
+  setDateRange_by_day(day) {
     // var end = new Date();
     // var start = new Date();
 
     var end = this.tempEndDate;
     var start = new Date(end.toDateString());
     
-    start.setDate(start.getDate() - 6);
+    start.setDate(start.getDate() - (day - 1));
     this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
   }
 
-  setDateRange_14d() {
-    // var end = new Date(); 
-    // var start = new Date();
-
-    var end = this.tempEndDate;
-    var start = new Date(end.toDateString());
-    
-    start.setDate(start.getDate() - 13);
-    this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
-  }
-
-  setDateRange_1m() {
+  setDateRange_by_month(month) {
     // var end = new Date(); 
     // var start = new Date();
 
     var end = this.tempEndDate;
     var start = new Date(end.toDateString());
 
-    start.setMonth(start.getMonth() - 1);
+    start.setMonth(start.getMonth() - month);
     this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
-    this.requestMovingAveragePeriod();
   }
 
-  setDateRange_3m() {
+  setDateRange_by_year(year) {
     // var end = new Date();   
     // var start = new Date();
 
     var end = this.tempEndDate;
     var start = new Date(end.toDateString());
 
-    start.setMonth(start.getMonth() - 3);
-    this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
-  }
-
-  setDateRange_6m() {
-    // var end = new Date();  
-    // var start = new Date();
-
-    var end = this.tempEndDate;
-    var start = new Date(end.toDateString());
-
-    start.setMonth(start.getMonth() - 6);
-    this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
-  }
-
-  setDateRange_1y() {
-    // var end = new Date();   
-    // var start = new Date();
-
-    var end = this.tempEndDate;
-    var start = new Date(end.toDateString());
-
-    start.setFullYear(start.getFullYear() - 1);
+    start.setFullYear(start.getFullYear() - year);
     this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
   }
 
@@ -245,8 +149,22 @@ class App extends Component {
   setDateRange_all() {
     // var end = new Date();
     var end = this.tempEndDate;    
-    var start = "2017-01-01";
+    var start = config_dashboard.date_range_all_startDate;
     this.setState({startDate: start, endDate: end.toDateString(), movAvgPeriod: null});
+  }
+
+  triggerUpdate() {
+    this.setState({ updateDashboard: true }); 
+  }
+
+  triggerAutoUpdate() {
+    if (this.state.autoUpdate) {
+      this.setState({ autoUpdate: false })
+      clearInterval(this.updateTimer);
+    } else {
+      this.setState({ autoUpdate: true });
+      this.updateTimer = setInterval(this.triggerUpdate, config_dashboard.auto_update_interval); 
+    }
   }
 }
 

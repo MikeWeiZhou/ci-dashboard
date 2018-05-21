@@ -12,5 +12,5 @@ export class A_BuildTimeFromQueueCycleKpiMapper extends BuildTimeFromQueueSegmen
     protected groupByColumn: string = "CYCLE";
     protected filterColumn: string = "";
     protected filterValue: string = "";
-    public readonly Title: string = `Build Time Including Queue Per Cycle (successful builds)`;
+    public readonly Title: string = `Build Time From Queue Per Cycle`;
 }

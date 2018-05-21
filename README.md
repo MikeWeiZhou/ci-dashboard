@@ -9,17 +9,20 @@ BCIT ISSP 2018 spring project - ***REMOVED*** CI Dashboard
 5. NPM Commands
 6. Directory Structure
 7. Included Documentations
+8. React app
 
-## 0. Prototype Update (Sun May 20, 2018 9:00 AM)
+## 0. Prototype Update (Sun May 21, 2018 9:00 AM)
 
 Since the last prototype:
 
-* Refined UI and added moving average period display
+* Implemented refresh, auto update, and auto play (cycles through tabs) features for React app
+* Fixed all loading issues for front-end and made various styling and responsiveness tweaks
 * Made KPI mappers more consistent in the code and in the view
 * Better in-code comments of existing KPI mappers so they can serve as templates
 * More documentation on how to add KPI mappers
 * Bug fixes to both front- and back-end
 * By default, the python date range sent only has the year-month-date, but it can be set to send the hour-minute-seconds as well in the config.js dateformat.python property
+* Added config file for React app (note that due to create-react-app default restrictions, the config file path is react-app/src/config.react.js)
 
 There has been major changes including database schema update since last prototype, run command **npm run reset-all** to drop database tables and re-setup everything.
 
@@ -30,13 +33,19 @@ There has been major changes including database schema update since last prototy
 
 ## 2. Configuration Files
 
-The "config" directory contains configuration settings for the CI Dashbaord. A restart of the server must be completed before changes will take effect. Re-compilation/re-building code is not necessary.
+The "config" directory contains configuration settings for the CI Dashbaord back-end. A restart of the server must be completed before changes will take effect. Re-compilation/re-building code is not necessary.
 
 * **config.js** pipeline, web server, error logging, date formats
 * **config.db.js** database connection, table names
 * **kpi.js** KPI goals and moving average settings
 * **schedules.js** data collection scheduling
 * **sqlqueries.js** required for setting up and updating database
+
+The **react-app/src/config.react.js** file contains the following settings for the React front-end:
+* Date range "all" start date
+* Auto update timer interval
+* Enable/disable auto play (cycle through tabs) on app launch
+* Auto play timer interval
 
 ## 3. KPI Chart Logic
 
@@ -96,3 +105,8 @@ The folder "docs" includes these documentations:
 * How To Setup And Run Dashboard
 * How To Add Data Source
 * How To Add KPI Chart
+
+## 8. React app
+
+The dashboard is able to display additional charts per row by decreasing the zoom level.
+The React front-end is built responsively and will resize the menu bar to accomodate smaller zoom levels.
