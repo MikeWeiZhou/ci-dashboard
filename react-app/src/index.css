@@ -10,7 +10,15 @@ body {
   margin-top: 0.5em;
 }
 
+#movAvg {
+  margin-left: 1em;
+}
+
 #dateSelectionButtons > .btn {
+  margin: 0.5em 0.5em;
+}
+
+#dateControlButtons > .btn {
   margin: 0.5em 0.5em;
 }
 
