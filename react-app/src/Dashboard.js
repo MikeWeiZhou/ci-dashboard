@@ -1,14 +1,19 @@
 import React, { Component } from "react";
 import Category from "./Category";
+import $ from 'jquery';
+import config_dashboard from './config.react';
 
 class Dashboard extends Component {
   state = {
     categories: {},
   };
 
+  autoplayTabsOn = config_dashboard.auto_play_tabs_on_load;
+
   // Called after component is mounted
   componentDidMount() {
-    this.requestKPICategories();    
+    this.requestKPICategories();
+    this.tabCycleOnLoad();  
   }
   
   render() {
@@ -51,48 +56,52 @@ class Dashboard extends Component {
 
     return (
       <div id="app">
-        <div className="row d-flex justify-content-around">
-          <ul className="nav nav-pills" id="tablist">
-            {categoryList}
-          </ul>
-          <div className="align-self-center" id="movAvg">Moving average period: {this.props.movAvgPeriod} days</div>    
-        </div>
-
-        <div className="row d-flex justify-content-around">        
-          <div className="btn-group btn-group-toggle" id="dateSelectionButtons" data-toggle="buttons">
-            <label className="btn btn-outline-primary active" onClick={() => this.props.setDateRange_by_day(7)}>
-              <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option1" defaultChecked={true} />7d
-            </label>
-            <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_by_day(14)}>
-              <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option1" />14d
-            </label>
-            <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_by_month(1)}>
-              <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option2" />1m
-            </label>
-            <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_by_month(3)}>
-              <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option2" />3m
-            </label>
-            <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_by_month(6)}>
-              <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option3" />6m
-            </label>
-            <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_by_year(1)}>
-              <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option4" />1y
-            </label>
-            <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_by_year(5)}>
-              <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option5" />5y
-            </label>
-            <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_ytd()}>
-              <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option6" />ytd
-            </label>
-            <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_all()}>
-              <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option7" />all
-            </label>
+        <div className="container" id="menu">
+          <div className="row d-flex justify-content-between">
+            <ul className="nav nav-pills" id="tablist">
+              {categoryList}
+            </ul>
+            <div className="align-self-center" id="movAvg">Moving average period: {this.props.movAvgPeriod} days</div>    
           </div>
-          <div id="dateControlButtons">
-            <button type="button" className="btn btn-primary" onClick={() => this.props.triggerUpdate()}>Refresh</button>
-            <button type="button" className="btn btn-outline-success active" data-toggle="button" onClick={() => this.props.triggerAutoUpdate()}>{autoUpdateStatus}</button>
+          <div className="row d-flex justify-content-between">        
+            <div className="btn-group btn-group-toggle" id="dateSelectionButtons" data-toggle="buttons">
+              <label className="btn btn-outline-primary active" onClick={() => this.props.setDateRange_by_day(7)}>
+                <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option1" defaultChecked={true} />7d
+              </label>
+              <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_by_day(14)}>
+                <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option1" />14d
+              </label>
+              <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_by_month(1)}>
+                <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option2" />1m
+              </label>
+              <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_by_month(3)}>
+                <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option2" />3m
+              </label>
+              <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_by_month(6)}>
+                <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option3" />6m
+              </label>
+              <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_by_year(1)}>
+                <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option4" />1y
+              </label>
+              <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_by_year(5)}>
+                <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option5" />5y
+              </label>
+              <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_ytd()}>
+                <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option6" />ytd
+              </label>
+              <label className="btn btn-outline-primary" onClick={() => this.props.setDateRange_all()}>
+                <input type="radio" className="btn btn-outline-primary" name="dateRange" id="option7" />all
+              </label>
+            </div>
+            <div id="dateControlButtons">
+              <button type="button" className="btn btn-primary" onClick={() => this.props.triggerUpdate()}>Refresh</button>
+              <button type="button" className="btn btn-outline-success active" data-toggle="button" onClick={() => this.props.triggerAutoUpdate()}>
+                {autoUpdateStatus}
+              </button>
+              <button type="button" className="btn btn-outline-secondary" id="tabCycle" onClick={() => this.tabCycleButtonHandler()} />
+            </div>
           </div>
-        </div>        
+        </div>     
         <div className="tab-content">
           {categoryPanes}
         </div>
@@ -124,6 +133,40 @@ class Dashboard extends Component {
       }
     } catch (error) {
       console.log(error.message);      
+    }
+  }
+
+  tabChange() {
+    var active = $('.nav-pills > li > a').filter('.active');
+    var next = active.parent('li').next('li').find('a').length ? active.parent('li').next('li').find('a') : $('.nav-pills > li:first-child > a');  
+    next.tab('show');
+  }
+
+  tabCycleButtonHandler() {
+    var button = $('#tabCycle');
+
+    if (this.autoplayTabsOn) {
+      this.autoplayTabsOn = false;
+      button.removeClass('active');
+      button.text('Auto Play: OFF');
+      clearInterval(this.tabTimer);      
+    } else {
+      this.autoplayTabsOn = true;
+      button.addClass('active');
+      button.text('Auto Play: ON');
+      this.tabTimer = setInterval(this.tabChange, config_dashboard.auto_play_next_tab_timer);  
+    }
+  }
+
+  tabCycleOnLoad() {
+    var button = $('#tabCycle');
+
+    if (this.autoplayTabsOn) {
+      button.addClass('active');
+      button.text('Auto Play: ON');
+      this.tabTimer = setInterval(this.tabChange, config_dashboard.auto_play_next_tab_timer);        
+    } else {
+      button.text('Auto Play: OFF');
     }
   }
 }

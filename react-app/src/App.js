@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Dashboard from "./Dashboard";
+import config_dashboard from './config.react';
 
 class App extends Component {
   constructor(props) {
@@ -16,12 +17,6 @@ class App extends Component {
     
     // Temp end date for demo
     this.tempEndDate = new Date(2018, 3, 1);
-
-    // Start date for date range "all"
-    this.date_range_all_startDate = "2017-01-01";
-
-    // Auto update timer interval (in milliseconds)
-    this.timerInterval = 1000 * 60 * 60;  // One hour
     
     // Bind functions to class
     this.setDateRange_by_day = this.setDateRange_by_day.bind(this);
@@ -37,7 +32,7 @@ class App extends Component {
   componentDidMount() {
     this.setDateRange_by_day(7); // Default date range when app is loaded
     if (this.state.autoUpdate) {
-      this.updateTimer = setInterval(this.triggerUpdate, this.timerInterval);
+      this.updateTimer = setInterval(this.triggerUpdate, config_dashboard.auto_update_interval);
     }
   }
 
@@ -154,7 +149,7 @@ class App extends Component {
   setDateRange_all() {
     // var end = new Date();
     var end = this.tempEndDate;    
-    var start = this.date_range_all_startDate;
+    var start = config_dashboard.date_range_all_startDate;
     this.setState({startDate: start, endDate: end.toDateString(), movAvgPeriod: null});
   }
 
@@ -168,7 +163,7 @@ class App extends Component {
       clearInterval(this.updateTimer);
     } else {
       this.setState({ autoUpdate: true });
-      this.updateTimer = setInterval(this.triggerUpdate, this.timerInterval); 
+      this.updateTimer = setInterval(this.triggerUpdate, config_dashboard.auto_update_interval); 
     }
   }
 }
