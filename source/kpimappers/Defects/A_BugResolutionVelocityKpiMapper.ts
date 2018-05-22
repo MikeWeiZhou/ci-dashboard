@@ -53,12 +53,14 @@ export class A_BugResolutionVelocityKpiMapper extends KpiMapper
         return [
             // Major Bugs Resolved Velocity
             `
+                WITH DAILY_MAJOR_BUGS_RESOLVED
+                    AS ${dailyMajorBugsResolvedSubquery}
                 SELECT D1.DATE AS 'DATE'
                       ,IFNULL(SUM(T2.BUGS_RESOLVED), 0)/${movingAveragePeriod} AS 'AVG_VALUE'
                 FROM ${generateDatesSubquery} D1
-                  LEFT JOIN ${dailyMajorBugsResolvedSubquery} T1
+                  LEFT JOIN DAILY_MAJOR_BUGS_RESOLVED T1
                     ON T1.RESOLUTION_DATE = D1.DATE
-                  LEFT JOIN ${dailyMajorBugsResolvedSubquery} T2
+                  LEFT JOIN DAILY_MAJOR_BUGS_RESOLVED T2
                     ON T2.RESOLUTION_DATE BETWEEN
                        DATE_SUB(D1.DATE, INTERVAL ${nPrevDays} DAY) AND D1.DATE
                 WHERE D1.DATE BETWEEN '${from}' AND '${to}'
@@ -67,12 +69,14 @@ export class A_BugResolutionVelocityKpiMapper extends KpiMapper
             `,
             // Critical Bugs Resolved Velocity
             `
+                WITH DAILY_CRITICAL_BUGS_RESOLVED
+                    AS ${dailyCriticalBugsResolvedSubquery}
                 SELECT D1.DATE AS 'DATE'
                       ,IFNULL(SUM(T2.BUGS_RESOLVED), 0)/${movingAveragePeriod} AS 'AVG_VALUE'
                 FROM ${generateDatesSubquery} D1
-                  LEFT JOIN ${dailyCriticalBugsResolvedSubquery} T1
+                  LEFT JOIN DAILY_CRITICAL_BUGS_RESOLVED T1
                     ON T1.RESOLUTION_DATE = D1.DATE
-                  LEFT JOIN ${dailyCriticalBugsResolvedSubquery} T2
+                  LEFT JOIN DAILY_CRITICAL_BUGS_RESOLVED T2
                     ON T2.RESOLUTION_DATE BETWEEN
                        DATE_SUB(D1.DATE, INTERVAL ${nPrevDays} DAY) AND D1.DATE
                 WHERE D1.DATE BETWEEN '${from}' AND '${to}'

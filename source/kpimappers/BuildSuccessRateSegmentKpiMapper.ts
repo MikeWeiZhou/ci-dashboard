@@ -69,10 +69,12 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
         return [
             // Overall
             `
+                WITH DAILY_AVG_SUCCESS_RATE
+                    AS ${dailyAvgSuccessRateSubquery}
                 SELECT T1.BUILD_DATE AS 'DATE'
                       ,AVG(T2.AVG_SUCCESS_RATE) AS 'AVG_SUCCESS_RATE'
-                FROM ${dailyAvgSuccessRateSubquery} T1
-                LEFT JOIN ${dailyAvgSuccessRateSubquery} T2
+                FROM DAILY_AVG_SUCCESS_RATE T1
+                LEFT JOIN DAILY_AVG_SUCCESS_RATE T2
                   ON T2.BUILD_DATE BETWEEN
                      DATE_SUB(T1.BUILD_DATE, INTERVAL ${nPrevDays} DAY) AND T1.BUILD_DATE
                 WHERE T1.BUILD_DATE BETWEEN '${from}' AND '${to}'
@@ -81,14 +83,16 @@ export abstract class BuildSuccessRateSegmentKpiMapper extends KpiMapper
             `,
             // Segment split by this.groupByColumn
             `
+                WITH DAILY_AVG_SUCCESS_RATE_GROUPED
+                    AS ${dailyAvgSuccessRateGroupedSubquery}
                 SELECT T1.BUILD_DATE AS 'DATE'
                       ,CASE WHEN COUNT(T2.BUILD_DATE) < ${minPrevDayData}
                             THEN NULL
                             ELSE AVG(T2.AVG_SUCCESS_RATE)
                             END AS 'AVG_SUCCESS_RATE'
                       ,T1.${this.groupByColumn} AS '${this.groupByColumn}'
-                FROM ${dailyAvgSuccessRateGroupedSubquery} T1
-                LEFT JOIN ${dailyAvgSuccessRateGroupedSubquery} T2
+                FROM DAILY_AVG_SUCCESS_RATE_GROUPED T1
+                LEFT JOIN DAILY_AVG_SUCCESS_RATE_GROUPED T2
                   ON
                     (
                         T2.BUILD_DATE BETWEEN

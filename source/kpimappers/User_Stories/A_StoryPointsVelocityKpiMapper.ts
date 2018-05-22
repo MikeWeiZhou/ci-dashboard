@@ -44,12 +44,14 @@ export class A_StoryPointsVelocityKpiMapper extends KpiMapper
             GROUP BY RESOLUTION_DATE
         )`;
         return [`
+            WITH DAILY_AVG_STORY_POINTS
+                AS ${dailyAvgStoryPointsSubquery}
             SELECT D1.DATE AS 'DATE'
                   ,IFNULL(SUM(T2.AVG_STORY_POINTS), 0)/${movingAveragePeriod} AS 'AVG_STORY_POINTS'
             FROM ${generateDatesSubquery} D1
-              LEFT JOIN ${dailyAvgStoryPointsSubquery} T1
+              LEFT JOIN DAILY_AVG_STORY_POINTS T1
                 ON T1.RESOLUTION_DATE = D1.DATE
-              LEFT JOIN ${dailyAvgStoryPointsSubquery} T2
+              LEFT JOIN DAILY_AVG_STORY_POINTS T2
                 ON T2.RESOLUTION_DATE BETWEEN
                    DATE_SUB(D1.DATE, INTERVAL ${nPrevDays} DAY) AND D1.DATE
             WHERE D1.DATE BETWEEN '${from}' AND '${to}'
