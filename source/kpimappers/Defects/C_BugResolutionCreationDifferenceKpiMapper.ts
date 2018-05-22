@@ -79,14 +79,12 @@ export class C_BugResolutionCreationDifferenceKpiMapper extends KpiMapper
         return [
             // Major Bugs Resolved-Created Difference
             `
-                WITH DAILY_MAJOR_DIFFERENCE
-                    AS ${dailyMajorDifferenceSubquery}
                 SELECT D1.DATE AS 'DATE'
                       ,IFNULL(SUM(T2.DAILY_DIFFERENCE), 0)/${movingAveragePeriod} AS 'AVG_VALUE'
                 FROM ${generateDatesSubquery} D1
-                  LEFT JOIN DAILY_MAJOR_DIFFERENCE T1
+                  LEFT JOIN ${dailyMajorDifferenceSubquery} T1
                     ON T1.DATE = D1.DATE
-                  LEFT JOIN DAILY_MAJOR_DIFFERENCE T2
+                  LEFT JOIN ${dailyMajorDifferenceSubquery} T2
                     ON T2.DATE BETWEEN
                        DATE_SUB(D1.DATE, INTERVAL ${nPrevDays} DAY) AND D1.DATE
                 WHERE D1.DATE BETWEEN '${from}' AND '${to}'
@@ -95,14 +93,12 @@ export class C_BugResolutionCreationDifferenceKpiMapper extends KpiMapper
             `,
             // Critical Bugs Resolved-Created Difference
             `
-                WITH DAILY_CRITICAL_DIFFERENCE
-                    AS ${dailyCriticalDifferenceSubquery}
                 SELECT D1.DATE AS 'DATE'
                       ,IFNULL(SUM(T2.DAILY_DIFFERENCE), 0)/${movingAveragePeriod} AS 'AVG_VALUE'
                 FROM ${generateDatesSubquery} D1
-                  LEFT JOIN DAILY_CRITICAL_DIFFERENCE T1
+                  LEFT JOIN ${dailyCriticalDifferenceSubquery} T1
                     ON T1.DATE = D1.DATE
-                  LEFT JOIN DAILY_CRITICAL_DIFFERENCE T2
+                  LEFT JOIN ${dailyCriticalDifferenceSubquery} T2
                     ON T2.DATE BETWEEN
                        DATE_SUB(D1.DATE, INTERVAL ${nPrevDays} DAY) AND D1.DATE
                 WHERE D1.DATE BETWEEN '${from}' AND '${to}'

@@ -46,12 +46,10 @@ export class F_DaysToResolutionMajorKpiMapper extends KpiMapper
         return [
             // Major Bugs Resolved Velocity
             `
-                WITH DAILY_MAJOR_BUGS_RESOLVED
-                    AS ${dailyMajorBugsResolvedSubquery}
                 SELECT T1.RESOLUTION_DATE AS 'DATE'
                       ,AVG(T2.AVG_DAYS_TO_FIX) AS 'AVG_VALUE'
-                FROM DAILY_MAJOR_BUGS_RESOLVED T1
-                  LEFT JOIN DAILY_MAJOR_BUGS_RESOLVED T2
+                FROM ${dailyMajorBugsResolvedSubquery} T1
+                  LEFT JOIN ${dailyMajorBugsResolvedSubquery} T2
                     ON T2.RESOLUTION_DATE BETWEEN
                        DATE_SUB(T1.RESOLUTION_DATE, INTERVAL ${nPrevDays} DAY) AND T1.RESOLUTION_DATE
                 WHERE T1.RESOLUTION_DATE BETWEEN '${from}' AND '${to}'

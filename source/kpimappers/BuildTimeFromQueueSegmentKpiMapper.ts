@@ -69,12 +69,10 @@ export abstract class BuildTimeFromQueueSegmentKpiMapper extends KpiMapper
         return [
             // Overall
             `
-                WITH DAILY_AVG_BUILD_TIME
-                    AS ${dailyAvgBuildTimeSubquery}
                 SELECT T1.BUILD_DATE AS 'DATE'
                       ,AVG(T2.AVG_BUILD_TIME) AS 'AVG_BUILD_TIME'
-                FROM DAILY_AVG_BUILD_TIME T1
-                LEFT JOIN DAILY_AVG_BUILD_TIME T2
+                FROM ${dailyAvgBuildTimeSubquery} T1
+                LEFT JOIN ${dailyAvgBuildTimeSubquery} T2
                   ON T2.BUILD_DATE BETWEEN
                      DATE_SUB(T1.BUILD_DATE, INTERVAL ${nPrevDays} DAY) AND T1.BUILD_DATE
                 WHERE T1.BUILD_DATE BETWEEN '${from}' AND '${to}'
@@ -83,16 +81,14 @@ export abstract class BuildTimeFromQueueSegmentKpiMapper extends KpiMapper
             `,
             // Segment split by this.groupByColumn
             `
-                WITH DAILY_AVG_BUILD_TIME_GROUPED
-                    AS ${dailyAvgBuildTimeGroupedSubquery}
                 SELECT T1.BUILD_DATE AS 'DATE'
                       ,CASE WHEN COUNT(T2.BUILD_DATE) < ${minPrevDayData}
                             THEN NULL
                             ELSE AVG(T2.AVG_BUILD_TIME)
                             END AS 'AVG_BUILD_TIME'
                       ,T1.${this.groupByColumn} AS '${this.groupByColumn}'
-                FROM DAILY_AVG_BUILD_TIME_GROUPED T1
-                LEFT JOIN DAILY_AVG_BUILD_TIME_GROUPED T2
+                FROM ${dailyAvgBuildTimeGroupedSubquery} T1
+                LEFT JOIN ${dailyAvgBuildTimeGroupedSubquery} T2
                   ON
                     (
                         T2.BUILD_DATE BETWEEN
