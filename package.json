@@ -20,7 +20,11 @@
     "react": "node copyreactconfig && npm run --prefix react-app start",
     "-------------------------------------------------------------------------/////": "",
     "test": "npm run build-back && mocha build/unittests/**/*.js",
-    "dev": "npm run build-back && npm run start"
+    "dev": "npm run build-back && npm run start",
+    "------------------------------------------------------------------------,/////": "",
+    "demo-new": "node demo_new && npm run dev",
+    "demo-update": "node demo_update && npm run start",
+    "demo-reset": "node demo_reset && git checkout -- config/schedules.js && npm run build-back"
   },
   "author": "Johnny Lee, Elisa Chu, Tony So, Mike Zhou",
   "homepage": "https://bitbucket.org/tsungyulee/kpi-dashboard#readme",
