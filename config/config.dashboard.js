@@ -15,6 +15,9 @@ config_dashboard = {
     // Start date for date range "all"
     date_range_all_startDate: "2017-01-01",
 
+    // Auto update on/off state on app launch
+    auto_update_on_load: true,
+
     // Auto update timer interval (in milliseconds)
     auto_update_interval: 1000 * 60 * 60,
 
