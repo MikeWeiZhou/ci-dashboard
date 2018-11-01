@@ -14,7 +14,10 @@ class App extends Component {
       updateDashboard: false,
       autoUpdate: config_dashboard.auto_update_on_load
     };
-        
+    
+    // Temp end date for demo
+    this.tempEndDate = new Date(2018, 3, 1);
+    
     // Bind functions to class
     this.setDateRange_by_day = this.setDateRange_by_day.bind(this);
     this.setDateRange_by_month = this.setDateRange_by_month.bind(this);
@@ -101,45 +104,55 @@ class App extends Component {
   }
 
   setDateRange_by_day(day) {
-    var end = new Date();
-    var start = new Date();
+    // var end = new Date();
+    // var start = new Date();
+
+    var end = this.tempEndDate;
+    var start = new Date(end.toDateString());
+    
     start.setDate(start.getDate() - (day - 1));
     this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
   }
 
   setDateRange_by_month(month) {
-    var end = new Date(); 
-    var start = new Date();
+    // var end = new Date(); 
+    // var start = new Date();
+
+    var end = this.tempEndDate;
+    var start = new Date(end.toDateString());
+
     start.setMonth(start.getMonth() - month);
     this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
   }
 
   setDateRange_by_year(year) {
-    var end = new Date();   
-    var start = new Date();
+    // var end = new Date();   
+    // var start = new Date();
+
+    var end = this.tempEndDate;
+    var start = new Date(end.toDateString());
+
     start.setFullYear(start.getFullYear() - year);
     this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
   }
 
   setDateRange_ytd() {
-    var end = new Date();
-    var start = new Date();
+    // var end = new Date();
+    // var start = new Date();
+
+    var end = this.tempEndDate;
+    var start = new Date(end.toDateString());
+
     start.setMonth(0);
     start.setDate(1);
     this.setState({startDate: start.toDateString(), endDate: end.toDateString(), movAvgPeriod: null});
   }
 
   setDateRange_all() {
-<<<<<<< HEAD
-    var end = new Date();  
-    var start = config_dashboard.date_range_all_startDate;
-    this.setState({startDate: start, endDate: end.toDateString(), movAvgPeriod: null});
-=======
     // var end = new Date();
     var end = "end";    
     var start = "start";
     this.setState({startDate: start, endDate: end, movAvgPeriod: null});
->>>>>>> develop
   }
 
   triggerUpdate() {
