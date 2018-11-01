@@ -24,7 +24,7 @@ config.pipeline =
 
 config.webserver =
 {
-    port:               80,
+    port:               process.env.PORT || 8080, // process.env.PORT required by Google AppEngine
     public_directory:   __dirname.replace(/\\/g, '/').replace(/\/[\w-]+$/, '') + "/react-app/build"
 };
 
