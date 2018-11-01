@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ## **This repository was manually copied from an existing private repository to protect confidential files. Therefore, the commit history has been cleaned with BFG Repo-Cleaner (https://rtyley.github.io/bfg-repo-cleaner/).**
+=======
+## **The commit history has been cleaned with BFG Repo-Cleaner to hide confidential information.**
+>>>>>>> master
 
 # KPI Visualizations
 
