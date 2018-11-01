@@ -1,4 +1,4 @@
-## **This repository was manually copied from an existing private repository to protect confidential files. Therefore, the commit history is lost.**
+## **The commit history has been cleaned with BFG Repo-Cleaner to hide confidential information.**
 
 # KPI Visualizations
 
