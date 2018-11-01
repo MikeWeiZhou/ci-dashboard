@@ -1,6 +1,6 @@
 {
   "name": "cidashboard",
-  "description": "Key Performance Indicator Visualizations Dashboard for ***REMOVED*** Inc.",
+  "description": "KPI Visualizations",
   "version": "1.0.0",
   "scripts": {
     "reset-all": "node build/scripts/dropdb && npm run setup",
