@@ -45,10 +45,10 @@ export class QaBuildsAndRunsFromBambooDataInterface implements IDataInterface
     // Product Code : Product Name
     private readonly _productName: object =
     {
-        "FX": "***REMOVED***",
-        "MX": "***REMOVED***",
-        "DX": "***REMOVED***",
-        "IC": "***REMOVED***"
+        "FX": "PowerPoint",
+        "MX": "Excel",
+        "DX": "Word",
+        "IC": "SharePoint"
     };
 
     /**
